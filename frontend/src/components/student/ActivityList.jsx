@@ -203,7 +203,7 @@ const ActivityList = ({ user, token }) => {
                         {visibleFiles[activity.id] && (
                           <div className="mt-2">
                             <a
-                              href={`http://localhost:5000/${activity.filePath.replace(/^uploads\//, 'uploads/')}`}
+                              href={activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 underline text-sm hover:text-blue-800 transition-colors"

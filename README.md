@@ -74,7 +74,7 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 - **PostgreSQL** (Supabase) for production
 - **SQLite** for local development
 - **JWT** authentication
-- **Google Drive** for file storage (2TB!)
+- **Cloudinary** for file storage (25GB with CDN)
 - **Multer** for file uploads
 - **Helmet** & **CORS** for security
 - **Rate limiting** for API protection
@@ -138,7 +138,7 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 Frontend → Vercel (Free)
 Backend  → Render (Free)
 Database → Supabase PostgreSQL (500MB Free)
-Storage  → Google Drive (2TB!)
+Storage  → Cloudinary CDN (25GB Free)
 ```
 
 **Total Cost: $0/month**
@@ -147,7 +147,7 @@ Storage  → Google Drive (2TB!)
 
 See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete step-by-step instructions including:
 - Supabase PostgreSQL setup
-- Google Drive API configuration
+- Cloudinary CDN configuration
 - Render backend deployment
 - Vercel frontend deployment
 - Environment variables
@@ -172,9 +172,10 @@ JWT_EXPIRES_IN=24h
 DB_NAME=smart_student_hub.db
 DATABASE_URL=postgresql://postgres:password@db.xxxxx.supabase.co:5432/postgres
 
-# Google Drive (Production only)
-GOOGLE_DRIVE_FOLDER_ID=your-folder-id
-GOOGLE_DRIVE_CREDENTIALS={"type":"service_account"...}
+# Cloudinary (Production file storage)
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
 
 # CORS
 ALLOWED_ORIGINS=http://localhost:5173,https://your-app.vercel.app

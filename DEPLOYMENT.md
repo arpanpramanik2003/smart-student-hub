@@ -1,5 +1,5 @@
 # 🚀 Complete Deployment Guide
-## Smart Student Hub - Render + Supabase + Google Drive
+## Smart Student Hub - Render + Supabase + Cloudinary
 
 Step-by-step guide to deploy your application with production-grade infrastructure.
 
@@ -9,7 +9,7 @@ Step-by-step guide to deploy your application with production-grade infrastructu
 1. [Prerequisites](#prerequisites)
 2. [Architecture Overview](#architecture-overview)
 3. [Step 1: Supabase Setup](#step-1-supabase-postgresql-setup)
-4. [Step 2: Google Drive Setup](#step-2-google-drive-setup)
+4. [Step 2: Cloudinary Setup](#step-2-cloudinary-setup)
 5. [Step 3: Deploy Backend (Render)](#step-3-deploy-backend-to-render)
 6. [Step 4: Deploy Frontend (Vercel)](#step-4-deploy-frontend-to-vercel)
 7. [Step 5: Testing](#step-5-post-deployment-testing)
@@ -24,9 +24,9 @@ Step-by-step guide to deploy your application with production-grade infrastructu
 ✅ Vercel account (sign up at vercel.com)  
 ✅ Render account (sign up at render.com)  
 ✅ Supabase account (sign up at supabase.com)  
-✅ Google account with Drive access  
+✅ Cloudinary account (sign up at cloudinary.com)  
 
-**Estimated Time:** 45 minutes  
+**Estimated Time:** 30 minutes  
 **Total Cost:** $0/month (all free tiers)
 
 ---
@@ -47,9 +47,9 @@ Step-by-step guide to deploy your application with production-grade infrastructu
      │            │
      ↓            ↓
 ┌──────────┐  ┌────────────┐
-│ Supabase │  │   Google   │
-│PostgreSQL│  │   Drive    │
-│ 500MB    │  │   2TB      │
+│ Supabase │  │ Cloudinary │
+│PostgreSQL│  │   CDN      │
+│ 500MB    │  │   25GB     │
 └──────────┘  └────────────┘
 ```
 
@@ -102,86 +102,58 @@ SELECT version();
 
 ---
 
-## 📁 Step 2: Google Drive Setup
+## ☁️ Step 2: Cloudinary Setup
 
-### 2.1 Create Google Cloud Project
+### 2.1 Create Cloudinary Account
 
-1. **Go to Google Cloud Console**
-   - Visit: https://console.cloud.google.com
-   - Click "New Project"
+1. **Go to Cloudinary**
+   - Visit: https://cloudinary.com/users/register_free
+   - Sign up with email or Google account
+
+2. **Verify Email**
+   - Check your inbox
+   - Click verification link
+   - Complete setup
+
+### 2.2 Get API Credentials
+
+1. **Go to Dashboard**
+   - After login, you'll see the Dashboard
+   - Look for "Product Environment Credentials" section
+
+2. **Copy Credentials**
+   ```
+   Cloud Name: [visible directly]
+   API Key: [visible directly]
+   API Secret: [click "Reveal" icon to show]
+   ```
+
+3. **✅ Save These Values**
+   ```
+   CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+   CLOUDINARY_API_KEY=<your-api-key>
+   CLOUDINARY_API_SECRET=<your-api-secret>
+   ```
+
+### 2.3 Configure Upload Settings (Optional)
+
+1. **Go to Settings → Upload**
+   - Set max file size: 10 MB
+   - Enable unsigned uploads: No (we use signed uploads)
+   - Auto-backup: Enable (recommended)
+
+2. **Create Upload Folder**
+   - Go to Media Library
+   - Click "Create Folder"
    - Name: `smart-student-hub`
-   - Click "Create" (wait 30 seconds)
+   - This will store all uploaded files
 
-2. **Enable Google Drive API**
-   - Search: "Google Drive API"
-   - Click "Enable"
-   - Wait for activation (~1 minute)
-
-### 2.2 Create Service Account
-
-1. **Navigate to Service Accounts**
-   - Left menu → IAM & Admin → Service Accounts
-   - Click "+ Create Service Account"
-
-2. **Create Account**
-   ```
-   Name: drive-uploader
-   Description: Service account for file uploads
-   
-   Click "Create and Continue"
-   Skip role assignment → Click "Continue"
-   Skip user access → Click "Done"
-   ```
-
-3. **Create JSON Key**
-   - Click on the service account you created
-   - Go to "Keys" tab
-   - Click "Add Key" → "Create new key"
-   - Select: **JSON**
-   - Click "Create"
-   - **File downloads automatically - SAVE IT!**
-
-4. **Copy Service Account Email**
-   ```
-   Format: drive-uploader@smart-student-hub-xxxxx.iam.gserviceaccount.com
-   ✅ You'll need this in next step!
-   ```
-
-### 2.3 Create Google Drive Folder
-
-1. **Go to Google Drive**
-   - Visit: https://drive.google.com
-   - Click "+ New" → "Folder"
-   - Name: `SmartStudentHub-Uploads`
-   - Click "Create"
-
-2. **Get Folder ID**
-   ```
-   Open folder → Look at URL:
-   https://drive.google.com/drive/folders/1aBcDeFgHiJkLmNoPqRsTuVwXyZ
-   
-   Copy the part after /folders/
-   Example: 1aBcDeFgHiJkLmNoPqRsTuVwXyZ
-   
-   ✅ This is your GOOGLE_DRIVE_FOLDER_ID
-   ```
-
-3. **Share Folder with Service Account**
-   ```
-   Right-click folder → "Share"
-   Paste service account email from Step 2.2.4
-   Role: Editor
-   Uncheck "Notify people"
-   Click "Share"
-   
-   ✅ This allows the service account to upload files!
-   ```
-
-### 2.4 Prepare Credentials JSON
-
-1. **Open downloaded JSON file**
-2. **Copy entire contents** (starts with `{` ends with `}`)
-3. **✅ Keep ready for Render environment variables**
+**Free Tier Includes:**
+- 25 GB storage
+- 25 GB bandwidth/month
+- 25,000 transformations/month
+- Automatic CDN delivery
+- HTTPS URLs by default
 
 ---
 
@@ -222,15 +194,20 @@ Click "Advanced" → Scroll to "Environment Variables" → Add these:
 | `JWT_EXPIRES_IN` | `24h` | - |
 | `DATABASE_URL` | Your Supabase connection string | From Step 1.2 |
 | `ALLOWED_ORIGINS` | `https://your-app.vercel.app` | Update after frontend deploy |
-| `GOOGLE_DRIVE_FOLDER_ID` | Your folder ID | From Step 2.3.2 |
-| `GOOGLE_DRIVE_CREDENTIALS` | Entire JSON from service account | From Step 2.4 |
+| `CLOUDINARY_CLOUD_NAME` | Your cloud name | From Step 2.2 |
+| `CLOUDINARY_API_KEY` | Your API key | From Step 2.2 |
+| `CLOUDINARY_API_SECRET` | Your API secret | From Step 2.2 |
+| `ADMIN_RESET_CODE` | Generate random string* | See command below |
 
 **Generate JWT_SECRET:**
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-**Note:** For `GOOGLE_DRIVE_CREDENTIALS`, paste the entire JSON content. Render accepts multi-line JSON.
+**Generate ADMIN_RESET_CODE:**
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
 ### 3.3 Deploy
 
@@ -240,20 +217,29 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 ### 3.4 Create Admin Account
 
-1. **Go to Shell**
-   - Render Dashboard → Your service → "Shell" tab
+For security, this system does NOT auto-create a default admin. You must create it manually using a secure endpoint.
 
-2. **Run Admin Script**
-   ```bash
-   npm run create-admin
+1. **Open PowerShell/Terminal**
+
+2. **Run this command:**
+   ```powershell
+   Invoke-RestMethod -Uri "https://smart-student-hub-api.onrender.com/api/auth/admin-password-reset" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"confirmCode":"YOUR_ADMIN_RESET_CODE","newUsername":"admin@yourdomain.com","newPassword":"SecurePassword123!"}'
    ```
 
-3. **Follow Prompts**
-   ```
-   Name: Your Name
-   Email: admin@yourdomain.com
-   Password: [8+ chars, uppercase, lowercase, number, special char]
-   ```
+3. **Replace values:**
+   - `YOUR_ADMIN_RESET_CODE`: The value you set in Step 3.2
+   - `admin@yourdomain.com`: Your admin email
+   - `SecurePassword123!`: Your secure password (8+ chars)
+
+**Success response:**
+```json
+{
+  "message": "Admin user created successfully",
+  "username": "admin@yourdomain.com"
+}
+```
+
+See [ADMIN_GUIDE.md](ADMIN_GUIDE.md) for detailed security instructions.
 
 ### 3.5 Test Backend
 
@@ -266,7 +252,7 @@ https://smart-student-hub-api.onrender.com/api/health
   "status": "ok",
   "timestamp": "2025-11-16T...",
   "database": "connected",
-  "storage": "google-drive"
+  "storage": "cloudinary"
 }
 ```
 
@@ -335,7 +321,7 @@ Expected response:
   "status": "ok",
   "timestamp": "2025-11-16T12:00:00.000Z",
   "database": "connected",
-  "storage": "google-drive"
+  "storage": "cloudinary"
 }
 ```
 
@@ -365,9 +351,9 @@ Expected response:
 ### 5.3 Test File Upload
 
 1. **Login as student**
-2. **Go to Profile**
-3. **Upload avatar image**
-4. **Check Google Drive folder** - file should appear
+2. **Submit an activity with certificate**
+3. **Click "View Document"** - should open Cloudinary URL
+4. **Check Cloudinary Dashboard** → Media Library → `smart-student-hub` folder
 
 ### 5.4 Test Database
 
@@ -393,18 +379,18 @@ Expected response:
 ✅ Check SSL is enabled (default in Supabase)
 ```
 
-### Google Drive Upload Failed
+### Cloudinary Upload Failed
 
-**Error:** `Could not load credentials`
+**Error:** `Upload failed` or `Invalid signature`
 
 **Solutions:**
 ```bash
-✅ Verify GOOGLE_DRIVE_CREDENTIALS is valid JSON
-✅ Check service account has permission (Editor role)
-✅ Ensure Google Drive API is enabled
-✅ Verify folder is shared with service account email
-✅ Check GOOGLE_DRIVE_FOLDER_ID is correct
-✅ Wait 5 minutes after sharing for permissions to sync
+✅ Verify all 3 Cloudinary env vars are set correctly
+✅ Check API Secret is revealed (not hidden)
+✅ Ensure Cloud Name matches your dashboard
+✅ Test credentials in Cloudinary Dashboard → Settings
+✅ Check file size is under 10MB
+✅ Verify Cloudinary account is active (not suspended)
 ```
 
 ### CORS Error
@@ -471,10 +457,10 @@ Solutions:
 | **Vercel** | 100 GB bandwidth/month | $20/month (1 TB) |
 | **Render** | 750 hours/month | $7/month (always-on) |
 | **Supabase** | 500 MB database, 2 GB bandwidth | $25/month (8 GB DB) |
-| **Google Drive** | 2 TB (your existing quota) | $9.99/month (2 TB) |
+| **Cloudinary** | 25 GB storage, 25 GB bandwidth | $99/month (100 GB) |
 
 **Total for small app:** $0/month  
-**Estimated at scale (1000 users):** $50-100/month
+**Estimated at scale (1000 users):** $50-70/month
 
 ### Monitoring
 
@@ -507,17 +493,22 @@ Tools:
 - Database backups
 ```
 
-#### Google Drive
+#### Cloudinary Dashboard
 ```
-Storage:
+Media Library:
 - View all uploaded files
-- Storage usage
-- File organization
+- Storage usage (25 GB free)
+- Bandwidth usage
+
+Analytics:
+- Upload statistics
+- Transformations used
+- CDN performance
 
 Management:
-- Download files anytime
-- Move/organize manually
-- Share specific files
+- Organize in folders
+- Add tags to assets
+- Set access controls
 ```
 
 ---
@@ -528,13 +519,14 @@ After deployment, ensure:
 
 - [ ] Strong JWT_SECRET generated (64+ characters)
 - [ ] DATABASE_URL uses SSL (Supabase default)
-- [ ] Google Drive folder shared only with service account
+- [ ] Cloudinary API credentials secured in environment variables
 - [ ] CORS configured with frontend URL only
 - [ ] Environment variables not in git (.gitignore verified)
 - [ ] Rate limiting enabled (default in code)
 - [ ] HTTPS enabled (Render/Vercel default)
 - [ ] Test credentials banner removed (before final launch)
-- [ ] Admin account created with strong password
+- [ ] Admin account created with strong password via secure endpoint
+- [ ] ADMIN_RESET_CODE generated and stored securely
 - [ ] Backups configured (Supabase paid tier or manual)
 
 ---
@@ -544,7 +536,7 @@ After deployment, ensure:
 Your Smart Student Hub is now deployed with:
 
 ✅ Scalable PostgreSQL database (Supabase)  
-✅ 2TB cloud file storage (Google Drive)  
+✅ 25GB cloud file storage with CDN (Cloudinary)  
 ✅ Production backend (Render)  
 ✅ Fast frontend (Vercel)  
 ✅ SSL/HTTPS everywhere  
@@ -553,7 +545,7 @@ Your Smart Student Hub is now deployed with:
 **Frontend URL:** https://your-app.vercel.app  
 **Backend URL:** https://your-api.onrender.com  
 **Database:** Supabase PostgreSQL  
-**Storage:** Google Drive  
+**Storage:** Cloudinary CDN  
 
 ### Next Steps
 

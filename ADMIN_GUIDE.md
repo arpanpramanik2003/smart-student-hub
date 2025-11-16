@@ -274,9 +274,10 @@ DATABASE_URL=postgresql://postgres.mjqnougcxzyobauhgkse:Smart@123@aws-1-ap-south
 # CORS
 ALLOWED_ORIGINS=https://smart-student-hub-inky.vercel.app
 
-# Google Drive
-GOOGLE_DRIVE_FOLDER_ID=1GX3oSTyBZ3i3BtugDs1Ha7GijoPEYv5j
-GOOGLE_DRIVE_CREDENTIALS={"type":"service_account","project_id":"..."}
+# Cloudinary (File Storage)
+CLOUDINARY_CLOUD_NAME=<your-cloud-name-from-dashboard>
+CLOUDINARY_API_KEY=<your-api-key-from-dashboard>
+CLOUDINARY_API_SECRET=<click-to-reveal-in-dashboard>
 ```
 
 **New Variable:** `ADMIN_RESET_CODE`
@@ -304,14 +305,13 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 4. Redeploy backend
 ```
 
-#### 3. Google Drive Credentials
+#### 3. Cloudinary Credentials
 ```
-1. Google Cloud Console → IAM & Admin → Service Accounts
-2. Create new service account
-3. Generate new JSON key
-4. Update GOOGLE_DRIVE_CREDENTIALS in Render
-5. Share folder with new service account
-6. Delete old service account
+1. Cloudinary Dashboard → Settings → Access Keys
+2. Click "Generate New API Secret" (if needed)
+3. Update CLOUDINARY_API_SECRET in Render
+4. Redeploy backend
+5. Test file upload functionality
 ```
 
 ---
@@ -332,11 +332,13 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 4. Review database logs
 5. Check for data breaches
 
-### If Google Drive Credentials Leaked:
-1. Revoke service account in Google Cloud
-2. Create new service account
-3. Update credentials in Render
-4. Review uploaded files for malicious content
+### If Cloudinary Credentials Leaked:
+1. Cloudinary Dashboard → Settings → Security
+2. Reset API Secret
+3. Update CLOUDINARY_API_SECRET in Render
+4. Redeploy backend
+5. Review uploaded files for malicious content
+6. Enable Cloudinary's access control features if needed
 
 ---
 
@@ -358,7 +360,7 @@ Before going live:
 - [ ] Changed admin password to strong password
 - [ ] Verified no `.env` files in Git
 - [ ] Tested all user roles (admin, faculty, student)
-- [ ] Verified file uploads work (Google Drive)
+- [ ] Verified file uploads work (Cloudinary)
 - [ ] Tested login/logout functionality
 - [ ] Checked all API endpoints work
 - [ ] Reviewed database backups are enabled

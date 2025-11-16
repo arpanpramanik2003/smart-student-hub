@@ -220,7 +220,7 @@ const ReviewQueue = ({ user, token }) => {
                           <span className="text-sm font-medium text-blue-800">Certificate Document</span>
                         </div>
                         <a
-                          href={`http://localhost:5000/${activity.filePath.replace(/^uploads\//, 'uploads/')}`}
+                          href={activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-all duration-200 hover:shadow-md"
