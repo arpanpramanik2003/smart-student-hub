@@ -2,46 +2,50 @@ const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
 const stream = require('stream');
+const cloudinary = require('cloudinary').v2;
 
 /**
- * Google Drive Storage Configuration
+ * Cloud Storage Configuration
  * 
- * Setup Instructions:
- * 1. Go to Google Cloud Console: https://console.cloud.google.com
- * 2. Enable Google Drive API
- * 3. Create OAuth 2.0 credentials OR Service Account
- * 4. Download credentials JSON
- * 5. Create a folder in your Google Drive for uploads
- * 6. Get the folder ID from the URL (after /folders/)
- * 7. Share the folder with the service account email (if using service account)
- * 8. Set environment variables (see .env.production.template)
+ * Uses Cloudinary for file storage in production
+ * Local file storage for development
+ * 
+ * Cloudinary Setup:
+ * 1. Sign up at https://cloudinary.com
+ * 2. Get your credentials from Dashboard
+ * 3. Set environment variables in Render:
+ *    - CLOUDINARY_CLOUD_NAME
+ *    - CLOUDINARY_API_KEY
+ *    - CLOUDINARY_API_SECRET
  */
 
-let drive;
-let folderId;
+let useCloudinary = false;
 
-// Initialize Google Drive
+// Initialize Cloudinary
 const initializeStorage = () => {
   try {
-    console.log('🔧 Checking Google Drive configuration...');
+    console.log('🔧 Checking cloud storage configuration...');
     console.log(`   NODE_ENV: ${process.env.NODE_ENV}`);
-    console.log(`   GOOGLE_DRIVE_CREDENTIALS: ${process.env.GOOGLE_DRIVE_CREDENTIALS ? 'SET' : 'NOT SET'}`);
-    console.log(`   GOOGLE_DRIVE_FOLDER_ID: ${process.env.GOOGLE_DRIVE_FOLDER_ID || 'NOT SET'}`);
+    console.log(`   CLOUDINARY_CLOUD_NAME: ${process.env.CLOUDINARY_CLOUD_NAME ? 'SET' : 'NOT SET'}`);
+    console.log(`   CLOUDINARY_API_KEY: ${process.env.CLOUDINARY_API_KEY ? 'SET' : 'NOT SET'}`);
+    console.log(`   CLOUDINARY_API_SECRET: ${process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT SET'}`);
     
-    if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_DRIVE_CREDENTIALS) {
-      // Production: Use Google Drive
-      const credentials = JSON.parse(process.env.GOOGLE_DRIVE_CREDENTIALS);
+    if (process.env.NODE_ENV === 'production' && 
+        process.env.CLOUDINARY_CLOUD_NAME && 
+        process.env.CLOUDINARY_API_KEY && 
+        process.env.CLOUDINARY_API_SECRET) {
       
-      const auth = new google.auth.GoogleAuth({
-        credentials: credentials,
-        scopes: ['https://www.googleapis.com/auth/drive']
+      // Configure Cloudinary
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+        secure: true
       });
       
-      drive = google.drive({ version: 'v3', auth });
-      folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-      
-      console.log('✅ Google Drive initialized successfully');
-      console.log(`📂 Using folder ID: ${folderId}`);
+      useCloudinary = true;
+      console.log('✅ Cloudinary initialized successfully');
+      console.log(`☁️  Cloud Name: ${process.env.CLOUDINARY_CLOUD_NAME}`);
       return true;
     } else {
       // Development: Use local file storage
@@ -49,14 +53,13 @@ const initializeStorage = () => {
       return false;
     }
   } catch (error) {
-    console.error('❌ Google Drive initialization error:', error.message);
-    console.error('   Error details:', error);
+    console.error('❌ Cloudinary initialization error:', error.message);
     console.log('⚠️  Falling back to local file storage');
     return false;
   }
 };
 
-const useCloudStorage = initializeStorage();
+initializeStorage();
 
 /**
  * Upload file to Google Drive or local storage
@@ -64,53 +67,36 @@ const useCloudStorage = initializeStorage();
  * @param {String} folder - Folder name (e.g., 'avatars', 'certificates')
  * @returns {String} - Public URL or file ID of uploaded file
  */
-const uploadFile = async (file, folder = 'uploads') => {
+const uploadFile = async (file, folder = 'certificates') => {
   try {
-    // For now, use local storage due to Google Drive service account quota limitations
-    // TODO: Implement proper Shared Drive or migrate to Cloudinary/S3
-    console.log('⚠️  Using local file storage (Google Drive has service account quota issues)');
-    
-    if (false && useCloudStorage && drive) {
-      // Google Drive code disabled temporarily
-      // Service accounts don't have storage quota
-      // Need to implement Shared Drive (Team Drive) or use OAuth
-      const fileName = `${Date.now()}-${file.originalname}`;
+    if (useCloudinary) {
+      // Upload to Cloudinary
+      console.log('☁️  Uploading to Cloudinary:', file.originalname);
       
-      const bufferStream = new stream.PassThrough();
-      bufferStream.end(file.buffer);
-      
-      const fileMetadata = {
-        name: fileName,
-        parents: [folderId],
-      };
-      
-      const media = {
-        mimeType: file.mimetype,
-        body: bufferStream,
-      };
-      
-      const response = await drive.files.create({
-        requestBody: fileMetadata,
-        media: media,
-        fields: 'id, webViewLink, webContentLink',
-        supportsAllDrives: true,
+      // Upload buffer to Cloudinary
+      return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: `smart-student-hub/${folder}`, // Organize in folders
+            resource_type: 'auto', // Auto-detect file type (image, pdf, etc.)
+            public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}`, // Remove extension
+            use_filename: true,
+            unique_filename: true,
+          },
+          (error, result) => {
+            if (error) {
+              console.error('❌ Cloudinary upload error:', error);
+              reject(error);
+            } else {
+              console.log('✅ Uploaded to Cloudinary:', result.secure_url);
+              resolve(result.secure_url); // Return public URL
+            }
+          }
+        );
+        
+        // Pipe file buffer to Cloudinary
+        uploadStream.end(file.buffer);
       });
-      
-      const fileId = response.data.id;
-      
-      await drive.permissions.create({
-        fileId: fileId,
-        requestBody: {
-          role: 'reader',
-          type: 'anyone',
-        },
-        supportsAllDrives: true,
-      });
-      
-      const directLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
-      
-      console.log(`✅ Uploaded to Google Drive: ${fileName} (ID: ${fileId})`);
-      return directLink;
       
     } else {
       // Local file storage (development)
@@ -124,11 +110,12 @@ const uploadFile = async (file, folder = 'uploads') => {
       
       fs.writeFileSync(filePath, file.buffer);
       
+      console.log('💾 Uploaded to local storage:', fileName);
       // Return local URL
       return `/uploads/${folder}/${fileName}`;
     }
   } catch (error) {
-    console.error('File upload error:', error);
+    console.error('❌ File upload error:', error);
     throw error;
   }
 };
@@ -140,14 +127,22 @@ const uploadFile = async (file, folder = 'uploads') => {
  */
 const deleteFile = async (fileUrl) => {
   try {
-    if (useCloudStorage && drive && fileUrl.includes('drive.google.com')) {
-      // Extract file ID from Google Drive URL
-      // Format: https://drive.google.com/uc?export=view&id=FILE_ID
-      const fileId = fileUrl.split('id=')[1];
-      if (fileId) {
-        await drive.files.delete({ fileId: fileId });
-        console.log(`✅ Deleted file from Google Drive: ${fileId}`);
-        return true;
+    if (useCloudinary && fileUrl.includes('cloudinary.com')) {
+      // Extract public_id from Cloudinary URL
+      // Format: https://res.cloudinary.com/CLOUD_NAME/image/upload/v123/folder/public_id.ext
+      const urlParts = fileUrl.split('/');
+      const uploadIndex = urlParts.indexOf('upload');
+      if (uploadIndex > 0 && uploadIndex < urlParts.length - 1) {
+        // Get everything after /upload/v123456/
+        const publicIdWithExt = urlParts.slice(uploadIndex + 2).join('/');
+        const publicId = publicIdWithExt.replace(/\.[^/.]+$/, ''); // Remove extension
+        
+        const result = await cloudinary.uploader.destroy(publicId, {
+          resource_type: 'auto'
+        });
+        
+        console.log(`✅ Deleted from Cloudinary: ${publicId}`, result);
+        return result.result === 'ok';
       }
     } else if (fileUrl.startsWith('/uploads/')) {
       // Delete from local storage
@@ -160,35 +155,13 @@ const deleteFile = async (fileUrl) => {
     }
     return false;
   } catch (error) {
-    console.error('File deletion error:', error);
+    console.error('❌ File deletion error:', error);
     return false;
-  }
-};
-
-/**
- * Get file metadata from Google Drive (optional - for future use)
- * @param {String} fileId - Google Drive file ID
- * @returns {Object} - File metadata
- */
-const getFileMetadata = async (fileId) => {
-  try {
-    if (useCloudStorage && drive) {
-      const response = await drive.files.get({
-        fileId: fileId,
-        fields: 'id, name, mimeType, size, createdTime, webViewLink, webContentLink',
-      });
-      return response.data;
-    }
-    return null;
-  } catch (error) {
-    console.error('Get metadata error:', error);
-    return null;
   }
 };
 
 module.exports = {
   uploadFile,
   deleteFile,
-  getFileMetadata,
-  useCloudStorage
+  useCloudinary
 };
