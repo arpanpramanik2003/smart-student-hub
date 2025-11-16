@@ -77,11 +77,12 @@ const uploadFile = async (file, folder = 'uploads') => {
         body: bufferStream,
       };
       
-      // Upload file
+      // Upload file with supportsAllDrives for shared folder access
       const response = await drive.files.create({
         requestBody: fileMetadata,
         media: media,
         fields: 'id, webViewLink, webContentLink',
+        supportsAllDrives: true,
       });
       
       const fileId = response.data.id;
@@ -93,6 +94,7 @@ const uploadFile = async (file, folder = 'uploads') => {
           role: 'reader',
           type: 'anyone',
         },
+        supportsAllDrives: true,
       });
       
       // Get direct download link
