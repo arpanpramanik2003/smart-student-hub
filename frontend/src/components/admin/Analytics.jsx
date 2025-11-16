@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { adminAPI } from '../../utils/api';
+import { API_BASE_URL } from '../../utils/constants';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const Analytics = ({ user, token, onNavigate }) => {
@@ -103,7 +104,7 @@ const Analytics = ({ user, token, onNavigate }) => {
     }
   };
 
-  // 🔥 FIXED: Proper CSV download with authentication
+  // 🔥 FIXED: Proper CSV download with authentication and correct API URL
   const downloadCSVReport = async () => {
     if (!dateRange.startDate || !dateRange.endDate) {
       showErrorMessage('Please select date range before downloading CSV.');
@@ -117,15 +118,19 @@ const Analytics = ({ user, token, onNavigate }) => {
       // Get the token from localStorage
       const authToken = localStorage.getItem('token') || token;
       
-      // Create the URL with parameters
-      const baseUrl = 'http://localhost:5000/api/admin/reports';
+      if (!authToken) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+      
+      // Create the URL with parameters using correct API_BASE_URL
       const params = new URLSearchParams({
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
         format: 'csv'
       });
       
-      const url = `${baseUrl}?${params.toString()}`;
+      const url = `${API_BASE_URL}/admin/reports?${params.toString()}`;
+      console.log('📡 CSV Request URL:', url);
       
       // Make the request with proper authentication
       const response = await fetch(url, {
@@ -137,7 +142,8 @@ const Analytics = ({ user, token, onNavigate }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       // Get the CSV content
@@ -148,13 +154,14 @@ const Analytics = ({ user, token, onNavigate }) => {
       const link = document.createElement('a');
       
       if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
+        const downloadUrl = URL.createObjectURL(blob);
+        link.setAttribute('href', downloadUrl);
         link.setAttribute('download', `analytics-report-${dateRange.startDate}-to-${dateRange.endDate}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl); // Clean up
       }
       
       showSuccessMessage('Analytics CSV report downloaded successfully!');

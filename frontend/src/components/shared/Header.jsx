@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { USER_ROLES } from '../../utils/constants';
+import { USER_ROLES, API_BASE_URL } from '../../utils/constants';
 
 const Header = ({ user, onLogout, currentView, setCurrentView }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -62,7 +62,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
 
   // Profile Avatar Component
   const ProfileAvatar = ({ size = 'normal' }) => {
-    const backendBaseUrl = 'http://localhost:5000';
+    const backendBaseUrl = API_BASE_URL.replace('/api', '');
     const [imageError, setImageError] = useState(false);
     
     const getInitials = (name) => {

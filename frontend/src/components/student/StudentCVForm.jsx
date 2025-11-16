@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { studentAPI } from "../../utils/api";
+import { API_BASE_URL } from "../../utils/constants";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "../shared/LoadingSpinner";
 
@@ -51,7 +52,8 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
 
       // Set profile picture preview if exists
       if (profileData.profilePicture) {
-        setProfilePicturePreview(`http://localhost:5000${profileData.profilePicture}`);
+        const backendBaseUrl = API_BASE_URL.replace('/api', '');
+        setProfilePicturePreview(`${backendBaseUrl}${profileData.profilePicture}`);
       }
     } catch (err) {
       showMessage('error', 'Failed to load your basic details!');

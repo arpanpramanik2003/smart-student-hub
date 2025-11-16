@@ -5,7 +5,8 @@ import LoadingSpinner from '../shared/LoadingSpinner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { API_BASE_URL } from '../../utils/constants';
 
-const backendBaseUrl = 'http://localhost:5000';
+// Get backend base URL from environment variable (without /api suffix)
+const backendBaseUrl = API_BASE_URL.replace('/api', '');
 
 const Dashboard = ({ user, token, updateUser }) => {
   const [stats, setStats] = useState(null);
