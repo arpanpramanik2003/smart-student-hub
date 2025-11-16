@@ -87,6 +87,80 @@ router.post('/admin-password-reset', async (req, res) => {
   }
 });
 
+// 🧪 SECURE DEMO USERS CREATION ENDPOINT
+router.post('/create-demo-users', async (req, res) => {
+  try {
+    const { confirmCode } = req.body;
+
+    // Validate confirmation code
+    const ADMIN_RESET_CODE = process.env.ADMIN_RESET_CODE;
+    
+    if (!ADMIN_RESET_CODE || confirmCode !== ADMIN_RESET_CODE) {
+      console.warn(`⚠️ Failed demo users creation attempt`);
+      return res.status(403).json({ 
+        message: 'Invalid confirmation code' 
+      });
+    }
+
+    const demoUsers = [
+      {
+        name: 'Student Demo',
+        email: 'student@gmail.com',
+        password: 'Student@123.',
+        role: 'student',
+        department: 'Computer Science',
+        year: 3,
+        studentId: 'STU2024001'
+      },
+      {
+        name: 'Teacher Demo',
+        email: 'teacher@gmail.com',
+        password: 'Teacher@123.',
+        role: 'faculty',
+        department: 'Computer Science'
+      }
+    ];
+
+    const results = [];
+
+    for (const userData of demoUsers) {
+      // Check if user already exists
+      const existingUser = await User.findOne({ where: { email: userData.email } });
+      
+      if (existingUser) {
+        // Update existing user
+        existingUser.password = userData.password;
+        existingUser.name = userData.name;
+        existingUser.role = userData.role;
+        existingUser.department = userData.department;
+        if (userData.year) existingUser.year = userData.year;
+        if (userData.studentId) existingUser.studentId = userData.studentId;
+        await existingUser.save();
+        
+        results.push({ email: userData.email, status: 'updated' });
+        console.log(`✅ Demo user updated: ${userData.email}`);
+      } else {
+        // Create new user
+        await User.create(userData);
+        results.push({ email: userData.email, status: 'created' });
+        console.log(`✅ Demo user created: ${userData.email}`);
+      }
+    }
+
+    return res.status(200).json({ 
+      message: 'Demo users processed successfully',
+      results 
+    });
+
+  } catch (error) {
+    console.error('❌ Demo users creation error:', error);
+    return res.status(500).json({ 
+      message: 'Failed to create demo users',
+      error: error.message 
+    });
+  }
+});
+
 // Protected routes
 router.get('/profile', authenticateToken, getProfile);
 
