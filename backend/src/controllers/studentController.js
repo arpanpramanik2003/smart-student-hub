@@ -3,17 +3,11 @@ const multer = require('multer');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const Joi = require('joi');
+const { uploadFile, deleteFile } = require('../utils/cloudStorage');
 
-// Certificate upload multer setup
-const certificateStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/certificates/'),
-  filename: (req, file, cb) => {
-    const uniqueName = `${uuidv4()}-${Date.now()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  }
-});
+// Certificate upload multer setup - using memoryStorage for Google Drive
 const upload = multer({
-  storage: certificateStorage,
+  storage: multer.memoryStorage(), // Store in memory for cloud upload
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|pdf|doc|docx/;
@@ -25,16 +19,9 @@ const upload = multer({
   }
 });
 
-// Avatar upload multer setup
-const avatarStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/avatars/'),
-  filename: (req, file, cb) => {
-    const uniqueName = `avatar-${req.user.id}-${uuidv4()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  }
-});
+// Avatar upload multer setup - using memoryStorage for Google Drive
 const avatarUpload = multer({
-  storage: avatarStorage,
+  storage: multer.memoryStorage(), // Store in memory for cloud upload
   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png/;
@@ -51,7 +38,15 @@ const uploadAvatar = [
   async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-      const profilePictureUrl = `/uploads/avatars/${req.file.filename}`;
+      
+      // Upload to Google Drive (or local in development)
+      const profilePictureUrl = await uploadFile(req.file, 'avatars');
+      
+      // Delete old avatar if exists
+      if (req.user.profilePicture) {
+        await deleteFile(req.user.profilePicture);
+      }
+      
       await req.user.update({ profilePicture: profilePictureUrl });
       res.json({ message: 'Profile picture updated', profilePicture: profilePictureUrl });
     } catch (error) {
@@ -93,10 +88,16 @@ const submitActivity = async (req, res) => {
       });
     }
 
+    // Upload certificate to Google Drive (or local in development)
+    let fileUrl = null;
+    if (req.file) {
+      fileUrl = await uploadFile(req.file, 'certificates');
+    }
+
     const activityData = {
       ...value,
       studentId: req.user.id,
-      filePath: req.file ? req.file.path : null
+      filePath: fileUrl
     };
 
     const activity = await Activity.create(activityData);
@@ -109,7 +110,8 @@ const submitActivity = async (req, res) => {
         type: activity.type,
         date: activity.date,
         status: activity.status,
-        credits: activity.credits
+        credits: activity.credits,
+        filePath: activity.filePath
       }
     });
 
