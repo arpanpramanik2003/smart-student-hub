@@ -103,12 +103,12 @@ const LoginPage = ({ onLogin }) => {
                 <div className="bg-white/60 rounded p-2 font-mono">
                   <p className="font-semibold text-blue-600">👨‍🎓 Student Account:</p>
                   <p>📧 Email: <span className="font-bold">student@gmail.com</span></p>
-                  <p>🔑 Password: <span className="font-bold">Student@123</span></p>
+                  <p>🔑 Password: <span className="font-bold">Student@123.</span></p>
                 </div>
                 <div className="bg-white/60 rounded p-2 font-mono">
                   <p className="font-semibold text-green-600">👨‍🏫 Teacher Account:</p>
                   <p>📧 Email: <span className="font-bold">teacher@gmail.com</span></p>
-                  <p>🔑 Password: <span className="font-bold">Teacher@123</span></p>
+                  <p>🔑 Password: <span className="font-bold">Teacher@123.</span></p>
                 </div>
               </div>
               <p className="mt-2 text-xs text-amber-600 font-medium">
