@@ -85,6 +85,7 @@ const submitActivity = async (req, res) => {
   try {
     const { error, value } = activitySchema.validate(req.body);
     if (error) {
+      console.error('❌ Validation error:', error.details[0].message);
       return res.status(400).json({ 
         message: 'Validation error', 
         details: error.details[0].message 
@@ -94,7 +95,17 @@ const submitActivity = async (req, res) => {
     // Upload certificate to Google Drive (or local in development)
     let fileUrl = null;
     if (req.file) {
-      fileUrl = await uploadFile(req.file, 'certificates');
+      try {
+        console.log('📤 Uploading file:', req.file.originalname);
+        fileUrl = await uploadFile(req.file, 'certificates');
+        console.log('✅ File uploaded successfully:', fileUrl);
+      } catch (uploadError) {
+        console.error('❌ File upload failed:', uploadError.message);
+        return res.status(500).json({ 
+          message: 'File upload failed', 
+          details: uploadError.message 
+        });
+      }
     }
 
     const activityData = {
@@ -104,6 +115,7 @@ const submitActivity = async (req, res) => {
     };
 
     const activity = await Activity.create(activityData);
+    console.log('✅ Activity created:', activity.id);
     
     res.status(201).json({
       message: 'Activity submitted successfully',
@@ -119,8 +131,11 @@ const submitActivity = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Submit activity error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('❌ Submit activity error:', error);
+    res.status(500).json({ 
+      message: 'Internal server error',
+      details: error.message 
+    });
   }
 };
 

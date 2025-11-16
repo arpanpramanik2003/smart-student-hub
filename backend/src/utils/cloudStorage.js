@@ -23,6 +23,11 @@ let folderId;
 // Initialize Google Drive
 const initializeStorage = () => {
   try {
+    console.log('🔧 Checking Google Drive configuration...');
+    console.log(`   NODE_ENV: ${process.env.NODE_ENV}`);
+    console.log(`   GOOGLE_DRIVE_CREDENTIALS: ${process.env.GOOGLE_DRIVE_CREDENTIALS ? 'SET' : 'NOT SET'}`);
+    console.log(`   GOOGLE_DRIVE_FOLDER_ID: ${process.env.GOOGLE_DRIVE_FOLDER_ID || 'NOT SET'}`);
+    
     if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_DRIVE_CREDENTIALS) {
       // Production: Use Google Drive
       const credentials = JSON.parse(process.env.GOOGLE_DRIVE_CREDENTIALS);
@@ -35,7 +40,7 @@ const initializeStorage = () => {
       drive = google.drive({ version: 'v3', auth });
       folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
       
-      console.log('📁 Google Drive initialized');
+      console.log('✅ Google Drive initialized successfully');
       console.log(`📂 Using folder ID: ${folderId}`);
       return true;
     } else {
@@ -45,6 +50,7 @@ const initializeStorage = () => {
     }
   } catch (error) {
     console.error('❌ Google Drive initialization error:', error.message);
+    console.error('   Error details:', error);
     console.log('⚠️  Falling back to local file storage');
     return false;
   }
