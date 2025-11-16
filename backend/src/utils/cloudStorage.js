@@ -74,14 +74,18 @@ const uploadFile = async (file, folder = 'certificates') => {
       console.log('☁️  Uploading to Cloudinary:', file.originalname);
       
       // Upload buffer to Cloudinary
+      // Detect file type
+      const isPDF = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
+      
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: `smart-student-hub/${folder}`, // Organize in folders
-            resource_type: 'auto', // Auto-detect file type (image, pdf, etc.)
+            resource_type: isPDF ? 'raw' : 'auto', // Use 'raw' for PDFs to enable direct viewing
             public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}`, // Remove extension
             use_filename: true,
             unique_filename: true,
+            format: isPDF ? 'pdf' : undefined, // Explicitly set format for PDFs
           },
           (error, result) => {
             if (error) {
@@ -89,6 +93,7 @@ const uploadFile = async (file, folder = 'certificates') => {
               reject(error);
             } else {
               console.log('✅ Uploaded to Cloudinary:', result.secure_url);
+              console.log(`📄 File type: ${isPDF ? 'PDF' : 'Other'}, Resource type: ${isPDF ? 'raw' : 'auto'}`);
               resolve(result.secure_url); // Return public URL
             }
           }
