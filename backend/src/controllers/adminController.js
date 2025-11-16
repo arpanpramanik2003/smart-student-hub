@@ -376,11 +376,11 @@ const getSystemReports = async (req, res) => {
     let params = [];
 
     if (startDate) {
-      whereConditions.push('a.createdAt >= ?');
+      whereConditions.push('a."createdAt" >= ?');
       params.push(startDate);
     }
     if (endDate) {
-      whereConditions.push('a.createdAt <= ?');
+      whereConditions.push('a."createdAt" <= ?');
       params.push(endDate + ' 23:59:59');
     }
 
@@ -401,16 +401,16 @@ const getSystemReports = async (req, res) => {
         a.organizer,
         a.description,
         a.status,
-        a.createdAt,
-        a.updatedAt,
-        u.name as userName,
-        u.studentId,
+        a."createdAt",
+        a."updatedAt",
+        u.name as "userName",
+        u."studentId",
         u.department,
         u.year
-      FROM Activities a
-      LEFT JOIN Users u ON a.studentId = u.id
+      FROM activities a
+      LEFT JOIN users u ON a."studentId" = u.id
       WHERE ${whereClause}
-      ORDER BY a.createdAt DESC
+      ORDER BY a."createdAt" DESC
     `;
 
     const activities = await Activity.sequelize.query(activitiesQuery, {
