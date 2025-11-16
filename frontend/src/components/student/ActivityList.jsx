@@ -203,13 +203,7 @@ const ActivityList = ({ user, token }) => {
                         {visibleFiles[activity.id] && (
                           <div className="mt-2 flex space-x-3">
                             <a
-                              href={(() => {
-                                const fileUrl = activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`;
-                                if (fileUrl.includes('cloudinary.com') && fileUrl.toLowerCase().endsWith('.pdf')) {
-                                  return `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
-                                }
-                                return fileUrl;
-                              })()}
+                              href={activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
@@ -217,11 +211,12 @@ const ActivityList = ({ user, token }) => {
                               <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                               </svg>
-                              View PDF
+                              View
                             </a>
                             <a
-                              href={activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
-                              download
+                              href={(activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`) + '?fl_attachment'}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="inline-flex items-center px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
                             >
                               <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

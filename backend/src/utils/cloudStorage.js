@@ -74,21 +74,25 @@ const uploadFile = async (file, folder = 'certificates') => {
       console.log('☁️  Uploading to Cloudinary:', file.originalname);
       
       // Upload buffer to Cloudinary
-      // Detect file type - use 'raw' for documents, 'auto' for images
+      // Detect file type
       const isImage = file.mimetype?.startsWith('image/');
       const isVideo = file.mimetype?.startsWith('video/');
+      const isPDF = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
       
-      // Document types (PDFs, Word, Excel, PPT, etc.) should use 'raw' resource type
-      const isDocument = !isImage && !isVideo;
-      
-      // Determine resource type
+      // IMPORTANT: Use 'image' resource type for PDFs with flags for public access
+      // This allows direct viewing without authentication issues
       let resourceType = 'auto';
-      if (isDocument) {
-        resourceType = 'raw'; // PDFs, DOCX, XLSX, PPTX, TXT, etc.
-      } else if (isVideo) {
-        resourceType = 'video';
+      let flags = [];
+      
+      if (isPDF) {
+        resourceType = 'image'; // Use 'image' for PDFs to enable public URLs
+        flags = ['attachment']; // Add attachment flag for downloads
       } else if (isImage) {
         resourceType = 'image';
+      } else if (isVideo) {
+        resourceType = 'video';
+      } else {
+        resourceType = 'raw'; // Other documents (DOCX, XLSX, etc.)
       }
       
       // Sanitize filename - remove spaces, special chars, keep only alphanumeric, dash, underscore
@@ -102,12 +106,12 @@ const uploadFile = async (file, folder = 'certificates') => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: `smart-student-hub/${folder}`, // Organize in folders
-            resource_type: resourceType, // Use appropriate type for all files
+            resource_type: resourceType, // Use 'image' for PDFs for public access
             public_id: `${Date.now()}-${sanitizedName}`, // Use sanitized filename
             use_filename: false, // Don't use original filename
             unique_filename: true,
-            // Preserve original file extension
             format: file.originalname.split('.').pop()?.toLowerCase(),
+            flags: flags.length > 0 ? flags : undefined,
           },
           (error, result) => {
             if (error) {
