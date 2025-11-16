@@ -74,26 +74,8 @@ const uploadFile = async (file, folder = 'certificates') => {
       console.log('☁️  Uploading to Cloudinary:', file.originalname);
       
       // Upload buffer to Cloudinary
-      // Detect file type
-      const isImage = file.mimetype?.startsWith('image/');
-      const isVideo = file.mimetype?.startsWith('video/');
-      const isPDF = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
-      
-      // IMPORTANT: Use 'image' resource type for PDFs with flags for public access
-      // This allows direct viewing without authentication issues
-      let resourceType = 'auto';
-      let flags = [];
-      
-      if (isPDF) {
-        resourceType = 'image'; // Use 'image' for PDFs to enable public URLs
-        flags = ['attachment']; // Add attachment flag for downloads
-      } else if (isImage) {
-        resourceType = 'image';
-      } else if (isVideo) {
-        resourceType = 'video';
-      } else {
-        resourceType = 'raw'; // Other documents (DOCX, XLSX, etc.)
-      }
+      // Use 'auto' resource type - Cloudinary handles everything automatically
+      // This is the CORRECT approach for all file types including PDFs
       
       // Sanitize filename - remove spaces, special chars, keep only alphanumeric, dash, underscore
       const sanitizedName = file.originalname
@@ -106,12 +88,12 @@ const uploadFile = async (file, folder = 'certificates') => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: `smart-student-hub/${folder}`, // Organize in folders
-            resource_type: resourceType, // Use 'image' for PDFs for public access
+            resource_type: 'auto', // Let Cloudinary auto-detect file type
             public_id: `${Date.now()}-${sanitizedName}`, // Use sanitized filename
             use_filename: false, // Don't use original filename
             unique_filename: true,
             format: file.originalname.split('.').pop()?.toLowerCase(),
-            flags: flags.length > 0 ? flags : undefined,
+            access_mode: 'public', // Ensure public access
           },
           (error, result) => {
             if (error) {
