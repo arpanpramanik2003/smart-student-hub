@@ -11,7 +11,7 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Users',
+        model: 'users',
         key: 'id',
       },
     },
@@ -61,7 +61,7 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'Users',
+        model: 'users',
         key: 'id',
       },
     },
@@ -73,6 +73,9 @@ module.exports = (sequelize) => {
       type: DataTypes.DECIMAL(3, 1), // e.g., 2.5 credits
       defaultValue: 0,
     },
+  }, {
+    timestamps: true,
+    tableName: 'activities'
   });
 
   return Activity;
