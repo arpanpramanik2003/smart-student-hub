@@ -10,88 +10,104 @@
 
 ---
 
-## 🎯 Default Admin Setup
+## 🎯 Secure Admin Setup
 
-### How Admin is Created
+### 🔐 No Default Admin Created
 
-The default admin user is **automatically created** when the backend server starts for the first time. This happens in:
+For **maximum security**, this system does **NOT** auto-create a default admin user with hardcoded credentials.
 
-**File:** `backend/src/utils/database.js`
+Instead, you must **manually create** the admin account using a secure confirmation code.
 
-**Code Location:** Lines 95-108
-```javascript
-// Create default admin user if not exists
-const adminExists = await User.findOne({ where: { role: 'admin' } });
-if (!adminExists) {
-  await User.create({
-    name: 'Admin User',
-    email: 'admin@smartstudenthub.com',
-    password: 'admin123',
-    role: 'admin',
-    department: 'Administration'
-  });
-  console.log('✅ Default admin user created.');
+### How to Create Admin Account
+
+**Endpoint:** `POST /api/auth/admin-password-reset`
+
+**Method:** Use PowerShell/Terminal with a secret confirmation code
+
+**Required Environment Variable on Render:**
+```env
+ADMIN_RESET_CODE=your-secret-reset-code-here
+```
+
+### Step-by-Step Instructions:
+
+#### 1. Add Environment Variable to Render
+1. Go to Render Dashboard → Your service
+2. Click **Environment** tab
+3. Add new variable:
+   - **Key:** `ADMIN_RESET_CODE`
+   - **Value:** `reset2025emergency` (or any secure string)
+4. Click **Save Changes** (will auto-redeploy)
+
+#### 2. Create Admin via PowerShell
+Once deployed, run this command in PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri "https://smart-student-hub-sj5o.onrender.com/api/auth/admin-password-reset" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"confirmCode":"reset2025emergency","newUsername":"admin@yourdomain.com","newPassword":"YourSecurePassword123!"}'
+```
+
+**Parameters:**
+- `confirmCode`: Must match `ADMIN_RESET_CODE` from Render
+- `newUsername`: Your admin email
+- `newPassword`: Strong password (min 8 characters)
+
+#### 3. Success Response
+```json
+{
+  "message": "Admin user created successfully",
+  "username": "admin@yourdomain.com"
 }
 ```
 
-### Default Credentials
-- **Email:** `admin@smartstudenthub.com`
-- **Password:** `admin123`
-- **Role:** `admin`
-- **Department:** `Administration`
-
-⚠️ **CRITICAL:** Change these credentials immediately after first login!
+### Security Features:
+✅ No hardcoded admin credentials in code  
+✅ Confirmation code stored only in environment variables  
+✅ Failed attempts are logged  
+✅ Password must be at least 8 characters  
+✅ Can reset admin password anytime using same endpoint  
+✅ Works even if admin already exists (updates credentials)
 
 ---
 
 ## 🔄 How to Reset Admin Credentials
 
-### Method 1: Through Application (Recommended)
+### Method 1: Using Secure Reset Endpoint (Recommended) ⭐
+Run this PowerShell command:
+
+```powershell
+Invoke-RestMethod -Uri "https://smart-student-hub-sj5o.onrender.com/api/auth/admin-password-reset" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"confirmCode":"reset2025emergency","newUsername":"newemail@domain.com","newPassword":"NewSecurePassword123!"}'
+```
+
+**What it does:**
+- Updates existing admin username and password
+- Creates new admin if none exists
+- Validates confirmation code against `ADMIN_RESET_CODE` env variable
+- Logs all attempts for security monitoring
+
+**Requirements:**
+- Confirmation code must match `ADMIN_RESET_CODE` in Render
+- Password must be at least 8 characters
+
+### Method 2: Through Application
 1. Login as admin: https://smart-student-hub-inky.vercel.app
 2. Go to **Profile** or **Settings**
 3. Click **Change Password**
 4. Enter new password
 5. Save changes
 
-### Method 2: Directly in Supabase Database
+### Method 3: Directly in Supabase Database (Emergency Only)
 1. Go to: https://supabase.com/dashboard
 2. Select your project: **smart-student-hub**
 3. Click **Table Editor** (left sidebar)
 4. Find table: `users`
-5. Locate admin user (email: `admin@smartstudenthub.com`)
+5. Locate admin user (role: 'admin')
 6. Click **Edit** on the row
 7. Update fields:
    - `email`: Change to your preferred email
    - `name`: Change to your name
-   - `password`: **DON'T** edit directly (it's hashed)
+   - ⚠️ `password`: **DON'T** edit directly (it's hashed)
 8. Save changes
-
-### Method 3: Reset Password via Code
-If you need to reset the password programmatically:
-
-1. Open terminal in backend folder
-2. Run Node.js interactive shell:
-```bash
-node
-```
-3. Execute this code:
-```javascript
-const bcrypt = require('bcryptjs');
-const password = 'YourNewSecurePassword123!';
-bcrypt.hash(password, 12).then(hash => console.log(hash));
-```
-4. Copy the hashed password
-5. Update in Supabase database:
-   - Table: `users`
-   - Column: `password`
-   - Paste the hash
-
-### Method 4: Delete and Recreate Admin
-1. Go to Supabase Table Editor
-2. Delete the existing admin user row
-3. Restart your Render backend service
-4. The system will auto-create a new admin with default credentials
-5. Login and change password immediately
+9. Use Method 1 to reset password properly
 
 ---
 
@@ -250,6 +266,7 @@ PORT=5000
 # Security
 JWT_SECRET=<64-character-random-string>
 JWT_EXPIRES_IN=24h
+ADMIN_RESET_CODE=reset2025emergency
 
 # Database
 DATABASE_URL=postgresql://postgres.mjqnougcxzyobauhgkse:Smart@123@aws-1-ap-south-1.pooler.supabase.com:6543/postgres
@@ -261,6 +278,12 @@ ALLOWED_ORIGINS=https://smart-student-hub-inky.vercel.app
 GOOGLE_DRIVE_FOLDER_ID=1GX3oSTyBZ3i3BtugDs1Ha7GijoPEYv5j
 GOOGLE_DRIVE_CREDENTIALS={"type":"service_account","project_id":"..."}
 ```
+
+**New Variable:** `ADMIN_RESET_CODE`
+- **Purpose:** Secret code required to create/reset admin account
+- **Example:** `reset2025emergency` or any secure random string
+- **Usage:** Used with `/api/auth/admin-password-reset` endpoint
+- **Security:** Keep this secret! Anyone with this code can reset admin credentials
 
 ### How to Rotate Secrets:
 
@@ -330,7 +353,9 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 Before going live:
 
-- [ ] Changed default admin password
+- [ ] Added `ADMIN_RESET_CODE` environment variable to Render
+- [ ] Created admin account using secure reset endpoint
+- [ ] Changed admin password to strong password
 - [ ] Verified no `.env` files in Git
 - [ ] Tested all user roles (admin, faculty, student)
 - [ ] Verified file uploads work (Google Drive)
@@ -341,7 +366,7 @@ Before going live:
 - [ ] Tested on mobile devices
 - [ ] Set up monitoring/alerts (optional)
 - [ ] Documented all environment variables
-- [ ] Created admin guide for team (this file!)
+- [ ] Secured `ADMIN_RESET_CODE` (don't share publicly!)
 
 ---
 

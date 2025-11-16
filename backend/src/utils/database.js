@@ -101,17 +101,13 @@ const syncDatabase = async () => {
     // Run migration for any missing columns
     await migrateDatabase();
     
-    // Create default admin user if not exists
-    const adminExists = await User.findOne({ where: { role: 'admin' } });
-    if (!adminExists) {
-      await User.create({
-        name: 'Admin User',
-        email: 'admin@smartstudenthub.com',
-        password: 'admin123',
-        role: 'admin',
-        department: 'Administration'
-      });
-      console.log('✅ Default admin user created.');
+    // 🔐 SECURITY: No default admin created
+    // Use POST /api/auth/admin-password-reset with ADMIN_RESET_CODE to create admin
+    const adminCount = await User.count({ where: { role: 'admin' } });
+    if (adminCount === 0) {
+      console.log('⚠️  No admin user exists. Use /api/auth/admin-password-reset endpoint to create one.');
+    } else {
+      console.log(`✅ ${adminCount} admin user(s) found.`);
     }
     
   } catch (error) {
