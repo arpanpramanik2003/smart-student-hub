@@ -221,7 +221,14 @@ const ReviewQueue = ({ user, token }) => {
                         </div>
                         <div className="flex space-x-2">
                           <a
-                            href={activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
+                            href={(() => {
+                              const fileUrl = activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`;
+                              // Use Google Docs Viewer for PDFs from Cloudinary
+                              if (fileUrl.includes('cloudinary.com') && fileUrl.toLowerCase().endsWith('.pdf')) {
+                                return `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+                              }
+                              return fileUrl;
+                            })()}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-all duration-200 hover:shadow-md"
@@ -229,7 +236,7 @@ const ReviewQueue = ({ user, token }) => {
                             <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
-                            Open
+                            View PDF
                           </a>
                           <a
                             href={activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
