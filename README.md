@@ -52,15 +52,19 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 - **React 19** with Vite
 - **Tailwind CSS** for styling
 - **Axios** for API calls
+- **Vercel** deployment
 - Modern ES6+ JavaScript
 
 ### Backend
 - **Node.js** with Express
-- **SQLite** database (via Sequelize ORM)
+- **PostgreSQL** (Supabase) for production
+- **SQLite** for local development
 - **JWT** authentication
+- **Google Cloud Storage** for files (avatars, certificates)
 - **Multer** for file uploads
 - **Helmet** & **CORS** for security
 - **Rate limiting** for API protection
+- **Render** deployment
 
 ---
 
@@ -102,21 +106,33 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 
 ## 🌐 Deployment
 
+### Production Stack (Recommended)
+
+- **Frontend:** Vercel (Free tier)
+- **Backend:** Render (Free tier)
+- **Database:** Supabase PostgreSQL (Free tier - 500MB)
+- **File Storage:** Google Cloud Storage (Free tier - 5GB)
+
 ### Quick Deploy Guide
 
-1. **Deploy Backend** (Railway/Render/DigitalOcean)
-   - Push to GitHub
-   - Connect repository
-   - Set environment variables
-   - Deploy!
+1. **Setup Credentials** (10 mins)
+   - Create Supabase project → Get DATABASE_URL
+   - Setup Google Cloud Storage → Get credentials JSON
+   - See [SETUP_CREDENTIALS.md](SETUP_CREDENTIALS.md)
 
-2. **Deploy Frontend** (Vercel/Netlify)
-   - Push to GitHub
-   - Connect repository
-   - Update `VITE_API_URL` with backend URL
-   - Deploy!
+2. **Deploy Backend to Render**
+   - Connect GitHub repo
+   - Add environment variables (DATABASE_URL, GCS credentials)
+   - Deploy! → Get backend URL
 
-**Detailed Instructions:** See [DEPLOYMENT.md](DEPLOYMENT.md)
+3. **Deploy Frontend to Vercel**
+   - Connect GitHub repo
+   - Set VITE_API_URL with backend URL
+   - Deploy! → Get frontend URL
+
+**Detailed Instructions:** See [DEPLOYMENT_RENDER_SUPABASE.md](DEPLOYMENT_RENDER_SUPABASE.md)
+
+**Alternative:** Traditional deployment with Railway/DigitalOcean - See [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ---
 
