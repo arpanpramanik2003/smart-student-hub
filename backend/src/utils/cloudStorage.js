@@ -100,13 +100,12 @@ const uploadFile = async (file, folder = 'certificates') => {
               console.error('❌ Cloudinary upload error:', error);
               console.error('   File:', file.originalname);
               console.error('   MIME type:', file.mimetype);
-              console.error('   Resource type:', resourceType);
               reject(error);
             } else {
               console.log('✅ Uploaded to Cloudinary:', result.secure_url);
               console.log(`📄 File: ${file.originalname}`);
               console.log(`📋 MIME type: ${file.mimetype}`);
-              console.log(`🔧 Resource type: ${resourceType}`);
+              console.log(`🔧 Resource type: ${result.resource_type}`);
               console.log(`📦 Format: ${result.format}`);
               resolve(result.secure_url); // Return public URL
             }
