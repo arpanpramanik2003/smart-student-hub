@@ -74,26 +74,47 @@ const uploadFile = async (file, folder = 'certificates') => {
       console.log('☁️  Uploading to Cloudinary:', file.originalname);
       
       // Upload buffer to Cloudinary
-      // Detect file type
-      const isPDF = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
+      // Detect file type - use 'raw' for documents, 'auto' for images
+      const isImage = file.mimetype?.startsWith('image/');
+      const isVideo = file.mimetype?.startsWith('video/');
+      
+      // Document types (PDFs, Word, Excel, PPT, etc.) should use 'raw' resource type
+      const isDocument = !isImage && !isVideo;
+      
+      // Determine resource type
+      let resourceType = 'auto';
+      if (isDocument) {
+        resourceType = 'raw'; // PDFs, DOCX, XLSX, PPTX, TXT, etc.
+      } else if (isVideo) {
+        resourceType = 'video';
+      } else if (isImage) {
+        resourceType = 'image';
+      }
       
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: `smart-student-hub/${folder}`, // Organize in folders
-            resource_type: isPDF ? 'raw' : 'auto', // Use 'raw' for PDFs to enable direct viewing
+            resource_type: resourceType, // Use appropriate type for all files
             public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}`, // Remove extension
             use_filename: true,
             unique_filename: true,
-            format: isPDF ? 'pdf' : undefined, // Explicitly set format for PDFs
+            // Preserve original file extension
+            format: file.originalname.split('.').pop()?.toLowerCase(),
           },
           (error, result) => {
             if (error) {
               console.error('❌ Cloudinary upload error:', error);
+              console.error('   File:', file.originalname);
+              console.error('   MIME type:', file.mimetype);
+              console.error('   Resource type:', resourceType);
               reject(error);
             } else {
               console.log('✅ Uploaded to Cloudinary:', result.secure_url);
-              console.log(`📄 File type: ${isPDF ? 'PDF' : 'Other'}, Resource type: ${isPDF ? 'raw' : 'auto'}`);
+              console.log(`📄 File: ${file.originalname}`);
+              console.log(`📋 MIME type: ${file.mimetype}`);
+              console.log(`🔧 Resource type: ${resourceType}`);
+              console.log(`📦 Format: ${result.format}`);
               resolve(result.secure_url); // Return public URL
             }
           }
