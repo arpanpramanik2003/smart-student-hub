@@ -1,12 +1,37 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
-// SQLite database setup
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: path.join(__dirname, '../../', process.env.DB_NAME || 'smart_student_hub.db'),
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
-});
+// Database setup - PostgreSQL (Supabase) for production, SQLite for local dev
+let sequelize;
+
+if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  // Production: PostgreSQL (Supabase)
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false // Supabase requires SSL
+      }
+    },
+    logging: false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
+    }
+  });
+  console.log('🐘 Using PostgreSQL (Supabase) database');
+} else {
+  // Development: SQLite
+  sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: path.join(__dirname, '../../', process.env.DB_NAME || 'smart_student_hub.db'),
+    logging: console.log,
+  });
+  console.log('💾 Using SQLite database for development');
+}
 
 // Import models
 const UserModel = require('../models/User');
