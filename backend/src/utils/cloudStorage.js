@@ -66,8 +66,14 @@ const useCloudStorage = initializeStorage();
  */
 const uploadFile = async (file, folder = 'uploads') => {
   try {
-    if (useCloudStorage && drive) {
-      // Upload to Google Drive
+    // For now, use local storage due to Google Drive service account quota limitations
+    // TODO: Implement proper Shared Drive or migrate to Cloudinary/S3
+    console.log('⚠️  Using local file storage (Google Drive has service account quota issues)');
+    
+    if (false && useCloudStorage && drive) {
+      // Google Drive code disabled temporarily
+      // Service accounts don't have storage quota
+      // Need to implement Shared Drive (Team Drive) or use OAuth
       const fileName = `${Date.now()}-${file.originalname}`;
       
       const bufferStream = new stream.PassThrough();
@@ -75,7 +81,7 @@ const uploadFile = async (file, folder = 'uploads') => {
       
       const fileMetadata = {
         name: fileName,
-        parents: [folderId], // Upload to specified folder
+        parents: [folderId],
       };
       
       const media = {
@@ -83,7 +89,6 @@ const uploadFile = async (file, folder = 'uploads') => {
         body: bufferStream,
       };
       
-      // Upload file with supportsAllDrives for shared folder access
       const response = await drive.files.create({
         requestBody: fileMetadata,
         media: media,
@@ -93,7 +98,6 @@ const uploadFile = async (file, folder = 'uploads') => {
       
       const fileId = response.data.id;
       
-      // Make file publicly accessible
       await drive.permissions.create({
         fileId: fileId,
         requestBody: {
@@ -103,7 +107,6 @@ const uploadFile = async (file, folder = 'uploads') => {
         supportsAllDrives: true,
       });
       
-      // Get direct download link
       const directLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
       
       console.log(`✅ Uploaded to Google Drive: ${fileName} (ID: ${fileId})`);
