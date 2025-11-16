@@ -88,8 +88,14 @@ const syncDatabase = async () => {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
     
-    // First sync with alter: true to add new columns
-    await sequelize.sync({ alter: true });
+    // Sync models in correct order: User first, then Activity
+    // This ensures foreign key references work correctly
+    await User.sync({ alter: true });
+    console.log('✅ Users table synchronized.');
+    
+    await Activity.sync({ alter: true });
+    console.log('✅ Activities table synchronized.');
+    
     console.log('✅ Database synchronized successfully.');
     
     // Run migration for any missing columns
