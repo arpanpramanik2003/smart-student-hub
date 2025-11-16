@@ -8,7 +8,7 @@ const Analytics = ({ user, token, onNavigate }) => {
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reportLoading, setReportLoading] = useState(false);
-  const [csvDownloading, setCsvDownloading] = useState(false); // Separate state for CSV download
+  const [generating, setGenerating] = useState(false); // Single state for both operations
   const [error, setError] = useState('');
   const [message, setMessage] = useState({ type: '', text: '', show: false });
   const [dateRange, setDateRange] = useState({
@@ -85,6 +85,7 @@ const Analytics = ({ user, token, onNavigate }) => {
     }
 
     setReportLoading(true);
+    setGenerating(true);
     
     try {
       console.log('📈 Generating custom report...');
@@ -102,6 +103,7 @@ const Analytics = ({ user, token, onNavigate }) => {
       showErrorMessage(`Error generating report: ${error.message}`);
     } finally {
       setReportLoading(false);
+      setGenerating(false);
     }
   };
 
@@ -114,7 +116,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
     try {
       console.log('📥 Starting CSV download...');
-      setCsvDownloading(true);
+      setGenerating(true);
       
       // Get the token from localStorage
       const authToken = localStorage.getItem('token') || token;
@@ -171,7 +173,7 @@ const Analytics = ({ user, token, onNavigate }) => {
       console.error('CSV download error:', error);
       showErrorMessage(`Error downloading CSV: ${error.message}`);
     } finally {
-      setCsvDownloading(false);
+      setGenerating(false);
     }
   };
 
@@ -866,7 +868,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                 <div className="flex items-end">
                   <button
                     onClick={generateReport}
-                    disabled={reportLoading || csvDownloading || !dateRange.startDate || !dateRange.endDate}
+                    disabled={generating || reportLoading || !dateRange.startDate || !dateRange.endDate}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {reportLoading ? (
@@ -888,10 +890,10 @@ const Analytics = ({ user, token, onNavigate }) => {
                 <div className="flex items-end">
                   <button
                     onClick={downloadCSVReport}
-                    disabled={reportLoading || csvDownloading || !dateRange.startDate || !dateRange.endDate}
+                    disabled={generating || !dateRange.startDate || !dateRange.endDate}
                     className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    {csvDownloading ? (
+                    {generating ? (
                       <>
                         <LoadingSpinner size="sm" className="mr-2" />
                         Downloading...
