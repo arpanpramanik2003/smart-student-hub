@@ -29,7 +29,7 @@ const initializeStorage = () => {
       
       const auth = new google.auth.GoogleAuth({
         credentials: credentials,
-        scopes: ['https://www.googleapis.com/auth/drive.file']
+        scopes: ['https://www.googleapis.com/auth/drive']
       });
       
       drive = google.drive({ version: 'v3', auth });
