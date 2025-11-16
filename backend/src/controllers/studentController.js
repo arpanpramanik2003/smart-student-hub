@@ -70,11 +70,14 @@ const activitySchema = Joi.object({
     'club_activity',
     'online_course'
   ).required(),
-  description: Joi.string().max(1000).optional(),
+  description: Joi.string().max(1000).allow('').optional(),
   date: Joi.date().required(),
-  duration: Joi.string().max(50).optional(),
-  organizer: Joi.string().max(200).optional(),
-  credits: Joi.number().min(0).max(10).default(0),
+  duration: Joi.string().max(50).allow('').optional(),
+  organizer: Joi.string().max(200).allow('').optional(),
+  credits: Joi.alternatives().try(
+    Joi.number().min(0).max(10),
+    Joi.string().pattern(/^\d+(\.\d+)?$/).custom((value) => parseFloat(value))
+  ).default(0),
 });
 
 // Submit new activity controller
