@@ -367,7 +367,7 @@ const Reports = ({ user, token, onNavigate }) => {
           <div className="flex items-end">
             <button
               onClick={handleGenerateReport}
-              disabled={generating || loading || !filters.startDate || !filters.endDate}
+              disabled={loading || !filters.startDate || !filters.endDate}
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none"
             >
               {loading ? (
