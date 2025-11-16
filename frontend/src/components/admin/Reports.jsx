@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { adminAPI } from '../../utils/api';
+import { API_BASE_URL } from '../../utils/constants';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const Reports = ({ user, token, onNavigate }) => {
@@ -70,7 +71,7 @@ const Reports = ({ user, token, onNavigate }) => {
     }
   };
 
-  // 🔥 FIXED: Proper CSV download implementation
+  // 🔥 FIXED: Proper CSV download implementation with correct API URL
   const handleDownloadCSV = async () => {
     if (!filters.startDate || !filters.endDate) {
       showErrorMessage('Please select date range before downloading CSV.');
@@ -82,18 +83,22 @@ const Reports = ({ user, token, onNavigate }) => {
     try {
       console.log('📥 Starting CSV download...');
       
-      // Get the token from localStorage or wherever you store it
+      // Get the token from localStorage or props
       const authToken = localStorage.getItem('token') || token;
       
-      // Create the URL with parameters
-      const baseUrl = 'http://localhost:5000/api/admin/reports';
+      if (!authToken) {
+        throw new Error('Authentication required. Please log in again.');
+      }
+      
+      // Create the URL with parameters using correct API_BASE_URL
       const params = new URLSearchParams({
         startDate: filters.startDate,
         endDate: filters.endDate,
         format: 'csv'
       });
       
-      const url = `${baseUrl}?${params.toString()}`;
+      const url = `${API_BASE_URL}/admin/reports?${params.toString()}`;
+      console.log('📡 CSV Request URL:', url);
       
       // Make the request with proper authentication
       const response = await fetch(url, {
@@ -105,7 +110,8 @@ const Reports = ({ user, token, onNavigate }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       // Get the CSV content
@@ -123,6 +129,7 @@ const Reports = ({ user, token, onNavigate }) => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url); // Clean up
       }
       
       showSuccessMessage('CSV report downloaded successfully!');
