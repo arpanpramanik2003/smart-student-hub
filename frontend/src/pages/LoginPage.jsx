@@ -97,18 +97,18 @@ const LoginPage = ({ onLogin }) => {
               <div className="mt-2 text-xs text-amber-700 space-y-2">
                 <div className="bg-white/60 rounded p-2 font-mono">
                   <p className="font-semibold text-red-600">👑 Admin Account:</p>
-                  <p>📧 Email: <span className="font-bold">admin@smartstudenthub.com</span></p>
-                  <p>🔑 Password: <span className="font-bold">Admin@123</span></p>
+                  <p>📧 Email: <span className="font-bold">arpan@smartstudenthub.com</span></p>
+                  <p>🔑 Password: <span className="font-bold">Arpan@123.</span></p>
                 </div>
                 <div className="bg-white/60 rounded p-2 font-mono">
                   <p className="font-semibold text-blue-600">👨‍🎓 Student Account:</p>
-                  <p>📧 Email: <span className="font-bold">pramanikarpan089@gmail.com</span></p>
-                  <p>🔑 Password: <span className="font-bold">Arpan@123</span></p>
+                  <p>📧 Email: <span className="font-bold">student@gmail.com</span></p>
+                  <p>🔑 Password: <span className="font-bold">Student@123</span></p>
                 </div>
                 <div className="bg-white/60 rounded p-2 font-mono">
-                  <p className="font-semibold text-green-600">👨‍🏫 Faculty Account:</p>
-                  <p>📧 Email: <span className="font-bold">faculty@smartstudenthub.com</span></p>
-                  <p>🔑 Password: <span className="font-bold">Faculty@123</span></p>
+                  <p className="font-semibold text-green-600">👨‍🏫 Teacher Account:</p>
+                  <p>📧 Email: <span className="font-bold">teacher@gmail.com</span></p>
+                  <p>🔑 Password: <span className="font-bold">Teacher@123</span></p>
                 </div>
               </div>
               <p className="mt-2 text-xs text-amber-600 font-medium">
