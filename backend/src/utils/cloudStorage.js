@@ -91,13 +91,20 @@ const uploadFile = async (file, folder = 'certificates') => {
         resourceType = 'image';
       }
       
+      // Sanitize filename - remove spaces, special chars, keep only alphanumeric, dash, underscore
+      const sanitizedName = file.originalname
+        .replace(/\.[^/.]+$/, '') // Remove extension
+        .replace(/[^a-zA-Z0-9_-]/g, '_') // Replace special chars with underscore
+        .replace(/_+/g, '_') // Replace multiple underscores with single
+        .substring(0, 100); // Limit length
+      
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: `smart-student-hub/${folder}`, // Organize in folders
             resource_type: resourceType, // Use appropriate type for all files
-            public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}`, // Remove extension
-            use_filename: true,
+            public_id: `${Date.now()}-${sanitizedName}`, // Use sanitized filename
+            use_filename: false, // Don't use original filename
             unique_filename: true,
             // Preserve original file extension
             format: file.originalname.split('.').pop()?.toLowerCase(),
