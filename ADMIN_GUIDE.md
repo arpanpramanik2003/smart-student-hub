@@ -26,7 +26,7 @@ Instead, you must **manually create** the admin account using a secure confirmat
 
 **Required Environment Variable on Render:**
 ```env
-ADMIN_RESET_CODE=your-secret-reset-code-here
+ADMIN_RESET_CODE=your-secret-confirmation-code-here
 ```
 
 ### Step-by-Step Instructions:
@@ -36,18 +36,18 @@ ADMIN_RESET_CODE=your-secret-reset-code-here
 2. Click **Environment** tab
 3. Add new variable:
    - **Key:** `ADMIN_RESET_CODE`
-   - **Value:** `reset2025emergency` (or any secure string)
+   - **Value:** `<your-secure-random-string>` (create a strong random code)
 4. Click **Save Changes** (will auto-redeploy)
 
 #### 2. Create Admin via PowerShell
 Once deployed, run this command in PowerShell:
 
 ```powershell
-Invoke-RestMethod -Uri "https://smart-student-hub-sj5o.onrender.com/api/auth/admin-password-reset" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"confirmCode":"reset2025emergency","newUsername":"admin@yourdomain.com","newPassword":"YourSecurePassword123!"}'
+Invoke-RestMethod -Uri "https://smart-student-hub-sj5o.onrender.com/api/auth/admin-password-reset" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"confirmCode":"YOUR_ADMIN_RESET_CODE","newUsername":"admin@yourdomain.com","newPassword":"YourSecurePassword123!"}'
 ```
 
 **Parameters:**
-- `confirmCode`: Must match `ADMIN_RESET_CODE` from Render
+- `confirmCode`: Must match `ADMIN_RESET_CODE` from Render (replace YOUR_ADMIN_RESET_CODE)
 - `newUsername`: Your admin email
 - `newPassword`: Strong password (min 8 characters)
 
@@ -75,7 +75,7 @@ Invoke-RestMethod -Uri "https://smart-student-hub-sj5o.onrender.com/api/auth/adm
 Run this PowerShell command:
 
 ```powershell
-Invoke-RestMethod -Uri "https://smart-student-hub-sj5o.onrender.com/api/auth/admin-password-reset" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"confirmCode":"reset2025emergency","newUsername":"newemail@domain.com","newPassword":"NewSecurePassword123!"}'
+Invoke-RestMethod -Uri "https://smart-student-hub-sj5o.onrender.com/api/auth/admin-password-reset" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"confirmCode":"YOUR_ADMIN_RESET_CODE","newUsername":"newemail@domain.com","newPassword":"NewSecurePassword123!"}'
 ```
 
 **What it does:**
@@ -266,7 +266,7 @@ PORT=5000
 # Security
 JWT_SECRET=<64-character-random-string>
 JWT_EXPIRES_IN=24h
-ADMIN_RESET_CODE=reset2025emergency
+ADMIN_RESET_CODE=<your-secret-confirmation-code>
 
 # Database
 DATABASE_URL=postgresql://postgres.mjqnougcxzyobauhgkse:Smart@123@aws-1-ap-south-1.pooler.supabase.com:6543/postgres
@@ -281,7 +281,7 @@ GOOGLE_DRIVE_CREDENTIALS={"type":"service_account","project_id":"..."}
 
 **New Variable:** `ADMIN_RESET_CODE`
 - **Purpose:** Secret code required to create/reset admin account
-- **Example:** `reset2025emergency` or any secure random string
+- **Example:** Use a secure random string (generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
 - **Usage:** Used with `/api/auth/admin-password-reset` endpoint
 - **Security:** Keep this secret! Anyone with this code can reset admin credentials
 
