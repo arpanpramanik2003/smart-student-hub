@@ -1,0 +1,240 @@
+import React, { useState, useEffect } from 'react';
+import { facultyAPI } from '../../utils/api';
+import { STATUS_COLORS } from '../../utils/constants';
+import LoadingSpinner from '../shared/LoadingSpinner';
+
+const Dashboard = ({ user, token, onNavigate }) => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const data = await facultyAPI.getStats();
+      setStats(data);
+    } catch (error) {
+      console.error('Faculty stats fetch error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔥 Navigation handlers for Quick Actions
+  const handleReviewPending = () => {
+    if (typeof onNavigate === 'function') {
+      onNavigate('review');
+    }
+    // Also update hash for consistency
+    window.location.hash = '#review';
+  };
+
+  const handleViewAllActivities = () => {
+    if (typeof onNavigate === 'function') {
+      onNavigate('all-activities');
+    }
+    // Also update hash for consistency
+    window.location.hash = '#all-activities';
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Welcome Banner with Gradient */}
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 rounded-xl shadow-lg p-8 text-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2 flex items-center">
+              <svg className="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+              </svg>
+              Welcome, Prof. {user.name}!
+            </h1>
+            <p className="text-emerald-100 flex items-center">
+              <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
+              </svg>
+              {user.department} • Faculty Dashboard
+            </p>
+          </div>
+          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-4 py-2">
+            <div className="text-xs text-emerald-200">Active Session</div>
+            <div className="text-sm font-semibold">{new Date().toLocaleDateString()}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        {[
+          {
+            value: stats?.pendingCount || 0,
+            label: "Pending Review",
+            icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+            gradient: "from-yellow-500 to-orange-600"
+          },
+          {
+            value: stats?.totalActivities || 0,
+            label: "Total Activities",
+            icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+            gradient: "from-blue-500 to-indigo-600"
+          },
+          {
+            value: stats?.approvedCount || 0,
+            label: "Approved",
+            icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+            gradient: "from-green-500 to-emerald-600"
+          },
+          {
+            value: stats?.rejectedCount || 0,
+            label: "Rejected",
+            icon: "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z",
+            gradient: "from-red-500 to-pink-600"
+          },
+          {
+            value: stats?.reviewedByMe || 0,
+            label: "Reviewed by Me",
+            icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
+            gradient: "from-purple-500 to-pink-600"
+          }
+        ].map((stat, index) => (
+          <div
+            key={index}
+            className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className={`p-3 rounded-lg bg-gradient-to-br ${stat.gradient} shadow-md`}>
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={stat.icon} />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
+            <p className="text-sm text-gray-600 font-medium">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Recent Reviews */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Recent Reviews</h2>
+              <p className="text-xs text-gray-500">Latest activity evaluations</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          {stats?.recentReviews?.length > 0 ? (
+            <div className="space-y-3">
+              {stats.recentReviews.map((activity) => (
+                <div 
+                  key={activity.id} 
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-gray-200"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900">{activity.title}</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      by {activity.student?.name} ({activity.student?.studentId}) • {activity.student?.department}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {activity.type.replace('_', ' ')} • {new Date(activity.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="ml-4 flex items-center space-x-3">
+                    <span className="text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-lg shadow-sm">
+                      {activity.credits} credits
+                    </span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[activity.status] || 'text-gray-600 bg-gray-100'} shadow-sm`}>
+                      {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No recent reviews</h3>
+              <p className="text-gray-600">Activity reviews will appear here once you start evaluating student submissions.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Quick Actions</h2>
+              <p className="text-xs text-gray-500">Navigate to key areas</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Review Pending Activities */}
+            <button 
+              className="flex items-center p-5 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl hover:shadow-lg transition-all duration-200 hover:-translate-y-1 text-left group"
+              onClick={handleReviewPending}
+            >
+              <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg mr-4 shadow-md group-hover:scale-110 transition-transform">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 mb-1">Review Pending Activities</h3>
+                <p className="text-sm text-gray-600">{stats?.pendingCount || 0} activities awaiting review</p>
+              </div>
+            </button>
+            
+            {/* View All Activities */}
+            <button 
+              className="flex items-center p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl hover:shadow-lg transition-all duration-200 hover:-translate-y-1 text-left group"
+              onClick={handleViewAllActivities}
+            >
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg mr-4 shadow-md group-hover:scale-110 transition-transform">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900 mb-1">View All Activities</h3>
+                <p className="text-sm text-gray-600">Browse all student submissions</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
