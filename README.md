@@ -60,7 +60,7 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 - **PostgreSQL** (Supabase) for production
 - **SQLite** for local development
 - **JWT** authentication
-- **Google Cloud Storage** for files (avatars, certificates)
+- **Google Drive** for file storage (avatars, certificates) - 2TB!
 - **Multer** for file uploads
 - **Helmet** & **CORS** for security
 - **Rate limiting** for API protection
@@ -111,18 +111,18 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 - **Frontend:** Vercel (Free tier)
 - **Backend:** Render (Free tier)
 - **Database:** Supabase PostgreSQL (Free tier - 500MB)
-- **File Storage:** Google Cloud Storage (Free tier - 5GB)
+- **File Storage:** Google Drive (2TB included!)
 
 ### Quick Deploy Guide
 
 1. **Setup Credentials** (10 mins)
    - Create Supabase project → Get DATABASE_URL
-   - Setup Google Cloud Storage → Get credentials JSON
-   - See [SETUP_CREDENTIALS.md](SETUP_CREDENTIALS.md)
+   - Setup Google Drive API → Get credentials JSON
+   - See [GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md)
 
 2. **Deploy Backend to Render**
    - Connect GitHub repo
-   - Add environment variables (DATABASE_URL, GCS credentials)
+   - Add environment variables (DATABASE_URL, Google Drive credentials)
    - Deploy! → Get backend URL
 
 3. **Deploy Frontend to Vercel**

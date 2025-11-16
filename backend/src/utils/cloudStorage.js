@@ -1,44 +1,50 @@
-const { Storage } = require('@google-cloud/storage');
+const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
+const stream = require('stream');
 
 /**
- * Google Cloud Storage Configuration
+ * Google Drive Storage Configuration
  * 
  * Setup Instructions:
- * 1. Create a Google Cloud Project: https://console.cloud.google.com
- * 2. Enable Cloud Storage API
- * 3. Create a Service Account with Storage Admin role
- * 4. Download JSON key file
- * 5. Create a bucket for your files
- * 6. Set environment variables (see .env.production.template)
+ * 1. Go to Google Cloud Console: https://console.cloud.google.com
+ * 2. Enable Google Drive API
+ * 3. Create OAuth 2.0 credentials OR Service Account
+ * 4. Download credentials JSON
+ * 5. Create a folder in your Google Drive for uploads
+ * 6. Get the folder ID from the URL (after /folders/)
+ * 7. Share the folder with the service account email (if using service account)
+ * 8. Set environment variables (see .env.production.template)
  */
 
-let storage;
-let bucket;
+let drive;
+let folderId;
 
-// Initialize Google Cloud Storage
+// Initialize Google Drive
 const initializeStorage = () => {
   try {
-    if (process.env.NODE_ENV === 'production' && process.env.GCS_CREDENTIALS) {
-      // Production: Use Google Cloud Storage
-      const credentials = JSON.parse(process.env.GCS_CREDENTIALS);
+    if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_DRIVE_CREDENTIALS) {
+      // Production: Use Google Drive
+      const credentials = JSON.parse(process.env.GOOGLE_DRIVE_CREDENTIALS);
       
-      storage = new Storage({
-        projectId: process.env.GCS_PROJECT_ID,
-        credentials: credentials
+      const auth = new google.auth.GoogleAuth({
+        credentials: credentials,
+        scopes: ['https://www.googleapis.com/auth/drive.file']
       });
       
-      bucket = storage.bucket(process.env.GCS_BUCKET_NAME);
-      console.log('☁️  Google Cloud Storage initialized');
+      drive = google.drive({ version: 'v3', auth });
+      folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+      
+      console.log('📁 Google Drive initialized');
+      console.log(`📂 Using folder ID: ${folderId}`);
       return true;
     } else {
       // Development: Use local file storage
-      console.log('📁 Using local file storage for development');
+      console.log('💾 Using local file storage for development');
       return false;
     }
   } catch (error) {
-    console.error('❌ Google Cloud Storage initialization error:', error.message);
+    console.error('❌ Google Drive initialization error:', error.message);
     console.log('⚠️  Falling back to local file storage');
     return false;
   }
@@ -47,45 +53,54 @@ const initializeStorage = () => {
 const useCloudStorage = initializeStorage();
 
 /**
- * Upload file to Google Cloud Storage or local storage
+ * Upload file to Google Drive or local storage
  * @param {Object} file - Multer file object
- * @param {String} folder - Folder path in bucket (e.g., 'avatars', 'certificates')
- * @returns {String} - Public URL of uploaded file
+ * @param {String} folder - Folder name (e.g., 'avatars', 'certificates')
+ * @returns {String} - Public URL or file ID of uploaded file
  */
 const uploadFile = async (file, folder = 'uploads') => {
   try {
-    if (useCloudStorage && bucket) {
-      // Upload to Google Cloud Storage
-      const fileName = `${folder}/${Date.now()}-${file.originalname}`;
-      const blob = bucket.file(fileName);
+    if (useCloudStorage && drive) {
+      // Upload to Google Drive
+      const fileName = `${Date.now()}-${file.originalname}`;
       
-      const blobStream = blob.createWriteStream({
-        resumable: false,
-        metadata: {
-          contentType: file.mimetype,
-          metadata: {
-            firebaseStorageDownloadTokens: Date.now()
-          }
-        }
+      const bufferStream = new stream.PassThrough();
+      bufferStream.end(file.buffer);
+      
+      const fileMetadata = {
+        name: fileName,
+        parents: [folderId], // Upload to specified folder
+      };
+      
+      const media = {
+        mimeType: file.mimetype,
+        body: bufferStream,
+      };
+      
+      // Upload file
+      const response = await drive.files.create({
+        requestBody: fileMetadata,
+        media: media,
+        fields: 'id, webViewLink, webContentLink',
       });
-
-      return new Promise((resolve, reject) => {
-        blobStream.on('error', (error) => {
-          console.error('Upload error:', error);
-          reject(error);
-        });
-
-        blobStream.on('finish', async () => {
-          // Make the file public
-          await blob.makePublic();
-          
-          // Get public URL
-          const publicUrl = `https://storage.googleapis.com/${process.env.GCS_BUCKET_NAME}/${fileName}`;
-          resolve(publicUrl);
-        });
-
-        blobStream.end(file.buffer);
+      
+      const fileId = response.data.id;
+      
+      // Make file publicly accessible
+      await drive.permissions.create({
+        fileId: fileId,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone',
+        },
       });
+      
+      // Get direct download link
+      const directLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      
+      console.log(`✅ Uploaded to Google Drive: ${fileName} (ID: ${fileId})`);
+      return directLink;
+      
     } else {
       // Local file storage (development)
       const uploadsDir = path.join(__dirname, '../../uploads', folder);
@@ -108,18 +123,19 @@ const uploadFile = async (file, folder = 'uploads') => {
 };
 
 /**
- * Delete file from Google Cloud Storage or local storage
+ * Delete file from Google Drive or local storage
  * @param {String} fileUrl - URL of file to delete
  * @returns {Boolean} - Success status
  */
 const deleteFile = async (fileUrl) => {
   try {
-    if (useCloudStorage && bucket && fileUrl.includes('storage.googleapis.com')) {
-      // Delete from Google Cloud Storage
-      const fileName = fileUrl.split(`${process.env.GCS_BUCKET_NAME}/`)[1];
-      if (fileName) {
-        await bucket.file(fileName).delete();
-        console.log(`✅ Deleted file from GCS: ${fileName}`);
+    if (useCloudStorage && drive && fileUrl.includes('drive.google.com')) {
+      // Extract file ID from Google Drive URL
+      // Format: https://drive.google.com/uc?export=view&id=FILE_ID
+      const fileId = fileUrl.split('id=')[1];
+      if (fileId) {
+        await drive.files.delete({ fileId: fileId });
+        console.log(`✅ Deleted file from Google Drive: ${fileId}`);
         return true;
       }
     } else if (fileUrl.startsWith('/uploads/')) {
@@ -139,23 +155,22 @@ const deleteFile = async (fileUrl) => {
 };
 
 /**
- * Get signed URL for private files (optional - for future use)
- * @param {String} fileName - File name in bucket
- * @param {Number} expiresIn - Expiration time in seconds (default: 1 hour)
- * @returns {String} - Signed URL
+ * Get file metadata from Google Drive (optional - for future use)
+ * @param {String} fileId - Google Drive file ID
+ * @returns {Object} - File metadata
  */
-const getSignedUrl = async (fileName, expiresIn = 3600) => {
+const getFileMetadata = async (fileId) => {
   try {
-    if (useCloudStorage && bucket) {
-      const [url] = await bucket.file(fileName).getSignedUrl({
-        action: 'read',
-        expires: Date.now() + expiresIn * 1000
+    if (useCloudStorage && drive) {
+      const response = await drive.files.get({
+        fileId: fileId,
+        fields: 'id, name, mimeType, size, createdTime, webViewLink, webContentLink',
       });
-      return url;
+      return response.data;
     }
     return null;
   } catch (error) {
-    console.error('Signed URL error:', error);
+    console.error('Get metadata error:', error);
     return null;
   }
 };
@@ -163,6 +178,6 @@ const getSignedUrl = async (fileName, expiresIn = 3600) => {
 module.exports = {
   uploadFile,
   deleteFile,
-  getSignedUrl,
+  getFileMetadata,
   useCloudStorage
 };

@@ -11,8 +11,8 @@ Complete step-by-step guide to deploy your Smart Student Hub application with pr
 ✅ Vercel account (frontend hosting)  
 ✅ Render account (backend hosting)  
 ✅ Supabase account (PostgreSQL database)  
-✅ Google Cloud account (file storage)  
-✅ Credit/debit card (for Google Cloud - free tier available)
+✅ Google account with Google Drive (2TB storage!)  
+✅ No credit card needed - all free tiers!
 
 ---
 
@@ -34,7 +34,7 @@ Complete step-by-step guide to deploy your Smart Student Hub application with pr
        │    • User data
        │    • Activities
        │
-       └──→ Google Cloud Storage
+       └──→ Google Drive (2TB!)
             • Avatars
             • Certificates
             • Documents
