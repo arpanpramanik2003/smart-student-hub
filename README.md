@@ -8,7 +8,21 @@ A comprehensive platform for managing student academic activities, portfolios, a
 
 ---
 
-## 📋 Overview
+## 📋 Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Deployment](#deployment)
+- [Environment Variables](#environment-variables)
+- [Test Credentials](#test-credentials)
+- [Project Structure](#project-structure)
+- [API Documentation](#api-documentation)
+- [Security](#security)
+
+---
+
+## 📝 Overview
 
 Smart Student Hub is a full-stack web application that enables:
 - **Students** to submit and track academic activities
@@ -60,7 +74,7 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 - **PostgreSQL** (Supabase) for production
 - **SQLite** for local development
 - **JWT** authentication
-- **Google Drive** for file storage (avatars, certificates) - 2TB!
+- **Google Drive** for file storage (2TB!)
 - **Multer** for file uploads
 - **Helmet** & **CORS** for security
 - **Rate limiting** for API protection
@@ -78,7 +92,7 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/smart-student-hub.git
+   git clone https://github.com/arpanpramanik2003/smart-student-hub.git
    cd smart-student-hub
    ```
 
@@ -86,15 +100,27 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
    ```bash
    cd backend
    npm install
-   npm run create-admin  # Create admin account
-   npm run dev          # Start backend on port 5000
+   
+   # Copy environment template
+   cp .env.example .env
+   
+   # Create admin account
+   npm run create-admin
+   
+   # Start backend on port 5000
+   npm run dev
    ```
 
 3. **Setup Frontend** (in new terminal)
    ```bash
    cd frontend
    npm install
-   npm run dev          # Start frontend on port 5173
+   
+   # Copy environment template
+   cp .env.example .env
+   
+   # Start frontend on port 5173
+   npm run dev
    ```
 
 4. **Access Application**
@@ -108,37 +134,68 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 
 ### Production Stack (Recommended)
 
-- **Frontend:** Vercel (Free tier)
-- **Backend:** Render (Free tier)
-- **Database:** Supabase PostgreSQL (Free tier - 500MB)
-- **File Storage:** Google Drive (2TB included!)
+```
+Frontend → Vercel (Free)
+Backend  → Render (Free)
+Database → Supabase PostgreSQL (500MB Free)
+Storage  → Google Drive (2TB!)
+```
 
-### Quick Deploy Guide
+**Total Cost: $0/month**
 
-1. **Setup Credentials** (10 mins)
-   - Create Supabase project → Get DATABASE_URL
-   - Setup Google Drive API → Get credentials JSON
-   - See [GOOGLE_DRIVE_SETUP.md](GOOGLE_DRIVE_SETUP.md)
+### Quick Deploy
 
-2. **Deploy Backend to Render**
-   - Connect GitHub repo
-   - Add environment variables (DATABASE_URL, Google Drive credentials)
-   - Deploy! → Get backend URL
-
-3. **Deploy Frontend to Vercel**
-   - Connect GitHub repo
-   - Set VITE_API_URL with backend URL
-   - Deploy! → Get frontend URL
-
-**Detailed Instructions:** See [DEPLOYMENT_RENDER_SUPABASE.md](DEPLOYMENT_RENDER_SUPABASE.md)
-
-**Alternative:** Traditional deployment with Railway/DigitalOcean - See [DEPLOYMENT.md](DEPLOYMENT.md)
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete step-by-step instructions including:
+- Supabase PostgreSQL setup
+- Google Drive API configuration
+- Render backend deployment
+- Vercel frontend deployment
+- Environment variables
+- Testing & troubleshooting
 
 ---
 
-## 🔐 Test Credentials
+## 🔐 Environment Variables
 
-These credentials are currently visible on the login page for testing:
+### Backend (.env)
+
+```bash
+# Server
+PORT=5000
+NODE_ENV=development
+
+# Security
+JWT_SECRET=your-secret-key-generate-new-for-production
+JWT_EXPIRES_IN=24h
+
+# Database (Development: SQLite, Production: PostgreSQL)
+DB_NAME=smart_student_hub.db
+DATABASE_URL=postgresql://postgres:password@db.xxxxx.supabase.co:5432/postgres
+
+# Google Drive (Production only)
+GOOGLE_DRIVE_FOLDER_ID=your-folder-id
+GOOGLE_DRIVE_CREDENTIALS={"type":"service_account"...}
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:5173,https://your-app.vercel.app
+```
+
+### Frontend (.env)
+
+```bash
+# API URL
+VITE_API_URL=http://localhost:5000/api
+
+# App Info
+VITE_APP_NAME=Smart Student Hub
+VITE_APP_VERSION=1.0.0
+```
+
+---
+
+## 🔑 Test Credentials
+
+These credentials are visible on the login page for testing:
 
 ### Admin
 - Email: `admin@smartstudenthub.com`
@@ -152,7 +209,7 @@ These credentials are currently visible on the login page for testing:
 - Email: `faculty@smartstudenthub.com`
 - Password: `Faculty@123`
 
-⚠️ **Note:** Remove test credentials banner from `LoginPage.jsx` before final production!
+⚠️ **Note:** Remove test credentials banner from `pages/LoginPage.jsx` before final production!
 
 ---
 
@@ -162,50 +219,32 @@ These credentials are currently visible on the login page for testing:
 smart-student-hub/
 ├── backend/
 │   ├── src/
-│   │   ├── controllers/    # Request handlers
-│   │   ├── middleware/     # Auth & validation
-│   │   ├── models/         # Database models
-│   │   ├── routes/         # API routes
-│   │   └── utils/          # Helper functions
-│   ├── scripts/            # Admin creation script
-│   ├── uploads/            # File storage
-│   ├── .env                # Environment variables
-│   └── server.js           # Entry point
+│   │   ├── controllers/      # Request handlers
+│   │   ├── middleware/       # Auth & validation
+│   │   ├── models/           # Database models
+│   │   ├── routes/           # API routes
+│   │   └── utils/            # Helper functions
+│   ├── scripts/              # Admin creation script
+│   ├── uploads/              # Local file storage
+│   ├── .env                  # Environment variables
+│   └── server.js             # Entry point
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     # React components
-│   │   │   ├── admin/     # Admin components
-│   │   │   ├── auth/      # Login/Register
-│   │   │   ├── faculty/   # Faculty components
-│   │   │   ├── shared/    # Shared components
-│   │   │   └── student/   # Student components
-│   │   ├── pages/         # Page components
-│   │   ├── utils/         # API & constants
-│   │   └── App.jsx        # Main component
-│   └── .env               # Frontend config
+│   │   ├── components/       # React components
+│   │   │   ├── admin/       # Admin components
+│   │   │   ├── auth/        # Login/Register
+│   │   │   ├── faculty/     # Faculty components
+│   │   │   ├── shared/      # Shared components
+│   │   │   └── student/     # Student components
+│   │   ├── pages/           # Page components
+│   │   ├── utils/           # API & constants
+│   │   └── App.jsx          # Main component
+│   └── .env                 # Frontend config
 │
-├── DEPLOYMENT.md          # Deployment guide
-├── DEPLOYMENT_CHECKLIST.md # Pre-deployment checklist
-├── QUICK_REFERENCE.md     # Quick reference card
-└── SECURITY_AUDIT.md      # Security documentation
+├── README.md                 # This file
+└── DEPLOYMENT.md            # Deployment guide
 ```
-
----
-
-## 🔒 Security Features
-
-- ✅ JWT authentication with secure tokens
-- ✅ Password hashing with bcrypt (12 rounds)
-- ✅ Strong password policy (8+ chars, mixed case, numbers, special chars)
-- ✅ Rate limiting on auth routes (5 attempts/15 min)
-- ✅ CORS protection
-- ✅ Helmet.js security headers
-- ✅ Input validation with Joi
-- ✅ XSS prevention
-- ✅ Secure file upload validation
-
-**Full Audit:** See [SECURITY_AUDIT.md](backend/SECURITY_AUDIT.md)
 
 ---
 
@@ -213,7 +252,13 @@ smart-student-hub/
 
 ### Base URL
 - Development: `http://localhost:5000/api`
-- Production: `https://your-backend.railway.app/api`
+- Production: `https://your-backend.onrender.com/api`
+
+### Authentication
+All protected routes require JWT token in header:
+```
+Authorization: Bearer <token>
+```
 
 ### Key Endpoints
 
@@ -238,6 +283,24 @@ smart-student-hub/
 - `GET /admin/users` - List all users
 - `POST /admin/users` - Create user
 - `GET /admin/reports` - Generate reports
+
+---
+
+## 🔒 Security Features
+
+- ✅ **JWT Authentication** - Secure token-based auth
+- ✅ **Password Hashing** - bcrypt with 12 rounds
+- ✅ **Strong Password Policy** - 8+ chars, mixed case, numbers, special chars
+- ✅ **Rate Limiting** - 5 attempts/15 min on auth routes
+- ✅ **CORS Protection** - Only allow frontend domain
+- ✅ **SSL/TLS** - HTTPS everywhere (Render + Vercel)
+- ✅ **Database SSL** - Encrypted Supabase connection
+- ✅ **Input Validation** - Joi schema validation
+- ✅ **XSS Prevention** - Helmet.js security headers
+- ✅ **SQL Injection** - Sequelize parameterized queries
+- ✅ **File Upload Limits** - 5MB certificates, 2MB avatars
+
+**Security Score: 8/10** 🛡️
 
 ---
 
@@ -282,7 +345,7 @@ Contributions are welcome! Please follow these steps:
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ---
 
@@ -308,5 +371,7 @@ For issues, questions, or suggestions:
 - Inspired by the need for better student portfolio management
 
 ---
+
+**Repository:** https://github.com/arpanpramanik2003/smart-student-hub
 
 **Happy Coding! 🚀**
