@@ -203,7 +203,7 @@ const ActivityList = ({ user, token }) => {
                         {visibleFiles[activity.id] && (
                           <div className="mt-2 flex space-x-3">
                             <a
-                              href={activity.filePath.startsWith('http') ? activity.filePath.replace('/upload/', '/upload/fl_attachment:false/') : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
+                              href={activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
@@ -214,7 +214,7 @@ const ActivityList = ({ user, token }) => {
                               View
                             </a>
                             <a
-                              href={activity.filePath.startsWith('http') ? activity.filePath.replace('/upload/', '/upload/fl_attachment/') : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
+                              href={activity.filePath.startsWith('http') ? `${activity.filePath}?fl_attachment` : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`}
                               download
                               target="_blank"
                               rel="noopener noreferrer"
