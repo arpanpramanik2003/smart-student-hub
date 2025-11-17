@@ -78,6 +78,7 @@ const uploadFile = async (file, folder = 'certificates') => {
       // This is the CORRECT approach for all file types including PDFs
       
       // Sanitize filename - remove spaces, special chars, keep only alphanumeric, dash, underscore
+      const fileExt = file.originalname.split('.').pop()?.toLowerCase();
       const sanitizedName = file.originalname
         .replace(/\.[^/.]+$/, '') // Remove extension
         .replace(/[^a-zA-Z0-9_-]/g, '_') // Replace special chars with underscore
@@ -85,7 +86,6 @@ const uploadFile = async (file, folder = 'certificates') => {
         .substring(0, 100); // Limit length
       
       // Determine resource type based on file extension
-      const fileExt = file.originalname.split('.').pop()?.toLowerCase();
       const resourceType = (fileExt === 'pdf' || fileExt === 'doc' || fileExt === 'docx') ? 'raw' : 'auto';
       
       return new Promise((resolve, reject) => {
@@ -93,10 +93,11 @@ const uploadFile = async (file, folder = 'certificates') => {
           {
             folder: `smart-student-hub/${folder}`, // Organize in folders
             resource_type: resourceType, // Use 'raw' for documents, 'auto' for images
-            public_id: `${Date.now()}-${sanitizedName}`, // Use sanitized filename
+            public_id: `${Date.now()}-${sanitizedName}`, // Use sanitized filename WITHOUT extension
             use_filename: false, // Don't use original filename
             unique_filename: true,
             access_mode: 'public', // Ensure public access
+            format: fileExt, // IMPORTANT: Specify format so Cloudinary adds extension to URL
           },
           (error, result) => {
             if (error) {
