@@ -88,16 +88,20 @@ const uploadFile = async (file, folder = 'certificates') => {
       // Determine resource type based on file extension
       const resourceType = (fileExt === 'pdf' || fileExt === 'doc' || fileExt === 'docx') ? 'raw' : 'auto';
       
+      // For raw files, we MUST include extension in public_id, otherwise Cloudinary won't add it to URL
+      const publicId = resourceType === 'raw' 
+        ? `${Date.now()}-${sanitizedName}.${fileExt}`
+        : `${Date.now()}-${sanitizedName}`;
+      
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: `smart-student-hub/${folder}`, // Organize in folders
             resource_type: resourceType, // Use 'raw' for documents, 'auto' for images
-            public_id: `${Date.now()}-${sanitizedName}`, // Use sanitized filename WITHOUT extension
+            public_id: publicId, // Include extension for raw files
             use_filename: false, // Don't use original filename
-            unique_filename: true,
+            unique_filename: false, // We're already making it unique with timestamp
             access_mode: 'public', // Ensure public access
-            format: fileExt, // IMPORTANT: Specify format so Cloudinary adds extension to URL
           },
           (error, result) => {
             if (error) {
