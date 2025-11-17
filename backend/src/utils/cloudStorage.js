@@ -84,15 +84,18 @@ const uploadFile = async (file, folder = 'certificates') => {
         .replace(/_+/g, '_') // Replace multiple underscores with single
         .substring(0, 100); // Limit length
       
+      // Determine resource type based on file extension
+      const fileExt = file.originalname.split('.').pop()?.toLowerCase();
+      const resourceType = (fileExt === 'pdf' || fileExt === 'doc' || fileExt === 'docx') ? 'raw' : 'auto';
+      
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: `smart-student-hub/${folder}`, // Organize in folders
-            resource_type: 'auto', // Let Cloudinary auto-detect file type
+            resource_type: resourceType, // Use 'raw' for documents, 'auto' for images
             public_id: `${Date.now()}-${sanitizedName}`, // Use sanitized filename
             use_filename: false, // Don't use original filename
             unique_filename: true,
-            format: file.originalname.split('.').pop()?.toLowerCase(),
             access_mode: 'public', // Ensure public access
           },
           (error, result) => {
@@ -100,6 +103,7 @@ const uploadFile = async (file, folder = 'certificates') => {
               console.error('❌ Cloudinary upload error:', error);
               console.error('   File:', file.originalname);
               console.error('   MIME type:', file.mimetype);
+              console.error('   Resource type attempted:', resourceType);
               reject(error);
             } else {
               console.log('✅ Uploaded to Cloudinary:', result.secure_url);
@@ -107,6 +111,7 @@ const uploadFile = async (file, folder = 'certificates') => {
               console.log(`📋 MIME type: ${file.mimetype}`);
               console.log(`🔧 Resource type: ${result.resource_type}`);
               console.log(`📦 Format: ${result.format}`);
+              console.log(`🔗 URL: ${result.secure_url}`);
               resolve(result.secure_url); // Return public URL
             }
           }
