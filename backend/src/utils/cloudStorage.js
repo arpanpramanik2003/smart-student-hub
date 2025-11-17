@@ -102,6 +102,8 @@ const uploadFile = async (file, folder = 'certificates') => {
             use_filename: false, // Don't use original filename
             unique_filename: false, // We're already making it unique with timestamp
             access_mode: 'public', // Ensure public access
+            type: 'upload', // Upload type
+            invalidate: false, // Don't invalidate CDN cache
           },
           (error, result) => {
             if (error) {
@@ -109,6 +111,7 @@ const uploadFile = async (file, folder = 'certificates') => {
               console.error('   File:', file.originalname);
               console.error('   MIME type:', file.mimetype);
               console.error('   Resource type attempted:', resourceType);
+              console.error('   Full error:', JSON.stringify(error, null, 2));
               reject(error);
             } else {
               console.log('✅ Uploaded to Cloudinary:', result.secure_url);
@@ -117,6 +120,8 @@ const uploadFile = async (file, folder = 'certificates') => {
               console.log(`🔧 Resource type: ${result.resource_type}`);
               console.log(`📦 Format: ${result.format}`);
               console.log(`🔗 URL: ${result.secure_url}`);
+              console.log(`📍 Public ID: ${result.public_id}`);
+              console.log(`✅ File size: ${result.bytes} bytes`);
               resolve(result.secure_url); // Return public URL
             }
           }
