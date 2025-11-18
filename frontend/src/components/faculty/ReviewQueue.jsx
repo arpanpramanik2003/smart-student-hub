@@ -52,7 +52,7 @@ const ReviewQueue = ({ user, token }) => {
   };
 
   const handleQuickReject = (activityId) => {
-    const remarks = document.getElementById(`remarks-${activityId}`).value || 'Activity rejected by faculty';
+    const remarks = document.getElementById(`remarks-${activityId}`).value || '';
     handleReview(activityId, 'rejected', remarks);
   };
 
