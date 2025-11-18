@@ -205,6 +205,7 @@ const ActivityList = ({ user, token }) => {
                           const isPDF = fileUrl.toLowerCase().includes('.pdf');
                           const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileUrl);
                           const viewUrl = isPDF ? `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fileUrl)}` : fileUrl;
+                          const downloadUrl = `${import.meta.env.VITE_API_URL}/files/download?url=${encodeURIComponent(fileUrl)}`;
                           
                           return (
                             <div className="mt-2 flex space-x-2">
@@ -221,8 +222,7 @@ const ActivityList = ({ user, token }) => {
                                 View
                               </a>
                               <a
-                                href={fileUrl}
-                                download
+                                href={downloadUrl}
                                 className="inline-flex items-center px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
                               >
                                 <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
