@@ -1,9 +1,8 @@
-const axios = require('axios');
+const cloudinary = require('cloudinary').v2;
 
 /**
- * Proxy file viewing endpoint
- * Fetches file from Cloudinary and serves it with inline headers
- * This allows PDFs and other documents to be viewed in the browser
+ * Generate authenticated/signed URL for viewing files
+ * Returns a URL with transformation to force inline display
  */
 const viewFile = async (req, res) => {
   try {
@@ -18,54 +17,47 @@ const viewFile = async (req, res) => {
       return res.status(403).json({ message: 'Invalid file URL' });
     }
 
-    console.log('📄 Proxying file:', url);
+    console.log('📄 Generating view URL for:', url);
 
-    // Fetch the file from Cloudinary
-    const response = await axios.get(url, {
-      responseType: 'arraybuffer',
-      timeout: 30000, // 30 second timeout
+    // Extract public_id from URL
+    // Format: https://res.cloudinary.com/CLOUD_NAME/raw/upload/v123/folder/file.ext
+    const urlParts = url.split('/');
+    const uploadIndex = urlParts.indexOf('upload');
+    
+    if (uploadIndex === -1) {
+      return res.status(400).json({ message: 'Invalid Cloudinary URL format' });
+    }
+
+    // Get everything after /upload/v123456/
+    const publicIdWithVersion = urlParts.slice(uploadIndex + 1).join('/');
+    // Remove version prefix (v1234567/)
+    const publicId = publicIdWithVersion.replace(/^v\d+\//, '');
+    
+    console.log('📍 Public ID:', publicId);
+
+    // Get resource type from URL (raw or image)
+    const resourceType = url.includes('/raw/') ? 'raw' : 'image';
+    
+    // Generate a signed URL with flags to force inline display
+    // Cloudinary will serve the file with proper Content-Disposition headers
+    const signedUrl = cloudinary.url(publicId, {
+      resource_type: resourceType,
+      type: 'upload',
+      sign_url: true,
+      secure: true,
+      flags: 'attachment:false', // Try to prevent download
     });
 
-    // Determine content type from response or URL
-    let contentType = response.headers['content-type'];
-    if (!contentType) {
-      // Fallback: determine from URL extension
-      if (url.endsWith('.pdf')) contentType = 'application/pdf';
-      else if (url.endsWith('.doc')) contentType = 'application/msword';
-      else if (url.endsWith('.docx')) contentType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      else if (url.endsWith('.jpg') || url.endsWith('.jpeg')) contentType = 'image/jpeg';
-      else if (url.endsWith('.png')) contentType = 'image/png';
-      else contentType = 'application/octet-stream';
-    }
+    console.log('✅ Generated signed URL:', signedUrl);
 
-    // Extract filename from URL
-    const urlParts = url.split('/');
-    const filename = urlParts[urlParts.length - 1];
-
-    // Set headers for inline viewing
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
-    res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    
-    // Send the file buffer
-    res.send(Buffer.from(response.data));
-    
-    console.log('✅ File proxied successfully:', filename);
+    // Redirect to the signed URL
+    res.redirect(signedUrl);
 
   } catch (error) {
-    console.error('❌ File proxy error:', error.message);
-    
-    if (error.response) {
-      // Cloudinary returned an error
-      return res.status(error.response.status).json({
-        message: 'Failed to fetch file from storage',
-        details: error.response.statusText
-      });
-    }
+    console.error('❌ URL generation error:', error.message);
     
     res.status(500).json({
-      message: 'Failed to load file',
+      message: 'Failed to generate view URL',
       details: error.message
     });
   }
