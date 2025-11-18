@@ -141,6 +141,7 @@ app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/students', require('./src/routes/student'));
 app.use('/api/faculty', require('./src/routes/faculty'));
 app.use('/api/admin', require('./src/routes/admin'));
+app.use('/api/files', require('./src/routes/file')); // File proxy endpoint
 
 // Error handling middleware
 app.use((err, req, res, next) => {
