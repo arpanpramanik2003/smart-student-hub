@@ -52,8 +52,13 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
 
       // Set profile picture preview if exists
       if (profileData.profilePicture) {
-        const backendBaseUrl = API_BASE_URL.replace('/api', '');
-        setProfilePicturePreview(`${backendBaseUrl}${profileData.profilePicture}`);
+        // Check if URL is already absolute (Cloudinary URL)
+        if (profileData.profilePicture.startsWith('http')) {
+          setProfilePicturePreview(profileData.profilePicture);
+        } else {
+          const backendBaseUrl = API_BASE_URL.replace('/api', '');
+          setProfilePicturePreview(`${backendBaseUrl}${profileData.profilePicture}`);
+        }
       }
     } catch (err) {
       showMessage('error', 'Failed to load your basic details!');

@@ -17,15 +17,21 @@ const Dashboard = ({ user, token, updateUser }) => {
   
   // Initialize profilePreview with proper fallback
   const [profilePreview, setProfilePreview] = useState(() => {
-    return user?.profilePicture 
-      ? `${backendBaseUrl}${user.profilePicture}`  
-      : '/default-avatar.png';
+    if (!user?.profilePicture) return '/default-avatar.png';
+    // Check if URL is already absolute (Cloudinary URL)
+    return user.profilePicture.startsWith('http') 
+      ? user.profilePicture 
+      : `${backendBaseUrl}${user.profilePicture}`;
   });
 
   // Sync profilePreview when user data changes
   useEffect(() => {
     if (user?.profilePicture) {
-      setProfilePreview(`${backendBaseUrl}${user.profilePicture}`);
+      // Check if URL is already absolute (Cloudinary URL)
+      const url = user.profilePicture.startsWith('http') 
+        ? user.profilePicture 
+        : `${backendBaseUrl}${user.profilePicture}`;
+      setProfilePreview(url);
     } else {
       setProfilePreview('/default-avatar.png');
     }
@@ -74,7 +80,10 @@ const Dashboard = ({ user, token, updateUser }) => {
       const data = await res.json();
       
       if (data.profilePicture) {
-        const newProfileUrl = `${backendBaseUrl}${data.profilePicture}`;
+        // Check if URL is already absolute (Cloudinary URL)
+        const newProfileUrl = data.profilePicture.startsWith('http') 
+          ? data.profilePicture 
+          : `${backendBaseUrl}${data.profilePicture}`;
         setProfilePreview(newProfileUrl);
         
         // 🔥 KEY FIX: Update the parent user object
