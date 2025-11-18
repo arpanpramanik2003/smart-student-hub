@@ -204,7 +204,13 @@ const ActivityList = ({ user, token }) => {
                           const fileUrl = activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`;
                           const isPDF = fileUrl.toLowerCase().includes('.pdf');
                           const isImage = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(fileUrl);
-                          const viewUrl = isPDF ? `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fileUrl)}` : fileUrl;
+                          
+                          // For PDFs: Use backend proxy to avoid CORS, then open with PDF.js
+                          // For images/docs: Direct URL
+                          const proxyUrl = `${import.meta.env.VITE_API_URL}/files/view?url=${encodeURIComponent(fileUrl)}`;
+                          const viewUrl = isPDF 
+                            ? `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(proxyUrl)}` 
+                            : fileUrl;
                           const downloadUrl = `${import.meta.env.VITE_API_URL}/files/download?url=${encodeURIComponent(fileUrl)}`;
                           
                           return (
