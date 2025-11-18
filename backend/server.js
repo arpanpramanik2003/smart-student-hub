@@ -141,7 +141,15 @@ app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/students', require('./src/routes/student'));
 app.use('/api/faculty', require('./src/routes/faculty'));
 app.use('/api/admin', require('./src/routes/admin'));
-app.use('/api/files', require('./src/routes/file')); // File proxy endpoint
+
+// 🔥 CRITICAL: Special CORS for file proxy - allow ALL origins for PDF.js viewer
+app.use('/api/files', cors({
+  origin: '*', // Allow all origins (Mozilla PDF.js viewer needs this)
+  methods: ['GET', 'OPTIONS'],
+  allowedHeaders: ['Range', 'Content-Type', 'Accept'],
+  exposedHeaders: ['Content-Length', 'Content-Range', 'Accept-Ranges'],
+  credentials: false
+}), require('./src/routes/file'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
