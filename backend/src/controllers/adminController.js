@@ -204,14 +204,11 @@ const createUser = async (req, res) => {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
+    // Create user (password will be hashed automatically by User model's beforeCreate hook)
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password, // Don't hash here - let the model hook handle it
       role,
       department,
       year: role === 'student' ? year : null,
