@@ -10,6 +10,9 @@ const ActivityList = ({ user, token }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [visibleFiles, setVisibleFiles] = useState({});
   const [deletingId, setDeletingId] = useState(null);
+  const [editingActivity, setEditingActivity] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   useEffect(() => {
     fetchActivities();
@@ -44,6 +47,48 @@ const ActivityList = ({ user, token }) => {
       alert('❌ Failed to delete activity. ' + (error.message || 'Please try again.'));
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleEditClick = (activity) => {
+    setEditingActivity(activity);
+    setEditFormData({
+      title: activity.title,
+      type: activity.type,
+      description: activity.description || '',
+      date: activity.date ? activity.date.split('T')[0] : '',
+      duration: activity.duration || '',
+      organizer: activity.organizer || '',
+      certificate: null
+    });
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('title', editFormData.title);
+      formData.append('type', editFormData.type);
+      formData.append('description', editFormData.description);
+      formData.append('date', editFormData.date);
+      formData.append('duration', editFormData.duration);
+      formData.append('organizer', editFormData.organizer);
+      
+      if (editFormData.certificate) {
+        formData.append('certificate', editFormData.certificate);
+      }
+
+      await studentAPI.updateActivity(editingActivity.id, formData);
+      alert('✅ Activity updated successfully!');
+      setEditingActivity(null);
+      fetchActivities();
+    } catch (error) {
+      console.error('Update error:', error);
+      alert('❌ Failed to update activity. ' + (error.message || 'Please try again.'));
+    } finally {
+      setEditSubmitting(false);
     }
   };
 
@@ -215,7 +260,7 @@ const ActivityList = ({ user, token }) => {
                       <div className="flex space-x-2">
                         <button
                           type="button"
-                          onClick={() => window.location.href = `/student/edit-activity/${activity.id}`}
+                          onClick={() => handleEditClick(activity)}
                           disabled={deletingId === activity.id}
                           className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -319,6 +364,163 @@ const ActivityList = ({ user, token }) => {
                 ? 'Try adjusting your search or filter criteria.'
                 : 'Start building your portfolio by submitting your first activity.'}
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingActivity && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-gray-900">Edit Activity</h2>
+                <button
+                  onClick={() => setEditingActivity(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleEditSubmit} className="space-y-4">
+                {/* Title */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.title}
+                    onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={editFormData.type}
+                    onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value })}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="conference">Conference</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="certification">Certification</option>
+                    <option value="competition">Competition</option>
+                    <option value="internship">Internship</option>
+                    <option value="leadership">Leadership</option>
+                    <option value="community_service">Community Service</option>
+                    <option value="club_activity">Club Activity</option>
+                    <option value="online_course">Online Course</option>
+                  </select>
+                </div>
+
+                {/* Date and Duration */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={editFormData.date}
+                      onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Duration
+                    </label>
+                    <input
+                      type="text"
+                      value={editFormData.duration}
+                      onChange={(e) => setEditFormData({ ...editFormData, duration: e.target.value })}
+                      placeholder="e.g., 2 days"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Organizer */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Organizer
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.organizer}
+                    onChange={(e) => setEditFormData({ ...editFormData, organizer: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={editFormData.description}
+                    onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Certificate Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Update Certificate (Optional)
+                  </label>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    onChange={(e) => setEditFormData({ ...editFormData, certificate: e.target.files[0] })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Leave empty to keep current certificate
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setEditingActivity(null)}
+                    disabled={editSubmitting}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editSubmitting}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+                  >
+                    {editSubmitting ? (
+                      <>
+                        <LoadingSpinner size="sm" className="mr-2" />
+                        Updating...
+                      </>
+                    ) : (
+                      'Update Activity'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
