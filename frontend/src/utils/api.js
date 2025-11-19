@@ -90,6 +90,15 @@ export const studentAPI = {
     body: formData,
   }),
   
+  updateActivity: (activityId, formData) => apiRequest(`/students/activities/${activityId}`, {
+    method: 'PUT',
+    body: formData,
+  }),
+  
+  deleteActivity: (activityId) => apiRequest(`/students/activities/${activityId}`, {
+    method: 'DELETE',
+  }),
+  
   uploadAvatar: (formData) => apiRequest('/students/upload-avatar', {
     method: 'POST',
     body: formData,

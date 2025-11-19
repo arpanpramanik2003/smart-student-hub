@@ -220,9 +220,140 @@ const getActivityStats = async (req, res) => {
   }
 };
 
+// Delete activity (only if pending)
+const deleteActivity = async (req, res) => {
+  try {
+    const { activityId } = req.params;
+    
+    const activity = await Activity.findByPk(activityId);
+    
+    if (!activity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+    
+    // Check if activity belongs to the student
+    if (activity.studentId !== req.user.id) {
+      return res.status(403).json({ message: 'Unauthorized to delete this activity' });
+    }
+    
+    // Only allow deletion of pending activities
+    if (activity.status !== 'pending') {
+      return res.status(400).json({ 
+        message: 'Cannot delete activity that has been reviewed. Only pending activities can be deleted.' 
+      });
+    }
+    
+    // Delete file from Cloudinary if exists
+    if (activity.filePath) {
+      try {
+        await deleteFile(activity.filePath);
+      } catch (err) {
+        console.error('Error deleting file:', err);
+        // Continue with activity deletion even if file deletion fails
+      }
+    }
+    
+    await activity.destroy();
+    
+    res.json({ message: 'Activity deleted successfully' });
+    
+  } catch (error) {
+    console.error('Delete activity error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Update activity (only if pending)
+const updateActivity = [
+  upload.single('certificate'),
+  async (req, res) => {
+    try {
+      const { activityId } = req.params;
+      const { title, type, description, date, duration, organizer } = req.body;
+      
+      const activity = await Activity.findByPk(activityId);
+      
+      if (!activity) {
+        return res.status(404).json({ message: 'Activity not found' });
+      }
+      
+      // Check if activity belongs to the student
+      if (activity.studentId !== req.user.id) {
+        return res.status(403).json({ message: 'Unauthorized to update this activity' });
+      }
+      
+      // Only allow updating of pending activities
+      if (activity.status !== 'pending') {
+        return res.status(400).json({ 
+          message: 'Cannot update activity that has been reviewed. Only pending activities can be edited.' 
+        });
+      }
+      
+      // Validation schema
+      const schema = Joi.object({
+        title: Joi.string().min(3).max(200).required(),
+        type: Joi.string().valid(
+          'conference', 'workshop', 'certification', 'competition',
+          'internship', 'leadership', 'community_service', 'club_activity', 'online_course'
+        ).required(),
+        description: Joi.string().max(1000).allow('').optional(),
+        date: Joi.date().required(),
+        duration: Joi.string().max(50).allow('').optional(),
+        organizer: Joi.string().max(200).allow('').optional(),
+      });
+      
+      const { error, value } = schema.validate({ title, type, description, date, duration, organizer });
+      if (error) {
+        return res.status(400).json({ 
+          message: 'Validation error', 
+          details: error.details[0].message 
+        });
+      }
+      
+      // Handle new file upload if provided
+      let filePath = activity.filePath;
+      if (req.file) {
+        // Delete old file if exists
+        if (activity.filePath) {
+          try {
+            await deleteFile(activity.filePath);
+          } catch (err) {
+            console.error('Error deleting old file:', err);
+          }
+        }
+        
+        // Upload new file
+        filePath = await uploadFile(req.file, 'certificates');
+      }
+      
+      // Update activity
+      await activity.update({
+        title: value.title,
+        type: value.type,
+        description: value.description,
+        date: value.date,
+        duration: value.duration,
+        organizer: value.organizer,
+        filePath
+      });
+      
+      res.json({ 
+        message: 'Activity updated successfully', 
+        activity 
+      });
+      
+    } catch (error) {
+      console.error('Update activity error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+];
+
 module.exports = {
   submitActivity: [upload.single('certificate'), submitActivity],  // certificate upload multer instance
   getMyActivities,
   getActivityStats,
   uploadAvatar,  // avatar upload multer instance
+  deleteActivity,
+  updateActivity,
 };
