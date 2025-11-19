@@ -73,13 +73,14 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Strict rate limiting for authentication routes
+// Balanced rate limiting for authentication routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Only 5 login attempts per 15 minutes
-  message: 'Too many login attempts, please try again later',
+  max: 100, // 100 login attempts per 15 minutes per IP
+  message: 'Too many login attempts from this IP, please try again after 15 minutes',
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true, // Don't count successful logins towards limit
 });
 
 // Apply strict rate limiting to auth routes
