@@ -44,6 +44,9 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
     if (submitData.role !== USER_ROLES.STUDENT) {
       delete submitData.year;
       delete submitData.studentId;
+    } else {
+      // Convert year from string to integer for students
+      submitData.year = parseInt(submitData.year, 10);
     }
 
     try {
