@@ -13,7 +13,7 @@ const Reports = ({ user, token, onNavigate }) => {
     endDate: '',
     format: 'json'
   });
-  const [generating, setGenerating] = useState(false);
+  const [csvDownloading, setCsvDownloading] = useState(false);
 
   useEffect(() => {
     // Set default date range (last 6 months)
@@ -51,7 +51,6 @@ const Reports = ({ user, token, onNavigate }) => {
     }
 
     setLoading(true);
-    setGenerating(true);
     setError('');
     
     try {
@@ -67,7 +66,6 @@ const Reports = ({ user, token, onNavigate }) => {
       showErrorMessage(`Error generating report: ${error.message}`);
     } finally {
       setLoading(false);
-      setGenerating(false);
     }
   };
 
@@ -78,7 +76,7 @@ const Reports = ({ user, token, onNavigate }) => {
       return;
     }
 
-    setGenerating(true);
+    setCsvDownloading(true);
     
     try {
       console.log('📥 Starting CSV download...');
@@ -138,7 +136,7 @@ const Reports = ({ user, token, onNavigate }) => {
       console.error('CSV download error:', error);
       showErrorMessage(`Error downloading CSV: ${error.message}`);
     } finally {
-      setGenerating(false);
+      setCsvDownloading(false);
     }
   };
 
@@ -389,10 +387,10 @@ const Reports = ({ user, token, onNavigate }) => {
           <div className="flex items-end">
             <button
               onClick={handleDownloadCSV}
-              disabled={generating || !filters.startDate || !filters.endDate}
+              disabled={csvDownloading || !filters.startDate || !filters.endDate}
               className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none"
             >
-              {generating ? (
+              {csvDownloading ? (
                 <>
                   <LoadingSpinner size="sm" className="mr-2" />
                   Downloading...
