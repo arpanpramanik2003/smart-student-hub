@@ -1,12 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Smart Student Hub</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ===================== -->
+  <!-- FAVICON & PWA SETUP -->
+  <!-- ===================== -->
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#0b0f19" />
+
+  <!-- ===================== -->
+  <!-- PRIMARY SEO -->
+  <!-- ===================== -->
+  <title>Smart Student Hub | Academic Productivity Platform</title>
+
+  <meta name="title" content="Smart Student Hub | Academic Productivity Platform" />
+  <meta name="description"
+    content="Smart Student Hub is a modern academic productivity platform designed to help students manage learning resources, track progress, and enhance performance efficiently." />
+  <meta name="keywords"
+    content="Smart Student Hub, Student Platform, Academic Productivity, Learning Dashboard, Student Management, Study Tools" />
+  <meta name="author" content="Arpan Pramanik" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ssh.arpanpramanik.dev" />
+
+  <!-- ===================== -->
+  <!-- OPEN GRAPH (SOCIAL SHARE) -->
+  <!-- ===================== -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ssh.arpanpramanik.dev" />
+  <meta property="og:title" content="Smart Student Hub | Academic Productivity Platform" />
+  <meta property="og:description"
+    content="A modern academic productivity platform to help students manage resources, track performance, and improve learning efficiency." />
+  <meta property="og:image" content="https://ssh.arpanpramanik.dev/android-chrome-512x512.png" />
+  <meta property="og:site_name" content="Smart Student Hub" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- ===================== -->
+  <!-- TWITTER CARD -->
+  <!-- ===================== -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://ssh.arpanpramanik.dev" />
+  <meta name="twitter:title" content="Smart Student Hub | Academic Productivity Platform" />
+  <meta name="twitter:description"
+    content="A smart academic productivity platform designed to enhance student learning and performance." />
+  <meta name="twitter:image" content="https://ssh.arpanpramanik.dev/android-chrome-512x512.png" />
+
+  <!-- ===================== -->
+  <!-- ORGANIZATION SCHEMA -->
+  <!-- ===================== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Smart Student Hub",
+    "url": "https://ssh.arpanpramanik.dev",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "creator": {
+      "@type": "Person",
+      "name": "Arpan Pramanik"
+    },
+    "description": "A web-based academic productivity platform designed to help students manage learning and track performance."
+  }
+  </script>
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
 </html>

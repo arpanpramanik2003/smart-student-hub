@@ -32,6 +32,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "baseline-browser-mapping": "^2.9.10",
     "nodemon": "^3.0.1"
   },
   "keywords": [
