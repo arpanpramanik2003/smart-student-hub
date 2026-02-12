@@ -383,30 +383,30 @@ const UserManagement = ({ user, token, onNavigate }) => {
       )}
 
       {/* Header with Gradient */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-8 text-white">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 text-white">
+        <div className="flex flex-col space-y-4">
           <div>
-            <h1 className="text-3xl font-bold flex items-center">
-              <svg className="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <h1 className="text-2xl sm:text-3xl font-bold flex items-center">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
               </svg>
               User Management
             </h1>
-            <p className="text-blue-100 mt-2 flex items-center space-x-4">
+            <p className="text-blue-100 mt-2 flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
               <span className="flex items-center">
                 <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-                {pagination.total} Total Users
+                {pagination.total} Total
               </span>
-              <span className="text-blue-200">•</span>
+              <span className="text-blue-200 hidden sm:inline">•</span>
               <span>{users.filter(u => u.isActive).length} Active</span>
-              <span className="text-blue-200">•</span>
+              <span className="text-blue-200 hidden sm:inline">•</span>
               <span>{users.filter(u => !u.isActive).length} Inactive</span>
             </p>
           </div>
           
           <button 
             onClick={handleAddUser}
-            className="bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="bg-white text-blue-600 hover:bg-blue-50 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 w-full sm:w-auto sm:self-start"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -416,57 +416,57 @@ const UserManagement = ({ user, token, onNavigate }) => {
         </div>
         
         {/* Quick Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-30">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
+          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-white border-opacity-30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm">Students</p>
-                <p className="text-2xl font-bold mt-1">{users.filter(u => u.role === 'student').length}</p>
+                <p className="text-blue-100 text-xs sm:text-sm">Students</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">{users.filter(u => u.role === 'student').length}</p>
               </div>
-              <div className="w-12 h-12 bg-green-400 bg-opacity-30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-100" fill="currentColor" viewBox="0 0 20 20">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-400 bg-opacity-30 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-100" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
                 </svg>
               </div>
             </div>
           </div>
           
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-30">
+          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-white border-opacity-30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm">Faculty</p>
-                <p className="text-2xl font-bold mt-1">{users.filter(u => u.role === 'faculty').length}</p>
+                <p className="text-blue-100 text-xs sm:text-sm">Faculty</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">{users.filter(u => u.role === 'faculty').length}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-400 bg-opacity-30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-100" fill="currentColor" viewBox="0 0 20 20">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-400 bg-opacity-30 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-100" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                 </svg>
               </div>
             </div>
           </div>
           
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-30">
+          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-white border-opacity-30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm">Admins</p>
-                <p className="text-2xl font-bold mt-1">{users.filter(u => u.role === 'admin').length}</p>
+                <p className="text-blue-100 text-xs sm:text-sm">Admins</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">{users.filter(u => u.role === 'admin').length}</p>
               </div>
-              <div className="w-12 h-12 bg-purple-400 bg-opacity-30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-purple-100" fill="currentColor" viewBox="0 0 20 20">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-400 bg-opacity-30 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-100" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               </div>
             </div>
           </div>
           
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-30">
+          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-white border-opacity-30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm">Departments</p>
-                <p className="text-2xl font-bold mt-1">{departments.length}</p>
+                <p className="text-blue-100 text-xs sm:text-sm">Departments</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">{departments.length}</p>
               </div>
-              <div className="w-12 h-12 bg-yellow-400 bg-opacity-30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-100" fill="currentColor" viewBox="0 0 20 20">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-400 bg-opacity-30 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-100" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
               </div>
@@ -476,14 +476,14 @@ const UserManagement = ({ user, token, onNavigate }) => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
         <div className="flex items-center mb-4">
           <svg className="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" />
           </svg>
-          <h2 className="text-lg font-semibold text-gray-900">Filter Users</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Filter Users</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
               <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -563,16 +563,16 @@ const UserManagement = ({ user, token, onNavigate }) => {
 
       {/* Users Table */}
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 flex items-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
               </svg>
             </div>
             <div>
-              <div className="text-lg">All Users</div>
-              <div className="text-xs font-normal text-gray-500">Showing {users.length} of {pagination.total} users</div>
+              <div className="text-base sm:text-lg">All Users</div>
+              <div className="text-xs font-normal text-gray-500">Showing {users.length} of {pagination.total}</div>
             </div>
           </h2>
         </div>
@@ -582,34 +582,36 @@ const UserManagement = ({ user, token, onNavigate }) => {
             <LoadingSpinner size="md" />
           </div>
         ) : users.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Department
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Joined
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((userData) => (
-                  <tr key={userData.id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-6 py-4 whitespace-nowrap">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Department
+                    </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Joined
+                    </th>
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {users.map((userData) => (
+                    <tr key={userData.id} className="hover:bg-gray-50 transition-colors duration-150">
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mr-3 shadow-sm">
                           <span className="text-blue-700 font-semibold text-sm">
@@ -624,21 +626,21 @@ const UserManagement = ({ user, token, onNavigate }) => {
                           )}
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getRoleBadgeColor(userData.role)}`}>
-                        {userData.role?.charAt(0)?.toUpperCase() + userData.role?.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div>
-                        {userData.department || 'Not specified'}
-                        {userData.year && (
-                          <div className="text-xs text-gray-500">Year {userData.year}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getRoleBadgeColor(userData.role)}`}>
+                          {userData.role?.charAt(0)?.toUpperCase() + userData.role?.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div>
+                          {userData.department || 'Not specified'}
+                          {userData.year && (
+                            <div className="text-xs text-gray-500">Year {userData.year}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusBadgeColor(userData.isActive)}`}>
                         {userData.isActive ? (
                           <><span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 mt-0.5"></span>Active</>
@@ -646,15 +648,15 @@ const UserManagement = ({ user, token, onNavigate }) => {
                           <><span className="w-2 h-2 bg-red-500 rounded-full mr-1.5 mt-0.5"></span>Inactive</>
                         )}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(userData.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(userData.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleEditUser(userData)}
@@ -715,6 +717,124 @@ const UserManagement = ({ user, token, onNavigate }) => {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y divide-gray-200">
+            {users.map((userData) => (
+              <div key={userData.id} className="p-4 hover:bg-gray-50 transition-colors duration-150">
+                {/* User Info */}
+                <div className="flex items-start space-x-3 mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <span className="text-blue-700 font-semibold text-base">
+                      {userData.name?.charAt(0)?.toUpperCase() || '?'}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-gray-900 truncate">{userData.name}</div>
+                    <div className="text-xs text-gray-500 truncate">{userData.email}</div>
+                    {userData.studentId && (
+                      <div className="text-xs text-blue-600 font-mono mt-0.5">ID: {userData.studentId}</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Role</div>
+                    <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full border ${getRoleBadgeColor(userData.role)}`}>
+                      {userData.role?.charAt(0)?.toUpperCase() + userData.role?.slice(1)}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Status</div>
+                    <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusBadgeColor(userData.isActive)}`}>
+                      {userData.isActive ? (
+                        <><span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 mt-0.5"></span>Active</>
+                      ) : (
+                        <><span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1 mt-0.5"></span>Inactive</>
+                      )}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Department</div>
+                    <div className="text-sm text-gray-900 truncate">{userData.department || 'N/A'}</div>
+                    {userData.year && (
+                      <div className="text-xs text-gray-500">Year {userData.year}</div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Joined</div>
+                    <div className="text-sm text-gray-900">
+                      {new Date(userData.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: '2-digit'
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col space-y-2">
+                  <button
+                    onClick={() => handleEditUser(userData)}
+                    className="w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm"
+                  >
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit User
+                  </button>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => handleToggleUserStatus(userData.id)}
+                      disabled={actionLoading === userData.id || userData.role === USER_ROLES.ADMIN}
+                      className={`inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
+                        userData.isActive
+                          ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700'
+                          : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700'
+                      }`}
+                    >
+                      {actionLoading === userData.id ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {userData.isActive ? (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            ) : (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            )}
+                          </svg>
+                          {userData.isActive ? 'Deactivate' : 'Activate'}
+                        </>
+                      )}
+                    </button>
+                    
+                    <button
+                      onClick={() => handleDeleteUser(userData.id)}
+                      disabled={actionLoading === userData.id || userData.role === USER_ROLES.ADMIN || userData.id === user.id}
+                      className="inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {actionLoading === userData.id ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
         ) : (
           <div className="text-center py-12">
             <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
@@ -912,18 +1032,18 @@ const UserManagement = ({ user, token, onNavigate }) => {
             </>
           )}
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={handleCloseAddModal}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={actionLoading === 'form'}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200"
+              className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200"
             >
               {actionLoading === 'form' ? (
                 <>
@@ -1035,18 +1155,18 @@ const UserManagement = ({ user, token, onNavigate }) => {
             </>
           )}
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={handleCloseEditModal}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={actionLoading === 'form'}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200"
+              className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200"
             >
               {actionLoading === 'form' ? (
                 <>
