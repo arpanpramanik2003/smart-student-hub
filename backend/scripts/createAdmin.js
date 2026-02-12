@@ -7,7 +7,7 @@
  * SECURITY: This replaces the public admin creation endpoint
  */
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const readline = require('readline');
 const { User, sequelize } = require('../src/utils/database');
 
@@ -28,15 +28,87 @@ async function createAdmin() {
     console.log('✅ Database connected\n');
 
     // Check if admin already exists
-    const existingAdmin = await User.findOne({ where: { role: 'admin' } });
+    const existingAdmins = await User.findAll({ where: { role: 'admin' } });
     
-    if (existingAdmin) {
-      console.log('⚠️  Admin account already exists:');
-      console.log(`   Email: ${existingAdmin.email}`);
-      console.log(`   Name: ${existingAdmin.name}\n`);
+    if (existingAdmins.length > 0) {
+      console.log('⚠️  Admin account(s) already exist:\n');
       
-      const overwrite = await question('Do you want to create another admin? (yes/no): ');
-      if (overwrite.toLowerCase() !== 'yes') {
+      existingAdmins.forEach((admin, index) => {
+        console.log(`${index + 1}. Email: ${admin.email}`);
+        console.log(`   Name: ${admin.name}`);
+        console.log(`   ID: ${admin.id}\n`);
+      });
+      
+      console.log('What would you like to do?');
+      console.log('1. Reset password for an existing admin');
+      console.log('2. Create another admin account');
+      console.log('3. Cancel\n');
+      
+      const choice = await question('Enter your choice (1/2/3): ');
+      
+      if (choice === '1') {
+        // Reset password for existing admin
+        let selectedAdmin;
+        
+        if (existingAdmins.length === 1) {
+          selectedAdmin = existingAdmins[0];
+        } else {
+          const adminChoice = await question(`\nSelect admin to reset (1-${existingAdmins.length}): `);
+          const adminIndex = parseInt(adminChoice) - 1;
+          
+          if (adminIndex < 0 || adminIndex >= existingAdmins.length) {
+            console.log('\n❌ Invalid selection!');
+            process.exit(1);
+          }
+          
+          selectedAdmin = existingAdmins[adminIndex];
+        }
+        
+        console.log(`\n🔄 RESETTING PASSWORD FOR: ${selectedAdmin.email}\n`);
+        
+        let password, confirmPassword;
+        do {
+          password = await question('🔑 New Password (min 8 chars, 1 upper, 1 lower, 1 number, 1 special): ');
+          confirmPassword = await question('🔑 Confirm New Password: ');
+          
+          if (password !== confirmPassword) {
+            console.log('\n❌ Passwords do not match! Try again.\n');
+          }
+        } while (password !== confirmPassword);
+
+        // Validate password strength
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-])[A-Za-z\d@$!%*?&._\-]{8,}$/;
+        if (!passwordRegex.test(password)) {
+          console.log('\n❌ Password does not meet requirements!');
+          console.log('   Requirements:');
+          console.log('   - At least 8 characters');
+          console.log('   - One uppercase letter');
+          console.log('   - One lowercase letter');
+          console.log('   - One number');
+          console.log('   - One special character (@$!%*?&._-)');
+          process.exit(1);
+        }
+
+        console.log('\n⏳ Updating password...');
+
+        // Set password directly - the User model's beforeUpdate hook will hash it
+        selectedAdmin.password = password;
+        await selectedAdmin.save();
+
+        console.log('\n✅ Admin password updated successfully!');
+        console.log('=' .repeat(50));
+        console.log(`📧 Email: ${selectedAdmin.email}`);
+        console.log(`👤 Name: ${selectedAdmin.name}`);
+        console.log(`🆔 ID: ${selectedAdmin.id}`);
+        console.log('=' .repeat(50));
+        console.log('\n🎉 You can now login with the new password!\n');
+        
+        process.exit(0);
+        
+      } else if (choice === '2') {
+        console.log('\n➕ Creating another admin account...\n');
+        // Continue to create new admin (fall through)
+      } else {
         console.log('\n❌ Operation cancelled');
         process.exit(0);
       }
@@ -58,7 +130,7 @@ async function createAdmin() {
     } while (password !== confirmPassword);
 
     // Validate password strength
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-])[A-Za-z\d@$!%*?&._\-]{8,}$/;
     if (!passwordRegex.test(password)) {
       console.log('\n❌ Password does not meet requirements!');
       console.log('   Requirements:');
@@ -66,7 +138,7 @@ async function createAdmin() {
       console.log('   - One uppercase letter');
       console.log('   - One lowercase letter');
       console.log('   - One number');
-      console.log('   - One special character (@$!%*?&)');
+      console.log('   - One special character (@$!%*?&._-)');
       process.exit(1);
     }
 
@@ -92,14 +164,11 @@ async function createAdmin() {
 
     console.log('\n⏳ Creating admin account...');
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12); // Use 12 rounds for extra security
-
-    // Create admin
+    // Create admin - the User model's beforeCreate hook will hash the password
     const admin = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password, // Pass plain password, model will hash it
       role: 'admin',
       department: 'Administration',
       isActive: true
