@@ -141,9 +141,9 @@ const ActivityList = ({ user, token }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <h1 className="text-2xl font-bold text-gray-900">My Activities</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Activities</h1>
 
           {/* Filters */}
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
@@ -183,34 +183,34 @@ const ActivityList = ({ user, token }) => {
         <div className="space-y-4">
           {filteredActivities.map((activity) => (
             <div key={activity.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-              <div className="p-6">
-                <div className="flex items-start justify-between space-x-6">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between space-y-4 lg:space-y-0 lg:space-x-6">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-3 mb-2">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
                       {getStatusIcon(activity.status)}
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex-1 min-w-0">
                         {activity.title}
                       </h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[activity.status] || 'text-gray-600 bg-gray-100'}`}>
+                      <span className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${STATUS_COLORS[activity.status] || 'text-gray-600 bg-gray-100'}`}>
                         {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-600 mb-4">
                       <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 mr-2 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
                         {activity.type.replace('_', ' ').charAt(0).toUpperCase() + activity.type.replace('_', ' ').slice(1)}
                       </div>
                       <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 mr-2 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a4 4 0 118 0v4m-4 8V9m0 6h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         {new Date(activity.date).toLocaleDateString()}
                       </div>
                       <div className="flex items-center">
-                        <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 mr-2 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                         </svg>
                         {activity.credits} credits
@@ -220,23 +220,23 @@ const ActivityList = ({ user, token }) => {
                     {/* Additional Info */}
                     <div>
                       {activity.organizer && (
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2">
                           <span className="font-medium">Organizer:</span> {activity.organizer}
                         </p>
                       )}
                       {activity.duration && (
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-xs sm:text-sm text-gray-600 mb-2">
                           <span className="font-medium">Duration:</span> {activity.duration}
                         </p>
                       )}
                       {activity.description && (
-                        <p className="text-sm text-gray-700 mb-4">{activity.description}</p>
+                        <p className="text-xs sm:text-sm text-gray-700 mb-4">{activity.description}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Right Side Panel */}
-                  <div className="flex flex-col justify-between shrink-0 w-44 text-sm space-y-4">
+                  <div className="flex flex-col justify-between shrink-0 w-full lg:w-44 text-xs sm:text-sm space-y-3 sm:space-y-4">
                     <div>
                       <p>
                         <span className="font-semibold">Submitted:</span> {new Date(activity.createdAt).toLocaleDateString()}
@@ -249,22 +249,22 @@ const ActivityList = ({ user, token }) => {
                     </div>
 
                     {activity.remarks && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                        <p className="font-semibold text-yellow-800 mb-1">Faculty Remarks</p>
-                        <p className="text-yellow-700">{activity.remarks}</p>
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2.5 sm:p-3">
+                        <p className="font-semibold text-yellow-800 mb-1 text-xs sm:text-sm">Faculty Remarks</p>
+                        <p className="text-yellow-700 text-xs sm:text-sm">{activity.remarks}</p>
                       </div>
                     )}
 
                     {/* Edit/Delete buttons for pending activities */}
                     {activity.status === ACTIVITY_STATUS.PENDING && (
-                      <div className="flex space-x-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           type="button"
                           onClick={() => handleEditClick(activity)}
                           disabled={deletingId === activity.id}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                           Edit
@@ -273,7 +273,7 @@ const ActivityList = ({ user, token }) => {
                           type="button"
                           onClick={() => handleDelete(activity.id, activity.title)}
                           disabled={deletingId === activity.id}
-                          className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {deletingId === activity.id ? (
                             <>
@@ -282,7 +282,7 @@ const ActivityList = ({ user, token }) => {
                             </>
                           ) : (
                             <>
-                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-4 h-4 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
                               Delete
@@ -297,7 +297,7 @@ const ActivityList = ({ user, token }) => {
                         <button
                           type="button"
                           onClick={() => toggleFileVisibility(activity.id)}
-                          className="w-full bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
+                          className="w-full bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors"
                         >
                           {visibleFiles[activity.id] ? 'Hide Attachment' : 'View Attachment'}
                         </button>
@@ -315,14 +315,14 @@ const ActivityList = ({ user, token }) => {
                           const downloadUrl = `${import.meta.env.VITE_API_URL}/files/download?url=${encodeURIComponent(fileUrl)}`;
                           
                           return (
-                            <div className="mt-2 flex space-x-2">
+                            <div className="mt-2 flex flex-col sm:flex-row gap-2">
                               <a
                                 href={viewUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
+                                className="inline-flex items-center justify-center px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors"
                               >
-                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-3 h-3 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
@@ -330,9 +330,9 @@ const ActivityList = ({ user, token }) => {
                               </a>
                               <a
                                 href={downloadUrl}
-                                className="inline-flex items-center px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
+                                className="inline-flex items-center justify-center px-3 py-2 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
                               >
-                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-3 h-3 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                                 Download
@@ -372,9 +372,9 @@ const ActivityList = ({ user, token }) => {
       {editingActivity && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">Edit Activity</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Edit Activity</h2>
                 <button
                   onClick={() => setEditingActivity(null)}
                   className="text-gray-400 hover:text-gray-600"
@@ -425,7 +425,7 @@ const ActivityList = ({ user, token }) => {
                 </div>
 
                 {/* Date and Duration */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Date <span className="text-red-500">*</span>
@@ -495,19 +495,19 @@ const ActivityList = ({ user, token }) => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex space-x-3 pt-4">
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                   <button
                     type="button"
                     onClick={() => setEditingActivity(null)}
                     disabled={editSubmitting}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 text-sm sm:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={editSubmitting}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center text-sm sm:text-base"
                   >
                     {editSubmitting ? (
                       <>

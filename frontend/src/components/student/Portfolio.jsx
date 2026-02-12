@@ -16,6 +16,21 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
     fetchPortfolioData();
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const dropdowns = document.querySelectorAll('.share-dropdown');
+      dropdowns.forEach(dropdown => {
+        if (!dropdown.parentElement.contains(event.target)) {
+          dropdown.classList.add('hidden');
+        }
+      });
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   // Fetch activities, stats, AND CV/profile details
   const fetchPortfolioData = async () => {
     try {
@@ -408,34 +423,36 @@ const generateEnhancedPDF = () => {
 
       {/* Enhanced Portfolio Header */}
       <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white rounded-lg shadow-lg border border-blue-500">
-        <div className="px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="mb-4 md:mb-0">
-              <h1 className="text-3xl font-bold mb-2 flex items-center">
-                <span className="mr-3">🎓</span>
-                Digital Portfolio
+        <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center flex-wrap gap-2">
+                <span className="text-2xl sm:text-3xl">🎓</span>
+                <span>Digital Portfolio</span>
                 {isReadOnly && (
-                  <span className="ml-3 text-xs bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full font-semibold flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <span className="text-xs bg-yellow-500 text-yellow-900 px-2 sm:px-3 py-1 rounded-full font-semibold flex items-center">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                     </svg>
-                    Read-Only View
+                    Read-Only
                   </span>
                 )}
               </h1>
-              <p className="text-blue-50 text-lg font-medium">{user.name}</p>
-              <p className="text-blue-100 text-sm">
-                {user.department} • Year {user.year} • ID: {user.studentId}
+              <p className="text-blue-50 text-base sm:text-lg font-medium">{user.name}</p>
+              <p className="text-blue-100 text-xs sm:text-sm">
+                <span className="inline-block">{user.department}</span>
+                <span className="hidden sm:inline"> • </span>
+                <span className="block sm:inline mt-1 sm:mt-0">Year {user.year} • ID: {user.studentId}</span>
               </p>
             </div>
 
             {/* Enhanced Action Buttons */}
             {!isReadOnly && (
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                 <button
                   onClick={handleDownloadPDF}
                   disabled={isGenerating}
-                  className="bg-white text-blue-700 hover:bg-blue-50 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                  className="bg-white text-blue-700 hover:bg-blue-50 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                 >
                 {isGenerating ? (
                   <>
@@ -444,7 +461,7 @@ const generateEnhancedPDF = () => {
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Download CV
@@ -453,9 +470,15 @@ const generateEnhancedPDF = () => {
               </button>
 
               {/* Enhanced Share Menu */}
-              <div className="relative group">
-                <button className="bg-white text-blue-700 hover:bg-blue-50 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center shadow-md hover:shadow-lg">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="relative">
+                <button 
+                  onClick={(e) => {
+                    const dropdown = e.currentTarget.nextElementSibling;
+                    dropdown.classList.toggle('hidden');
+                  }}
+                  className="w-full bg-white text-blue-700 hover:bg-blue-50 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                   </svg>
                   Share
@@ -464,10 +487,13 @@ const generateEnhancedPDF = () => {
                   </svg>
                 </button>
                 
-                {/* Dropdown Menu */}
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 border border-gray-200">
+                {/* Dropdown Menu - Touch friendly */}
+                <div className="share-dropdown hidden absolute left-0 sm:right-0 sm:left-auto mt-2 w-full sm:w-56 bg-white rounded-lg shadow-xl z-50 border border-gray-200">
                   <button
-                    onClick={() => handleSharePortfolio('link')}
+                    onClick={(e) => {
+                      e.currentTarget.parentElement.classList.add('hidden');
+                      handleSharePortfolio('link');
+                    }}
                     className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-blue-50 flex items-center rounded-t-lg transition-colors"
                   >
                     <svg className="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -476,7 +502,10 @@ const generateEnhancedPDF = () => {
                     Copy Portfolio Link
                   </button>
                   <button
-                    onClick={() => handleSharePortfolio('email')}
+                    onClick={(e) => {
+                      e.currentTarget.parentElement.classList.add('hidden');
+                      handleSharePortfolio('email');
+                    }}
                     className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-blue-50 flex items-center border-t border-gray-100 transition-colors"
                   >
                     <svg className="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -485,7 +514,10 @@ const generateEnhancedPDF = () => {
                     Share via Email
                   </button>
                   <button
-                    onClick={() => handleSharePortfolio('social')}
+                    onClick={(e) => {
+                      e.currentTarget.parentElement.classList.add('hidden');
+                      handleSharePortfolio('social');
+                    }}
                     className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-blue-50 flex items-center rounded-b-lg border-t border-gray-100 transition-colors"
                   >
                     <svg className="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -500,7 +532,7 @@ const generateEnhancedPDF = () => {
           </div>
 
           {/* Enhanced Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
             {[
               { value: stats?.byStatus?.approved || 0, label: "Approved Activities", icon: "✅" },
               { value: stats?.totalCredits || 0, label: "Total Credits", icon: "🏆" },
@@ -509,14 +541,14 @@ const generateEnhancedPDF = () => {
             ].map((stat, index) => (
               <div
                 key={index}
-                className="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg p-5 shadow-md border border-blue-200 hover:bg-opacity-100 hover:shadow-lg transition-all"
+                className="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg p-3 sm:p-4 lg:p-5 shadow-md border border-blue-200 hover:bg-opacity-100 hover:shadow-lg transition-all"
               >
                 <div className="flex flex-col">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-3xl">{stat.icon}</span>
-                    <div className="text-3xl font-bold text-blue-700">{stat.value}</div>
+                  <div className="flex items-center justify-between mb-1 sm:mb-2">
+                    <span className="text-xl sm:text-2xl lg:text-3xl">{stat.icon}</span>
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-700">{stat.value}</div>
                   </div>
-                  <div className="text-gray-700 text-sm font-medium">{stat.label}</div>
+                  <div className="text-gray-700 text-xs sm:text-sm font-medium">{stat.label}</div>
                 </div>
               </div>
             ))}
@@ -532,57 +564,57 @@ const generateEnhancedPDF = () => {
               key={type} 
               className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
             >
-              <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                  <span className="text-3xl mr-3">{getActivityIcon(type)}</span>
-                  {getTypeLabel(type)}
-                  <span className="ml-3 text-sm font-semibold text-blue-700 bg-white px-3 py-1 rounded-full shadow-sm">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center flex-wrap gap-2">
+                  <span className="text-2xl sm:text-3xl">{getActivityIcon(type)}</span>
+                  <span>{getTypeLabel(type)}</span>
+                  <span className="text-xs sm:text-sm font-semibold text-blue-700 bg-white px-2 sm:px-3 py-1 rounded-full shadow-sm">
                     {typeActivities.length} {typeActivities.length === 1 ? 'Activity' : 'Activities'}
                   </span>
                 </h2>
               </div>
 
-              <div className="p-6">
-                <div className="space-y-4">
+              <div className="p-4 sm:p-6">
+                <div className="space-y-3 sm:space-y-4">
                   {typeActivities.map((activity) => (
                     <article
                       key={activity.id}
-                      className="border border-gray-200 rounded-lg p-5 hover:border-blue-400 hover:shadow-md transition-all bg-gradient-to-br from-white to-gray-50"
+                      className="border border-gray-200 rounded-lg p-4 sm:p-5 hover:border-blue-400 hover:shadow-md transition-all bg-gradient-to-br from-white to-gray-50"
                     >
-                      <h3 className="font-semibold text-lg text-gray-900 mb-3">
+                      <h3 className="font-semibold text-base sm:text-lg text-gray-900 mb-2 sm:mb-3">
                         {activity.title}
                       </h3>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700 mb-4">
+                      <div className="grid grid-cols-1 gap-2 sm:gap-3 text-xs sm:text-sm text-gray-700 mb-3 sm:mb-4">
                         <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 mr-2 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           <span><strong className="font-semibold">Date:</strong> {new Date(activity.date).toLocaleDateString()}</span>
                         </div>
                         {activity.organizer && (
                           <div className="flex items-center">
-                            <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4 mr-2 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
-                            <span><strong className="font-semibold">Organizer:</strong> {activity.organizer}</span>
+                            <span className="break-words"><strong className="font-semibold">Organizer:</strong> {activity.organizer}</span>
                           </div>
                         )}
                       </div>
 
                       {activity.description && (
-                        <p className="text-gray-700 mb-4 leading-relaxed">{activity.description}</p>
+                        <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4 leading-relaxed">{activity.description}</p>
                       )}
 
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-                        <span className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg text-sm font-semibold shadow-sm">
-                          <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 pt-3 border-t border-gray-200">
+                        <span className="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-sm">
+                          <svg className="w-4 h-4 mr-1.5 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                           </svg>
                           {activity.credits} Credits
                         </span>
                         {activity.certificate && (
-                          <span className="text-sm text-green-700 font-medium flex items-center bg-green-50 px-3 py-1.5 rounded-lg">
+                          <span className="text-xs sm:text-sm text-green-700 font-medium flex items-center justify-center sm:justify-start bg-green-50 px-2 sm:px-3 py-1.5 rounded-lg">
                             <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>

@@ -121,27 +121,31 @@ const Dashboard = ({ user, token, updateUser }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-6 flex flex-col sm:flex-row items-center"
+        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-4 sm:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4"
       >
         <img
           src={profilePreview}
           alt="Profile"
-          className="w-20 h-20 rounded-full border-4 border-blue-100 object-cover mr-6 shadow-xl"
+          className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-blue-100 object-cover shadow-xl flex-shrink-0"
         />
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold mb-1">Welcome back, {user.name}!</h1>
-          <p className="text-blue-100">{user.department} • Year {user.year} • ID: {user.studentId}</p>
-          <form onSubmit={handleAvatarUpload} className="flex items-center mt-2 space-x-2">
+        <div className="flex-1 text-center sm:text-left w-full">
+          <h1 className="text-xl sm:text-2xl font-bold mb-1">Welcome back, {user.name}!</h1>
+          <p className="text-blue-100 text-sm sm:text-base mb-3">
+            <span className="inline-block">{user.department}</span>
+            <span className="hidden sm:inline"> • </span>
+            <span className="block sm:inline">Year {user.year} • ID: {user.studentId}</span>
+          </p>
+          <form onSubmit={handleAvatarUpload} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <input 
               type="file" 
               name="avatar" 
               accept="image/*" 
-              className="block py-1 text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+              className="block w-full sm:w-auto py-1.5 text-xs file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 file:font-medium"
             />
             <button 
               type="submit" 
               disabled={avatarUploading} 
-              className={`bg-white text-blue-600 font-semibold px-3 py-1 rounded transition ${avatarUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-100'}`}
+              className={`bg-white text-blue-600 font-semibold px-4 py-1.5 rounded text-xs sm:text-sm transition whitespace-nowrap ${avatarUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-100'}`}
             >
               {avatarUploading ? 'Uploading...' : 'Update Photo'}
             </button>
@@ -150,90 +154,90 @@ const Dashboard = ({ user, token, updateUser }) => {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center transition-shadow hover:shadow-md">
-          <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 flex items-center transition-shadow hover:shadow-md">
+          <div className="p-2.5 sm:p-3 rounded-full bg-blue-100 text-blue-600 flex-shrink-0">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{formatStat(stats?.totalActivities)}</h3>
-            <p className="text-sm text-gray-600">Total Activities</p>
+          <div className="ml-3 sm:ml-4">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{formatStat(stats?.totalActivities)}</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Total Activities</p>
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center transition-shadow hover:shadow-md">
-          <div className="p-3 rounded-full bg-green-100 text-green-600">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 flex items-center transition-shadow hover:shadow-md">
+          <div className="p-2.5 sm:p-3 rounded-full bg-green-100 text-green-600 flex-shrink-0">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{formatStat(stats?.byStatus?.approved)}</h3>
-            <p className="text-sm text-gray-600">Approved</p>
+          <div className="ml-3 sm:ml-4">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{formatStat(stats?.byStatus?.approved)}</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Approved</p>
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center transition-shadow hover:shadow-md">
-          <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 flex items-center transition-shadow hover:shadow-md">
+          <div className="p-2.5 sm:p-3 rounded-full bg-yellow-100 text-yellow-600 flex-shrink-0">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{formatStat(stats?.byStatus?.pending)}</h3>
-            <p className="text-sm text-gray-600">Pending</p>
+          <div className="ml-3 sm:ml-4">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{formatStat(stats?.byStatus?.pending)}</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Pending</p>
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center transition-shadow hover:shadow-md">
-          <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 flex items-center transition-shadow hover:shadow-md">
+          <div className="p-2.5 sm:p-3 rounded-full bg-purple-100 text-purple-600 flex-shrink-0">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
           </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{formatStat(stats?.totalCredits)}</h3>
-            <p className="text-sm text-gray-600">Total Credits</p>
+          <div className="ml-3 sm:ml-4">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{formatStat(stats?.totalCredits)}</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Total Credits</p>
           </div>
         </div>
       </div>
 
       {/* Recent Activities */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Activities</h2>
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Activities</h2>
           <button
-            className="ml-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded-md text-sm font-medium transition-colors"
+            className="w-full sm:w-auto sm:ml-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 sm:py-1 rounded-md text-sm font-medium transition-colors"
             onClick={() => window.location.hash = '#submit-activity'}
           >
             Submit Activity
           </button>
         </div>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <AnimatePresence>
             {recentActivities.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {recentActivities.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-3 sm:gap-0"
                   >
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{activity.title}</h3>
-                      <p className="text-sm text-gray-600 mt-1">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">{activity.title}</h3>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">
                         {activity.type.replace('_', ' ')} • {new Date(activity.date).toLocaleDateString()}
                       </p>
                       {activity.organizer && (
-                        <p className="text-sm text-gray-500 mt-1">by {activity.organizer}</p>
+                        <p className="text-xs sm:text-sm text-gray-500 mt-1">by {activity.organizer}</p>
                       )}
                     </div>
-                    <div className="ml-4 flex items-center space-x-3">
-                      <span className="text-sm font-medium text-gray-600">
+                    <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 sm:ml-4">
+                      <span className="text-xs sm:text-sm font-medium text-gray-600 whitespace-nowrap">
                         {activity.credits} credits
                       </span>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[activity.status] || 'text-gray-600 bg-gray-100'}`}>
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[activity.status] || 'text-gray-600 bg-gray-100'} whitespace-nowrap`}>
                         {activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}
                       </span>
                     </div>
