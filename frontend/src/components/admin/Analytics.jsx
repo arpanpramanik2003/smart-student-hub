@@ -8,7 +8,7 @@ const Analytics = ({ user, token, onNavigate }) => {
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reportLoading, setReportLoading] = useState(false);
-  const [generating, setGenerating] = useState(false); // Single state for both operations
+  const [csvDownloading, setCsvDownloading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState({ type: '', text: '', show: false });
   const [dateRange, setDateRange] = useState({
@@ -85,7 +85,6 @@ const Analytics = ({ user, token, onNavigate }) => {
     }
 
     setReportLoading(true);
-    setGenerating(true);
     
     try {
       console.log('📈 Generating custom report...');
@@ -103,7 +102,6 @@ const Analytics = ({ user, token, onNavigate }) => {
       showErrorMessage(`Error generating report: ${error.message}`);
     } finally {
       setReportLoading(false);
-      setGenerating(false);
     }
   };
 
@@ -116,7 +114,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
     try {
       console.log('📥 Starting CSV download...');
-      setGenerating(true);
+      setCsvDownloading(true);
       
       // Get the token from localStorage
       const authToken = localStorage.getItem('token') || token;
@@ -173,7 +171,7 @@ const Analytics = ({ user, token, onNavigate }) => {
       console.error('CSV download error:', error);
       showErrorMessage(`Error downloading CSV: ${error.message}`);
     } finally {
-      setGenerating(false);
+      setCsvDownloading(false);
     }
   };
 
@@ -893,10 +891,10 @@ const Analytics = ({ user, token, onNavigate }) => {
                 <div className="flex items-end">
                   <button
                     onClick={downloadCSVReport}
-                    disabled={generating || !dateRange.startDate || !dateRange.endDate}
+                    disabled={csvDownloading || !dateRange.startDate || !dateRange.endDate}
                     className="w-full bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    {generating ? (
+                    {csvDownloading ? (
                       <>
                         <LoadingSpinner size="sm" className="mr-2" />
                         <span className="hidden sm:inline">Downloading...</span>
