@@ -37,12 +37,13 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
   const [activeSection, setActiveSection] = useState('personal');
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
-  // Initial fetch
-  useEffect(() => {
-    fetchProfile();
+  // 🔥 Enhanced message handling
+  const showMessage = useCallback((type, text) => {
+    setMessage({ type, text, show: true });
+    setTimeout(() => setMessage(prev => ({ ...prev, show: false })), 5000);
   }, []);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
       const { profile } = await studentAPI.getProfile();
@@ -65,13 +66,12 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showMessage]);
 
-  // 🔥 Enhanced message handling
-  const showMessage = useCallback((type, text) => {
-    setMessage({ type, text, show: true });
-    setTimeout(() => setMessage(prev => ({ ...prev, show: false })), 5000);
-  }, []);
+  // Initial fetch
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   // Handlers
   const handleChange = useCallback((e) => {
@@ -80,7 +80,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
   }, []);
 
   // 🔥 Profile picture upload handler
-  const handleProfilePictureChange = (e) => {
+  const handleProfilePictureChange = useCallback((e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
@@ -96,9 +96,9 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
 
       setFormData(prev => ({ ...prev, profilePicture: file }));
     }
-  };
+  }, [showMessage]);
 
-  const handleSave = async (e) => {
+  const handleSave = useCallback(async (e) => {
     e.preventDefault();
     setSaving(true);
 
@@ -123,14 +123,14 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [formData, fetchProfile, showMessage]);
 
   // 🔥 Validation helper
-  const getCompletionPercentage = () => {
+  const getCompletionPercentage = useCallback(() => {
     const fields = Object.keys(defaultDetails);
     const filledFields = fields.filter(field => formData[field] && formData[field] !== '');
     return Math.round((filledFields.length / fields.length) * 100);
-  };
+  }, [formData]);
 
   const sections = [
     { id: 'personal', label: 'Personal Info', icon: '👤' },
@@ -180,23 +180,24 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
+            className="flex-1"
           >
-              <h2 className="text-2xl font-bold flex items-center mb-2">
-                <span className="mr-3">📋</span>
-                Professional Profile
+              <h2 className="text-xl sm:text-2xl font-bold flex flex-wrap items-center gap-2 mb-2">
+                <span className="text-2xl">📋</span>
+                <span>Professional Profile</span>
                 {isReadOnly && (
-                  <span className="ml-3 text-xs bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full font-semibold">
+                  <span className="text-xs bg-yellow-400 text-yellow-900 px-2 sm:px-3 py-1 rounded-full font-semibold">
                     🔒 View Only
                   </span>
                 )}
               </h2>
-            <p className="text-blue-100">
+            <p className="text-sm sm:text-base text-blue-100">
               Complete your profile to enhance your portfolio
             </p>
           </motion.div>
@@ -345,14 +346,14 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <motion.button
                 onClick={() => setShowModal(!showModal)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center"
+                className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center"
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -364,12 +365,12 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                   onClick={() => setEditMode(!editMode)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center ${editMode
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center ${editMode
                     ? 'bg-red-500 hover:bg-red-600 text-white'
                     : 'bg-white bg-opacity-20 hover:bg-opacity-30 text-white'
                     }`}
                 >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {editMode ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   ) : (
@@ -394,13 +395,13 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
             transition={{ duration: 0.3 }}
             className="border-b border-gray-200 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
           >
-            <div className="p-8">
+            <div className="p-4 sm:p-6 lg:p-8">
               {/* Header Section with Profile */}
-              <div className="bg-white rounded-2xl shadow-xl p-8 mb-6 border border-gray-200">
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+              <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 mb-6 border border-gray-200">
+                <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 lg:gap-8">
                   {/* Profile Picture with Frame */}
-                  <div className="relative">
-                    <div className="w-40 h-40 rounded-2xl overflow-hidden shadow-2xl border-4 border-white ring-4 ring-blue-100">
+                  <div className="relative shrink-0">
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden shadow-2xl border-4 border-white ring-4 ring-blue-100">
                       {profilePicturePreview ? (
                         <img
                           src={profilePicturePreview}
@@ -409,46 +410,64 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                          <span className="text-6xl font-bold text-white">
+                          <span className="text-5xl sm:text-6xl font-bold text-white">
                             {user?.name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
                         </div>
                       )}
                     </div>
-                    <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white shadow-lg"></div>
+                    <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 sm:w-8 sm:h-8 rounded-full border-4 border-white shadow-lg"></div>
                   </div>
 
                   {/* Profile Info */}
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className="text-3xl font-bold text-gray-900 mb-2">{user?.name}</h3>
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-4">
-                      <p className="text-lg text-blue-600 font-medium">{user?.department || 'N/A'}</p>
+                  <div className="flex-1 text-center lg:text-left">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 leading-tight">{user?.name}</h3>
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-3">
+                      <p className="text-base sm:text-lg text-blue-600 font-semibold">{user?.department || 'N/A'}</p>
                       <span className="text-gray-400">•</span>
-                      <p className="text-lg text-gray-700 font-medium">Year {user?.year || 'N/A'}</p>
+                      <p className="text-base sm:text-lg text-gray-700 font-medium">Year {user?.year || 'N/A'}</p>
                       {user?.studentId && (
                         <>
                           <span className="text-gray-400">•</span>
-                          <p className="text-sm text-gray-600 font-mono">ID: {user.studentId}</p>
+                          <p className="text-xs sm:text-sm text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">ID: {user.studentId}</p>
                         </>
                       )}
                     </div>
+                    
+                    {/* Email - Professional Addition */}
+                    {user?.email && (
+                      <div className="flex items-center justify-center lg:justify-start text-gray-700 mb-4">
+                        <svg className="w-4 h-4 mr-2 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span className="text-sm font-medium">{user.email}</span>
+                      </div>
+                    )}
 
-                    {/* Quick Stats */}
-                    <div className="flex flex-wrap gap-4 mt-6">
+                    {/* Quick Contact Info */}
+                    <div className="flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 mt-4">
                       {profile.phone && (
-                        <div className="flex items-center text-gray-700">
-                          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+                          <svg className="w-4 h-4 mr-2 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
-                          <span className="font-medium">{profile.phone}</span>
+                          <span className="text-xs sm:text-sm font-medium">{profile.phone}</span>
                         </div>
                       )}
                       {profile.dateOfBirth && (
-                        <div className="flex items-center text-gray-700">
-                          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
+                          <svg className="w-4 h-4 mr-2 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
-                          <span className="font-medium">{new Date(profile.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                          <span className="text-xs sm:text-sm font-medium">{new Date(profile.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                        </div>
+                      )}
+                      {profile.address && (
+                        <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg max-w-full">
+                          <svg className="w-4 h-4 mr-2 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="text-xs sm:text-sm font-medium truncate">{profile.address.split(',')[0]}</span>
                         </div>
                       )}
                     </div>
@@ -456,15 +475,15 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
 
                   {/* Social Links - Right Side */}
                   {(profile.linkedinUrl || profile.githubUrl || profile.portfolioUrl) && (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-row lg:flex-col gap-2 sm:gap-3 flex-wrap justify-center lg:justify-start">
                       {profile.linkedinUrl && (
                         <a
                           href={profile.linkedinUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                          className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg sm:rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-xs sm:text-sm font-medium"
                         >
-                          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
                           </svg>
                           LinkedIn
@@ -475,9 +494,9 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                           href={profile.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                          className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-gray-900 text-white rounded-lg sm:rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-xs sm:text-sm font-medium"
                         >
-                          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
                           </svg>
                           GitHub
@@ -488,9 +507,9 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                           href={profile.portfolioUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                          className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg sm:rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-xs sm:text-sm font-medium"
                         >
-                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                           </svg>
                           Portfolio
@@ -501,17 +520,24 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                 </div>
               </div>
 
+              {/* Professional Divider */}
+              <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t-2 border-gray-200"></div>
+                </div>
+              </div>
+
               {/* Information Cards Grid */}
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6">
                 {/* Personal Information Card */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow">
-                  <div className="flex items-center mb-4 pb-3 border-b border-gray-200">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-shadow">
+                  <div className="flex items-center mb-4 pb-3 border-b-2 border-blue-100">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
-                    <h4 className="text-xl font-bold text-gray-900">Personal Information</h4>
+                    <h4 className="text-lg sm:text-xl font-bold text-gray-900">Personal Information</h4>
                   </div>
                   <div className="space-y-4">
                     {[
@@ -535,23 +561,22 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                 </div>
 
                 {/* Academic Information Card */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-shadow">
-                  <div className="flex items-center mb-4 pb-3 border-b border-gray-200">
-                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-shadow">
+                  <div className="flex items-center mb-4 pb-3 border-b-2 border-green-100">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M12 14l9-5-9-5-9 5 9 5z" />
                         <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
                       </svg>
                     </div>
-                    <h4 className="text-xl font-bold text-gray-900">Academic Details</h4>
+                    <h4 className="text-lg sm:text-xl font-bold text-gray-900">Academic Details</h4>
                   </div>
                   <div className="space-y-4">
+                    {/* Academic Results */}
                     {[
-                      { icon: '📊', label: '10th Result', value: profile.tenthResult, color: 'bg-blue-50' },
-                      { icon: '📈', label: '12th Result', value: profile.twelfthResult, color: 'bg-purple-50' },
-                      { icon: '🗣️', label: 'Languages', value: profile.languages, color: 'bg-green-50' },
-                      { icon: '💻', label: 'Skills', value: profile.skills, color: 'bg-orange-50' }
+                      { icon: '📊', label: '10th Result', value: profile.tenthResult, color: 'bg-blue-50', showBadge: false },
+                      { icon: '📈', label: '12th Result', value: profile.twelfthResult, color: 'bg-purple-50', showBadge: false }
                     ].map(item => item.value && (
                       <div key={item.label} className={`flex items-start p-3 ${item.color} rounded-lg hover:shadow-md transition-all`}>
                         <span className="text-2xl mr-3 flex-shrink-0">{item.icon}</span>
@@ -561,31 +586,130 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                         </div>
                       </div>
                     ))}
+                    
+                    {/* Languages - Badge Display */}
+                    {profile.languages && (
+                      <div className="flex flex-col p-3 bg-green-50 rounded-lg hover:shadow-md transition-all">
+                        <div className="flex items-center mb-2">
+                          <span className="text-2xl mr-3">🗣️</span>
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Languages</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2 ml-11">
+                          {profile.languages.split(',').map((lang, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-xs font-medium shadow-sm">
+                              {lang.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Skills - Badge Display */}
+                    {profile.skills && (
+                      <div className="flex flex-col p-3 bg-orange-50 rounded-lg hover:shadow-md transition-all">
+                        <div className="flex items-center mb-2">
+                          <span className="text-2xl mr-3">💻</span>
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Technical Skills</p>
+                        </div>
+                        <div className="flex flex-wrap gap-2 ml-11">
+                          {profile.skills.split(',').map((skill, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-orange-200 text-orange-800 rounded-full text-xs font-medium shadow-sm">
+                              {skill.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Additional Information - Full Width Cards */}
               {(profile.achievements || profile.projects || profile.certifications || profile.hobbies || profile.otherDetails) && (
-                <div className="space-y-4">
-                  {[
-                    { title: 'Achievements & Awards', icon: '🏆', value: profile.achievements, gradient: 'from-yellow-100 to-orange-100' },
-                    { title: 'Projects', icon: '🚀', value: profile.projects, gradient: 'from-blue-100 to-cyan-100' },
-                    { title: 'Certifications', icon: '📜', value: profile.certifications, gradient: 'from-purple-100 to-pink-100' },
-                    { title: 'Hobbies & Interests', icon: '🎨', value: profile.hobbies, gradient: 'from-green-100 to-teal-100' },
-                    { title: 'Career Objective', icon: '🎯', value: profile.otherDetails, gradient: 'from-indigo-100 to-blue-100' }
-                  ].map(item => item.value && (
-                    <div key={item.title} className={`bg-gradient-to-r ${item.gradient} rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all`}>
-                      <h4 className="text-lg font-bold text-gray-900 flex items-center mb-4">
-                        <span className="text-3xl mr-3">{item.icon}</span>
-                        {item.title}
+                <>
+                  {/* Professional Divider */}
+                  <div className="relative py-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t-2 border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center">
+                      <span className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 px-4 text-sm font-semibold text-gray-600">ADDITIONAL DETAILS</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                  {/* Achievements & Awards */}
+                  {profile.achievements && (
+                    <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                        <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🏆</span>
+                        Achievements & Awards
                       </h4>
-                      <div className="bg-white bg-opacity-60 backdrop-blur-sm rounded-lg p-4">
-                        <p className="text-gray-800 leading-relaxed whitespace-pre-line">{item.value}</p>
+                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">{profile.achievements}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  )}
+                  
+                  {/* Projects */}
+                  {profile.projects && (
+                    <div className="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                        <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🚀</span>
+                        Projects
+                      </h4>
+                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">{profile.projects}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Certifications */}
+                  {profile.certifications && (
+                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                        <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">📜</span>
+                        Certifications
+                      </h4>
+                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">{profile.certifications}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Hobbies & Interests - Badge Display */}
+                  {profile.hobbies && (
+                    <div className="bg-gradient-to-r from-green-100 to-teal-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                        <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🎨</span>
+                        Hobbies & Interests
+                      </h4>
+                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <div className="flex flex-wrap gap-2">
+                          {profile.hobbies.split(',').map((hobby, idx) => (
+                            <span key={idx} className="px-3 py-2 bg-teal-200 text-teal-900 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-shadow">
+                              {hobby.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Career Objective */}
+                  {profile.otherDetails && (
+                    <div className="bg-gradient-to-r from-indigo-100 to-blue-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                        <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🎯</span>
+                        Career Objective
+                      </h4>
+                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line italic">{profile.otherDetails}</p>
+                      </div>
+                    </div>
+                  )}
+                  </div>
+                </>
               )}
             </div>
           </motion.div>
@@ -601,21 +725,22 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <form onSubmit={handleSave} className="p-6">
+            <form onSubmit={handleSave} className="p-4 sm:p-6">
               {/* Section Navigation */}
-              <div className="flex flex-wrap gap-2 mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="flex flex-wrap gap-2 mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
                 {sections.map((section) => (
                   <button
                     key={section.id}
                     type="button"
                     onClick={() => setActiveSection(section.id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center ${activeSection === section.id
+                    className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center ${activeSection === section.id
                       ? 'bg-blue-600 text-white shadow-md'
                       : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600'
                       }`}
                   >
-                    <span className="mr-2">{section.icon}</span>
-                    {section.label}
+                    <span className="mr-1 sm:mr-2 text-base sm:text-lg">{section.icon}</span>
+                    <span className="hidden sm:inline">{section.label}</span>
+                    <span className="sm:hidden">{section.label.split(' ')[0]}</span>
                   </button>
                 ))}
               </div>
@@ -924,13 +1049,13 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
               </div>
 
               {/* Save Button */}
-              <div className="flex justify-end pt-6 border-t border-gray-200 mt-6">
+              <div className="flex justify-end pt-6 border-t-2 border-gray-200 mt-6">
                 <motion.button
                   type="submit"
                   disabled={saving}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition-all flex items-center"
+                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all flex items-center shadow-lg"
                 >
                   {saving ? (
                     <>
