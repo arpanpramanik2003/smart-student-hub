@@ -334,34 +334,34 @@ const Analytics = ({ user, token, onNavigate }) => {
       )}
 
       {/* Enhanced Header with Gradient */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl shadow-lg p-8 text-white">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 text-white">
+        <div className="flex flex-col space-y-4">
           <div>
-            <h1 className="text-3xl font-bold flex items-center">
-              <svg className="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <h1 className="text-2xl sm:text-3xl font-bold flex items-center">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
               </svg>
               Analytics Dashboard
             </h1>
-            <p className="text-indigo-100 mt-2 flex items-center">
-              <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+            <p className="text-indigo-100 mt-2 flex items-center text-sm sm:text-base">
+              <svg className="w-4 h-4 mr-1.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
               </svg>
-              Comprehensive system insights and performance metrics
+              <span className="line-clamp-1">Comprehensive system insights and performance metrics</span>
             </p>
-            <div className="flex items-center mt-3 text-sm text-indigo-200 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-3 py-1.5 inline-flex">
-              <svg className="w-4 h-4 mr-1.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center mt-3 text-xs sm:text-sm text-indigo-200 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1.5 inline-flex">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 animate-pulse flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Last updated: {new Date().toLocaleString()}
+              <span className="truncate">Last updated: {new Date().toLocaleString()}</span>
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+          <div className="flex flex-col space-y-3">
             <button
               onClick={() => fetchAnalytics(true)}
               disabled={refreshing}
-              className="flex items-center px-4 py-2.5 bg-white text-indigo-600 hover:bg-indigo-50 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none"
+              className="flex items-center justify-center px-4 py-2.5 bg-white text-indigo-600 hover:bg-indigo-50 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none w-full sm:w-auto"
             >
               <svg 
                 className={`w-5 h-5 mr-2 ${refreshing ? 'animate-spin' : ''}`} 
@@ -374,39 +374,39 @@ const Analytics = ({ user, token, onNavigate }) => {
               {refreshing ? 'Refreshing...' : 'Refresh Data'}
             </button>
             
-            <div className="flex space-x-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-1">
+            <div className="grid grid-cols-3 gap-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-1">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`flex items-center px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 ${
+                className={`flex flex-col sm:flex-row items-center justify-center px-2 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-md transition-all duration-200 ${
                   activeTab === 'overview'
-                    ? 'bg-white text-indigo-600 shadow-md transform scale-105'
+                    ? 'bg-white text-indigo-600 shadow-md'
                     : 'text-white hover:text-indigo-100 hover:bg-white hover:bg-opacity-10'
                 }`}
               >
-                <span className="text-lg mr-2">📊</span>
-                Overview
+                <span className="text-lg sm:text-base sm:mr-2">📊</span>
+                <span className="text-xs sm:text-sm">Overview</span>
               </button>
               <button
                 onClick={() => setActiveTab('reports')}
-                className={`flex items-center px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 ${
+                className={`flex flex-col sm:flex-row items-center justify-center px-2 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-md transition-all duration-200 ${
                   activeTab === 'reports'
-                    ? 'bg-white text-indigo-600 shadow-md transform scale-105'
+                    ? 'bg-white text-indigo-600 shadow-md'
                     : 'text-white hover:text-indigo-100 hover:bg-white hover:bg-opacity-10'
                 }`}
               >
-                <span className="text-lg mr-2">📈</span>
-                Reports
+                <span className="text-lg sm:text-base sm:mr-2">📈</span>
+                <span className="text-xs sm:text-sm">Reports</span>
               </button>
               <button
                 onClick={() => setActiveTab('trends')}
-                className={`flex items-center px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 ${
+                className={`flex flex-col sm:flex-row items-center justify-center px-2 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-md transition-all duration-200 ${
                   activeTab === 'trends'
-                    ? 'bg-white text-indigo-600 shadow-md transform scale-105'
+                    ? 'bg-white text-indigo-600 shadow-md'
                     : 'text-white hover:text-indigo-100 hover:bg-white hover:bg-opacity-10'
                 }`}
               >
-                <span className="text-lg mr-2">📉</span>
-                Trends
+                <span className="text-lg sm:text-base sm:mr-2">📉</span>
+                <span className="text-xs sm:text-sm">Trends</span>
               </button>
             </div>
           </div>
@@ -417,12 +417,12 @@ const Analytics = ({ user, token, onNavigate }) => {
       {activeTab === 'overview' && (
         <>
           {/* Enhanced Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-4 sm:p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Total Users</p>
-                  <p className="text-3xl font-bold">{formatNumber(stats?.userStats?.totalUsers)}</p>
+                  <p className="text-blue-100 text-xs sm:text-sm font-medium">Total Users</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{formatNumber(stats?.userStats?.totalUsers)}</p>
                   <div className="flex items-center mt-2">
                     <svg className="w-4 h-4 mr-1 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -432,19 +432,19 @@ const Analytics = ({ user, token, onNavigate }) => {
                     </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 bg-blue-400 bg-opacity-50 rounded-xl flex items-center justify-center">
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-400 bg-opacity-50 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
+            <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-4 sm:p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm font-medium">Total Activities</p>
-                  <p className="text-3xl font-bold">{formatNumber(stats?.activityStats?.totalActivities)}</p>
+                  <p className="text-green-100 text-xs sm:text-sm font-medium">Total Activities</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{formatNumber(stats?.activityStats?.totalActivities)}</p>
                   <div className="flex items-center mt-2">
                     <div className="w-2 h-2 bg-green-300 rounded-full mr-2"></div>
                     <span className="text-green-200 text-xs">
@@ -452,19 +452,19 @@ const Analytics = ({ user, token, onNavigate }) => {
                     </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 bg-green-400 bg-opacity-50 rounded-xl flex items-center justify-center">
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-400 bg-opacity-50 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg shadow-lg p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
+            <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg shadow-lg p-4 sm:p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-yellow-100 text-sm font-medium">Pending Reviews</p>
-                  <p className="text-3xl font-bold">{formatNumber(stats?.activityStats?.pendingActivities)}</p>
+                  <p className="text-yellow-100 text-xs sm:text-sm font-medium">Pending Reviews</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{formatNumber(stats?.activityStats?.pendingActivities)}</p>
                   <div className="flex items-center mt-2">
                     <svg className="w-4 h-4 mr-1 text-yellow-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -474,26 +474,26 @@ const Analytics = ({ user, token, onNavigate }) => {
                     </span>
                   </div>
                 </div>
-                <div className="w-12 h-12 bg-yellow-400 bg-opacity-50 rounded-xl flex items-center justify-center">
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-400 bg-opacity-50 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-4 sm:p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm font-medium">Departments</p>
-                  <p className="text-3xl font-bold">{formatNumber(stats?.departmentStats?.length)}</p>
+                  <p className="text-purple-100 text-xs sm:text-sm font-medium">Departments</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{formatNumber(stats?.departmentStats?.length)}</p>
                   <div className="flex items-center mt-2">
                     <div className="w-2 h-2 bg-purple-300 rounded-full mr-2"></div>
                     <span className="text-purple-200 text-xs">Active departments</span>
                   </div>
                 </div>
-                <div className="w-12 h-12 bg-purple-400 bg-opacity-50 rounded-xl flex items-center justify-center">
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-400 bg-opacity-50 rounded-xl flex items-center justify-center">
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
@@ -502,26 +502,26 @@ const Analytics = ({ user, token, onNavigate }) => {
           </div>
 
           {/* Enhanced Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* Enhanced Department Performance */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-6">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md flex-shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">Department Performance</h3>
-                    <p className="text-xs text-gray-500">User distribution by department</p>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900">Department Performance</h3>
+                    <p className="text-xs text-gray-500 hidden sm:block">User distribution by department</p>
                   </div>
                 </div>
-                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded self-start sm:self-auto">
                   Top {Math.min(6, stats?.departmentStats?.length || 0)}
                 </span>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {stats?.departmentStats?.slice(0, 6).map((dept, index) => {
                   const percentage = getGrowthPercentage(dept.count, stats.userStats.totalUsers);
                   const colors = [
@@ -535,28 +535,30 @@ const Analytics = ({ user, token, onNavigate }) => {
                   const colorScheme = colors[index] || colors[colors.length - 1];
                   
                   return (
-                    <div key={dept.department} className={`flex items-center p-3 rounded-lg ${colorScheme.bg} hover:shadow-sm transition-all duration-200`}>
-                      <div className="flex-shrink-0 w-8">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white ${colorScheme.bar}`}>
-                          {index + 1}
-                        </span>
+                    <div key={dept.department} className={`flex flex-col sm:flex-row sm:items-center p-3 rounded-lg ${colorScheme.bg} hover:shadow-sm transition-all duration-200 space-y-2 sm:space-y-0`}>
+                      <div className="flex items-center flex-1 min-w-0">
+                        <div className="flex-shrink-0">
+                          <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white ${colorScheme.bar}`}>
+                            {index + 1}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0 ml-3 mr-3">
+                          <p className={`text-sm font-medium truncate ${colorScheme.text}`} title={dept.department}>
+                            {dept.department}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <span className={`text-sm font-bold ${colorScheme.text}`}>{dept.count}</span>
+                          <span className="text-xs text-gray-500 ml-1">({percentage}%)</span>
+                        </div>
                       </div>
-                      <div className="flex-shrink-0 w-32 ml-3">
-                        <p className={`text-sm font-medium truncate ${colorScheme.text}`} title={dept.department}>
-                          {dept.department}
-                        </p>
-                      </div>
-                      <div className="flex-1 mx-4">
+                      <div className="w-full sm:flex-1 sm:mx-4">
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
                             className={`h-2 rounded-full transition-all duration-500 ${colorScheme.bar}`}
                             style={{ width: `${Math.max(5, percentage)}%` }}
                           ></div>
                         </div>
-                      </div>
-                      <div className="flex-shrink-0 w-20 text-right">
-                        <span className={`text-sm font-bold ${colorScheme.text}`}>{dept.count}</span>
-                        <div className="text-xs text-gray-500">({percentage}%)</div>
                       </div>
                     </div>
                   );
@@ -565,22 +567,22 @@ const Analytics = ({ user, token, onNavigate }) => {
             </div>
 
             {/* Enhanced Activity Status Distribution */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-6">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">Activity Status</h3>
-                    <p className="text-xs text-gray-500">Approval distribution</p>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900">Activity Status</h3>
+                    <p className="text-xs text-gray-500 hidden sm:block">Approval distribution</p>
                   </div>
                 </div>
-                <span className="text-sm text-gray-500">Distribution</span>
+                <span className="text-xs sm:text-sm text-gray-500 hidden sm:inline">Distribution</span>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div className="text-center">
                   <div className="relative inline-flex items-center justify-center w-40 h-40">
                     <svg className="w-40 h-40 transform -rotate-90">
@@ -659,25 +661,25 @@ const Analytics = ({ user, token, onNavigate }) => {
 
           {/* Enhanced Top Performers */}
           {stats?.topStudents?.length > 0 && (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-6">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">Top Performers</h3>
-                    <p className="text-xs text-gray-500">Leading students by credits</p>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900">Top Performers</h3>
+                    <p className="text-xs text-gray-500 hidden sm:block">Leading students by credits</p>
                   </div>
                 </div>
-                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">
                   Based on activity credits
                 </span>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {stats.topStudents.slice(0, 3).map((student, index) => {
                   const medals = ['🥇', '🥈', '🥉'];
                   const gradients = [
@@ -717,17 +719,17 @@ const Analytics = ({ user, token, onNavigate }) => {
           {(() => {
             const health = getSystemHealth();
             return (
-              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                   <div className="flex items-center">
-                    <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">System Health</h3>
-                      <p className="text-xs text-gray-500">Overall platform performance</p>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900">System Health</h3>
+                      <p className="text-xs text-gray-500 hidden sm:block">Overall platform performance</p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -735,7 +737,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                       health.score >= 85 ? 'bg-green-500' : 
                       health.score >= 70 ? 'bg-yellow-500' : 'bg-red-500'
                     }`}></div>
-                    <span className={`text-sm font-medium ${
+                    <span className={`text-xs sm:text-sm font-medium ${
                       health.score >= 85 ? 'text-green-700' : 
                       health.score >= 70 ? 'text-yellow-700' : 'text-red-700'
                     }`}>
@@ -744,7 +746,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
                   <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -807,25 +809,25 @@ const Analytics = ({ user, token, onNavigate }) => {
 
       {/* Enhanced Reports Tab */}
       {activeTab === 'reports' && (
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-          <div className="space-y-6">
-            <div className="flex items-center mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex items-center mb-4 sm:mb-6">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                   <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-900">Generate Custom Reports</h3>
-                <p className="text-xs text-gray-500">Export detailed activity data</p>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">Generate Custom Reports</h3>
+                <p className="text-xs text-gray-500 hidden sm:block">Export detailed activity data</p>
               </div>
             </div>
             <div>
               
               {/* Quick Date Range Buttons */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Quick Date Ranges</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Quick Date Ranges</label>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { label: 'Last 3 Months', months: 3 },
@@ -844,9 +846,9 @@ const Analytics = ({ user, token, onNavigate }) => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Start Date *</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Start Date *</label>
                   <input
                     type="date"
                     value={dateRange.startDate}
@@ -856,7 +858,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">End Date *</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">End Date *</label>
                   <input
                     type="date"
                     value={dateRange.endDate}
@@ -869,16 +871,17 @@ const Analytics = ({ user, token, onNavigate }) => {
                   <button
                     onClick={generateReport}
                     disabled={reportLoading || !dateRange.startDate || !dateRange.endDate}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {reportLoading ? (
                       <>
                         <LoadingSpinner size="sm" className="mr-2" />
-                        Generating...
+                        <span className="hidden sm:inline">Generating...</span>
+                        <span className="sm:hidden">Wait...</span>
                       </>
                     ) : (
                       <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 00-4-4H4a2 2 0 01-2-2v-1a2 2 0 012-2h1a4 4 0 004-4v-2" />
                         </svg>
                         Generate Report
@@ -891,16 +894,17 @@ const Analytics = ({ user, token, onNavigate }) => {
                   <button
                     onClick={downloadCSVReport}
                     disabled={generating || !dateRange.startDate || !dateRange.endDate}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-full bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {generating ? (
                       <>
                         <LoadingSpinner size="sm" className="mr-2" />
-                        Downloading...
+                        <span className="hidden sm:inline">Downloading...</span>
+                        <span className="sm:hidden">Wait...</span>
                       </>
                     ) : (
                       <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Download CSV
@@ -912,65 +916,65 @@ const Analytics = ({ user, token, onNavigate }) => {
             </div>
 
             {reports && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Enhanced Report Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 sm:p-4 border border-blue-200">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
-                      <div>
-                        <div className="text-2xl font-bold text-blue-600">{formatNumber(reports.summary.totalActivities)}</div>
-                        <div className="text-sm text-blue-700">Total Activities</div>
+                      <div className="min-w-0">
+                        <div className="text-xl sm:text-2xl font-bold text-blue-600 truncate">{formatNumber(reports.summary.totalActivities)}</div>
+                        <div className="text-xs sm:text-sm text-blue-700">Total Activities</div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 sm:p-4 border border-green-200">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mr-3">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                         </svg>
                       </div>
-                      <div>
-                        <div className="text-2xl font-bold text-green-600">{formatNumber(reports.summary.totalCredits)}</div>
-                        <div className="text-sm text-green-700">Total Credits</div>
+                      <div className="min-w-0">
+                        <div className="text-xl sm:text-2xl font-bold text-green-600 truncate">{formatNumber(reports.summary.totalCredits)}</div>
+                        <div className="text-xs sm:text-sm text-green-700">Total Credits</div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-3 sm:p-4 border border-purple-200">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mr-3">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                         </svg>
                       </div>
-                      <div>
-                        <div className="text-2xl font-bold text-purple-600">
+                      <div className="min-w-0">
+                        <div className="text-xl sm:text-2xl font-bold text-purple-600 truncate">
                           {Object.keys(reports.summary.departmentBreakdown).length}
                         </div>
-                        <div className="text-sm text-purple-700">Departments</div>
+                        <div className="text-xs sm:text-sm text-purple-700">Departments</div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 border border-yellow-200">
+                  <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-3 sm:p-4 border border-yellow-200">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-yellow-500 rounded-lg flex items-center justify-center mr-3">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
                       </div>
-                      <div>
-                        <div className="text-2xl font-bold text-yellow-600">
+                      <div className="min-w-0">
+                        <div className="text-xl sm:text-2xl font-bold text-yellow-600 truncate">
                           {Object.keys(reports.summary.activityTypeBreakdown).length}
                         </div>
-                        <div className="text-sm text-yellow-700">Activity Types</div>
+                        <div className="text-xs sm:text-sm text-yellow-700">Activity Types</div>
                       </div>
                     </div>
                   </div>
@@ -978,11 +982,11 @@ const Analytics = ({ user, token, onNavigate }) => {
 
                 {/* Enhanced Department Breakdown */}
                 <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-3 flex items-center">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                  <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 flex items-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mr-2 sm:mr-3"></div>
                     Department Breakdown
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {Object.entries(reports.summary.departmentBreakdown).map(([dept, count]) => (
                       <div key={dept} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 text-center border border-gray-200 hover:shadow-md transition-all duration-200">
                         <div className="font-bold text-2xl text-gray-800">{count}</div>
@@ -995,11 +999,11 @@ const Analytics = ({ user, token, onNavigate }) => {
 
                 {/* Enhanced Activity Types */}
                 <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-3 flex items-center">
-                    <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
+                  <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 flex items-center">
+                    <div className="w-2 h-2 bg-green-600 rounded-full mr-2 sm:mr-3"></div>
                     Activity Categories
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {Object.entries(reports.summary.activityTypeBreakdown).map(([type, count]) => (
                       <div key={type} className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg p-4 text-center border border-green-200 hover:shadow-md transition-all duration-200">
                         <div className="font-bold text-2xl text-green-800">{count}</div>
@@ -1019,20 +1023,20 @@ const Analytics = ({ user, token, onNavigate }) => {
 
       {/* Enhanced Trends Tab */}
       {activeTab === 'trends' && (
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-          <div className="flex items-center mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+          <div className="flex items-center mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-gray-900">System Trends & Insights</h3>
-              <p className="text-xs text-gray-500">Performance analysis and metrics</p>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">System Trends & Insights</h3>
+              <p className="text-xs text-gray-500 hidden sm:block">Performance analysis and metrics</p>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* Enhanced User Distribution */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
               <h4 className="text-md font-semibold text-gray-900 mb-4 flex items-center">
@@ -1125,12 +1129,12 @@ const Analytics = ({ user, token, onNavigate }) => {
           </div>
 
           {/* Enhanced System Health */}
-          <div className="mt-6 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-6 border border-gray-200">
-            <h4 className="text-md font-semibold text-gray-900 mb-4 flex items-center">
-              <div className="w-2 h-2 bg-indigo-600 rounded-full mr-3"></div>
+          <div className="mt-4 sm:mt-6 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 sm:p-6 border border-gray-200">
+            <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+              <div className="w-2 h-2 bg-indigo-600 rounded-full mr-2 sm:mr-3"></div>
               System Performance Metrics
             </h4>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               <div className="text-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
