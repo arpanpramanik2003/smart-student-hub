@@ -3,6 +3,9 @@ import { facultyAPI } from '../../utils/api';
 import { API_BASE_URL } from '../../utils/constants';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
+// Get server base URL without /api suffix for image paths
+const SERVER_BASE_URL = API_BASE_URL.replace('/api', '');
+
 const StudentList = ({ user }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -216,7 +219,7 @@ const StudentList = ({ user }) => {
                           {student.profilePicture ? (
                             <img
                               className="h-10 w-10 rounded-full object-cover"
-                              src={`${API_BASE_URL}${student.profilePicture}`}
+                              src={`${SERVER_BASE_URL}${student.profilePicture}`}
                               alt={student.name}
                             />
                           ) : (
@@ -311,7 +314,7 @@ const StudentList = ({ user }) => {
                 {selectedStudent.profilePicture ? (
                   <img
                     className="h-16 w-16 rounded-full border-4 border-white object-cover"
-                    src={`${API_BASE_URL}${selectedStudent.profilePicture}`}
+                    src={`${SERVER_BASE_URL}${selectedStudent.profilePicture}`}
                     alt={selectedStudent.name}
                   />
                 ) : (
