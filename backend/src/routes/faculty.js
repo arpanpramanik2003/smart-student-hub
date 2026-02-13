@@ -3,7 +3,8 @@ const {
   getPendingActivities, 
   getAllActivities, 
   reviewActivity, 
-  getFacultyStats 
+  getFacultyStats,
+  getAllStudents 
 } = require('../controllers/facultyController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 
@@ -18,5 +19,6 @@ router.get('/stats', getFacultyStats);
 router.get('/activities/pending', getPendingActivities);
 router.get('/activities', getAllActivities);
 router.put('/activities/:activityId', reviewActivity); // 🔥 FIXED: Removed /review
+router.get('/students', getAllStudents);
 
 module.exports = router;

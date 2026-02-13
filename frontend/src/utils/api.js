@@ -120,6 +120,10 @@ export const facultyAPI = {
     method: 'PUT',
     body: data,
   }),
+  getAllStudents: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiRequest(`/faculty/students${query ? `?${query}` : ''}`);
+  },
 };
 
 // Admin API

@@ -192,9 +192,90 @@ const getFacultyStats = async (req, res) => {
   }
 };
 
+// Get all students for faculty view
+const getAllStudents = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, search, department, year } = req.query;
+    const offset = (page - 1) * limit;
+
+    const where = { role: 'student' };
+    
+    // Add search filter (name, email, or studentId)
+    if (search) {
+      const { Op } = require('sequelize');
+      where[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        { studentId: { [Op.like]: `%${search}%` } }
+      ];
+    }
+    
+    // Add department filter
+    if (department && department !== 'all') {
+      where.department = department;
+    }
+    
+    // Add year filter
+    if (year && year !== 'all') {
+      where.year = parseInt(year);
+    }
+
+    const { count, rows } = await User.findAndCountAll({
+      where,
+      attributes: [
+        'id', 'name', 'email', 'studentId', 'department', 'year',
+        'phone', 'dateOfBirth', 'gender', 'category', 'address',
+        'tenthResult', 'twelfthResult', 
+        'skills', 'languages', 'hobbies', 'achievements',
+        'projects', 'certifications',
+        'linkedinUrl', 'githubUrl', 'portfolioUrl',
+        'profilePicture', 'otherDetails', 'isActive', 'createdAt'
+      ],
+      order: [['name', 'ASC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    // Get activity stats for each student
+    const studentsWithStats = await Promise.all(rows.map(async (student) => {
+      const totalActivities = await Activity.count({ where: { studentId: student.id } });
+      const approvedActivities = await Activity.count({ 
+        where: { studentId: student.id, status: 'approved' } 
+      });
+      const totalCredits = await Activity.sum('credits', { 
+        where: { studentId: student.id, status: 'approved' } 
+      }) || 0;
+
+      return {
+        ...student.toJSON(),
+        stats: {
+          totalActivities,
+          approvedActivities,
+          totalCredits
+        }
+      };
+    }));
+
+    res.json({
+      students: studentsWithStats,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        pages: Math.ceil(count / limit),
+        hasMore: offset + rows.length < count
+      }
+    });
+
+  } catch (error) {
+    console.error('Get all students error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getPendingActivities,
   getAllActivities, 
   reviewActivity,
-  getFacultyStats
+  getFacultyStats,
+  getAllStudents
 };

@@ -20,6 +20,7 @@ import Portfolio from './components/student/Portfolio';
 import FacultyDashboard from './components/faculty/Dashboard';
 import FacultyReviewQueue from './components/faculty/ReviewQueue';
 import AllActivities from './components/faculty/AllActivities';
+import StudentList from './components/faculty/StudentList';
 
 // Admin Components
 import AdminDashboard from './components/admin/Dashboard';
@@ -61,6 +62,7 @@ function App() {
         'dashboard': 'dashboard',
         'review': 'review',
         'all-activities': 'all-activities',
+        'students': 'students',
         'users': 'users',
         'reports': 'reports',
         'analytics': 'analytics'
@@ -226,6 +228,8 @@ function App() {
           return <FacultyReviewQueue user={user} token={getToken()} />;
         case 'all-activities':
           return <AllActivities user={user} token={getToken()} />;
+        case 'students':
+          return <StudentList user={user} token={getToken()} />;
         default:
           return (
             <FacultyDashboard
