@@ -3,10 +3,19 @@ import { facultyAPI } from '../../utils/api';
 import { API_BASE_URL } from '../../utils/constants';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
-// Get server base URL without /api suffix for image paths
-const SERVER_BASE_URL = API_BASE_URL.replace('/api', '');
-
 const StudentList = ({ user }) => {
+  // Get backend base URL for image serving
+  const backendBaseUrl = API_BASE_URL.replace('/api', '');
+  
+  // Helper function to get profile image URL
+  const getProfileImageUrl = (profilePicture) => {
+    if (!profilePicture) return null;
+    // Check if URL is already absolute (Cloudinary, external URL, etc.)
+    return profilePicture.startsWith('http') 
+      ? profilePicture 
+      : `${backendBaseUrl}${profilePicture}`;
+  };
+
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -219,7 +228,7 @@ const StudentList = ({ user }) => {
                           {student.profilePicture ? (
                             <img
                               className="h-10 w-10 rounded-full object-cover"
-                              src={`${SERVER_BASE_URL}${student.profilePicture}`}
+                              src={getProfileImageUrl(student.profilePicture)}
                               alt={student.name}
                             />
                           ) : (
@@ -314,7 +323,7 @@ const StudentList = ({ user }) => {
                 {selectedStudent.profilePicture ? (
                   <img
                     className="h-16 w-16 rounded-full border-4 border-white object-cover"
-                    src={`${SERVER_BASE_URL}${selectedStudent.profilePicture}`}
+                    src={getProfileImageUrl(selectedStudent.profilePicture)}
                     alt={selectedStudent.name}
                   />
                 ) : (
