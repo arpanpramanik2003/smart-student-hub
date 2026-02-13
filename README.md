@@ -17,8 +17,7 @@ A comprehensive platform for managing student academic activities, portfolios, a
 - [Environment Variables](#environment-variables)
 - [Test Credentials](#test-credentials)
 - [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Security](#security)
+- [API Documentation](#api-documentation)- [User Guides](#user-guides)- [Security](#security)
 
 ---
 
@@ -49,6 +48,12 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 - Filter by department and status
 - View comprehensive activity dashboard
 - Track department-wise statistics
+- **All Students Directory** - Search, filter, and view complete student profiles
+  - Advanced search by name, email, or student ID
+  - Filter by department and year
+  - View student activity statistics
+  - Access detailed student information (read-only)
+  - Professional academic-style layout with pagination
 
 ### 👑 Admin Portal
 - User management (create, edit, delete, deactivate)
@@ -287,7 +292,48 @@ Authorization: Bearer <token>
 
 ---
 
-## 🔒 Security Features
+## � User Guides
+
+Comprehensive guides for all user roles:
+
+### 👨‍🏫 [Faculty Guide](FACULTY_GUIDE.md)
+Complete guide for faculty members including:
+- Dashboard overview and navigation
+- Activity review workflow
+- Credit assignment guidelines
+- **NEW: All Students Directory** - Search, filter, and view complete student profiles
+- Best practices and tips
+- Troubleshooting common issues
+
+### 👑 [Admin Guide](ADMIN_GUIDE.md)
+Administrator documentation covering:
+- Secure admin setup and credentials
+- User management
+- Database access and backups
+- Security best practices
+- Environment variables
+- Production deployment checklist
+
+### 📡 [API Documentation](DATABASE_API_ARCHITECTURE.md)
+Technical API reference:
+- Database schema and relationships
+- All API endpoints with examples
+- Request/response formats
+- Authentication flows
+- SQL queries and optimization
+
+### 🚀 [Deployment Guide](DEPLOYMENT.md)
+Step-by-step deployment instructions:
+- Supabase PostgreSQL setup
+- Cloudinary CDN configuration
+- Render backend deployment
+- Vercel frontend deployment
+- Environment configuration
+- Testing and troubleshooting
+
+---
+
+## �🔒 Security Features
 
 - ✅ **JWT Authentication** - Secure token-based auth
 - ✅ **Password Hashing** - bcrypt with 12 rounds
@@ -359,9 +405,14 @@ Built by the Smart Student Hub Team for SIH 2025
 ## 📧 Support
 
 For issues, questions, or suggestions:
-- Create an issue on GitHub
+- Create an issue on [GitHub](https://github.com/arpanpramanik2003/smart-student-hub/issues)
 - Email: support@smartstudenthub.com
-- Documentation: [DEPLOYMENT.md](DEPLOYMENT.md)
+
+**Documentation:**
+- 👨‍🏫 [Faculty Guide](FACULTY_GUIDE.md) - Complete faculty user manual
+- 👑 [Admin Guide](ADMIN_GUIDE.md) - Administrator documentation
+- 📡 [API Documentation](DATABASE_API_ARCHITECTURE.md) - Technical API reference
+- 🚀 [Deployment Guide](DEPLOYMENT.md) - Production deployment steps
 
 ---
 

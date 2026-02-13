@@ -297,8 +297,54 @@ graph LR
 | GET | `/stats` | Get faculty dashboard stats | Aggregate queries on `activities`, `users` |
 | GET | `/activities/pending` | Get pending activities | SELECT from `activities` WHERE `status='pending'` |
 | GET | `/activities` | Get all activities | SELECT from `activities` JOIN `users` |
-| PUT | `/activities/:activityId` | Review activity (approve/reject) | UPDATE `activities` SET `status`, `approvedBy`, `credits`, `remarks` |
+| PUT | `/activities/:activityId` | Review activity (approve/reject) | UPDATE `activities` SET `status`, `approvedBy`, `credits`, `remarks` || GET | `/students` | Get all students with filters | SELECT from `users` WHERE `role='student'` with search and pagination |
 
+#### `/students` Query Parameters:
+- `page` (number): Page number (default: 1)
+- `limit` (number): Results per page (default: 20)
+- `search` (string): Search by name, email, or student ID
+- `department` (string): Filter by department
+- `year` (number): Filter by academic year
+
+**Response includes:**
+- Student profile data (all fields including personal, academic, contact info)
+- Activity statistics (total, approved, credits earned)
+- Pagination metadata
+
+**Example Request:**
+```
+GET /api/faculty/students?page=1&limit=20&search=john&department=Computer%20Science&year=3
+```
+
+**Example Response:**
+```json
+{
+  "students": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "studentId": "CS2021001",
+      "department": "Computer Science",
+      "year": 3,
+      "phone": "+1234567890",
+      "profilePicture": "https://...",
+      "skills": "Python, React, Node.js",
+      "stats": {
+        "totalActivities": 15,
+        "approvedActivities": 12,
+        "totalCredits": 38
+      }
+    }
+  ],
+  "pagination": {
+    "total": 150,
+    "page": 1,
+    "pages": 8,
+    "hasMore": true
+  }
+}
+```
 ---
 
 ### 🔐 Admin APIs (`/api/admin`)
