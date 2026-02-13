@@ -12,7 +12,6 @@ const defaultDetails = {
   skills: "",
   otherDetails: "",
   profilePicture: "",
-  // 🔥 Enhanced fields for comprehensive CV
   phone: "",
   dateOfBirth: "",
   gender: "",
