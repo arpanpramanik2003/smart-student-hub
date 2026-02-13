@@ -11,12 +11,19 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
   const isFaculty = user.role === USER_ROLES.FACULTY || user.role === USER_ROLES.ADMIN;
   const isAdmin = user.role === USER_ROLES.ADMIN;
 
-  // Handle scroll effect for navbar
+  // Handle scroll effect for navbar (use throttle to prevent blinking)
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 10);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -159,9 +166,10 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
   const currentNavItems = navItems[user.role] || navItems.student;
 
   // Profile Avatar Component
-  const ProfileAvatar = ({ size = 'normal', showOnlineStatus = true }) => {
+  const ProfileAvatar = React.memo(({ size = 'normal', showOnlineStatus = true }) => {
     const backendBaseUrl = API_BASE_URL.replace('/api', '');
     const [imageError, setImageError] = useState(false);
+    const [imgLoaded, setImgLoaded] = useState(false);
     
     const getInitials = (name) => {
       return name
@@ -171,8 +179,11 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
         .join('');
     };
 
-    const profileImageUrl = user?.profilePicture 
-      ? `${backendBaseUrl}${user.profilePicture}` 
+    // Handle profile picture URL correctly (same as Dashboard)
+    const profileImageUrl = user?.profilePicture
+      ? (user.profilePicture.startsWith('http')
+          ? user.profilePicture
+          : `${backendBaseUrl}${user.profilePicture}`)
       : null;
 
     const sizeClasses = {
@@ -201,10 +212,25 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
             <img
               src={profileImageUrl}
               alt={`${user.name}'s profile`}
-              className={`${sizeClasses[size]} rounded-full object-cover border-3 border-white shadow-lg ring-2 ring-white/30 transition-all duration-300 group-hover:ring-4 group-hover:ring-white/50 group-hover:scale-105`}
-              onError={() => setImageError(true)}
-              onLoad={() => setImageError(false)}
+              className={`${sizeClasses[size]} rounded-full object-cover border-3 border-white shadow-lg ring-2 ring-white/30 transition-all duration-300 group-hover:ring-4 group-hover:ring-white/50 group-hover:scale-105 ${!imgLoaded ? 'opacity-0' : 'opacity-100'}`}
+              onError={(e) => {
+                console.log('Profile image load error:', profileImageUrl);
+                setImageError(true);
+              }}
+              onLoad={() => {
+                setImgLoaded(true);
+                setImageError(false);
+              }}
+              loading="lazy"
             />
+            {/* Loading placeholder while image loads */}
+            {!imgLoaded && (
+              <div className={`${sizeClasses[size]} absolute inset-0 bg-gradient-to-br ${getRoleBgGradient()} rounded-full flex items-center justify-center border-3 border-white shadow-lg ring-2 ring-white/30 animate-pulse`}>
+                <span className="text-white font-bold">
+                  {getInitials(user.name)}
+                </span>
+              </div>
+            )}
           </div>
         ) : (
           <div className={`${sizeClasses[size]} bg-gradient-to-br ${getRoleBgGradient()} rounded-full flex items-center justify-center border-3 border-white shadow-lg ring-2 ring-white/30 transition-all duration-300 group-hover:ring-4 group-hover:ring-white/50 group-hover:scale-105`}>
@@ -224,7 +250,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
         )}
       </div>
     );
-  };
+  });
 
   const handleNavClick = (itemKey) => {
     setCurrentView(itemKey);
@@ -253,9 +279,9 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
   };
 
   return (
-    <header className={`bg-white border-b border-gray-200 sticky top-0 z-50 transition-all duration-300 ${
+    <header className={`bg-white border-b border-gray-200 sticky top-0 z-50 transition-shadow duration-200 will-change-shadow ${
       scrolled ? 'shadow-lg' : 'shadow-md'
-    }`}>
+    }`} style={{ backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo & Brand */}
