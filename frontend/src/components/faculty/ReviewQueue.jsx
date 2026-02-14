@@ -75,7 +75,7 @@ const ReviewQueue = ({ user, token }) => {
   return (
     <div className="space-y-6">
       {/* Header with Gradient Design */}
-      <div className="bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 rounded-xl shadow-lg p-6 text-white">
+      <div className="bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 dark:from-teal-900 dark:via-emerald-900 dark:to-green-900 rounded-xl shadow-lg p-6 text-white transition-colors">
         <div className="flex items-center space-x-4">
           {/* Icon Badge */}
           <div className="flex-shrink-0">
@@ -102,24 +102,24 @@ const ReviewQueue = ({ user, token }) => {
           {activities.map((activity) => (
             <div 
               key={activity.id} 
-              className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
             >
               <div className="p-6">
                 {/* Activity Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
                       {activity.title}
                     </h3>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600 dark:text-gray-400">
                       {[
                         {
                           icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
                           content: (
                             <div>
                               <p className="font-medium">{activity.student?.name}</p>
-                              <p className="text-xs text-gray-500">{activity.student?.studentId}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-500">{activity.student?.studentId}</p>
                             </div>
                           )
                         },
@@ -128,7 +128,7 @@ const ReviewQueue = ({ user, token }) => {
                           content: (
                             <div>
                               <p className="font-medium">{activity.student?.department}</p>
-                              <p className="text-xs text-gray-500">Year {activity.student?.year}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-500">Year {activity.student?.year}</p>
                             </div>
                           )
                         },
@@ -167,26 +167,26 @@ const ReviewQueue = ({ user, token }) => {
                 <div className="space-y-3 mb-6">
                   {activity.organizer && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Organizer:</span>
-                      <span className="text-sm text-gray-600 ml-2">{activity.organizer}</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Organizer:</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">{activity.organizer}</span>
                     </div>
                   )}
                   
                   {activity.duration && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Duration:</span>
-                      <span className="text-sm text-gray-600 ml-2">{activity.duration}</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Duration:</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">{activity.duration}</span>
                     </div>
                   )}
                   
                   {activity.description && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Description:</span>
-                      <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Description:</span>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{activity.description}</p>
                     </div>
                   )}
                   
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
                     <div className="flex items-center space-x-4">
                       <span>Submitted: {new Date(activity.createdAt).toLocaleDateString()}</span>
                       <span>Student credits requested: {activity.credits}</span>
@@ -198,7 +198,7 @@ const ReviewQueue = ({ user, token }) => {
                         <button
                           type="button"
                           onClick={() => toggleFileVisibility(activity.id)}
-                          className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-all duration-200 hover:shadow-md"
+                          className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/70 transition-all duration-200 hover:shadow-md"
                         >
                           <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -211,13 +211,13 @@ const ReviewQueue = ({ user, token }) => {
                   
                   {/* Certificate Download Link */}
                   {activity.filePath && visibleFiles[activity.id] && (
-                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md transition-all duration-300">
+                    <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-md transition-all duration-300">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
-                          <span className="text-sm font-medium text-blue-800">Certificate Document</span>
+                          <span className="text-sm font-medium text-blue-800 dark:text-blue-300">Certificate Document</span>
                         </div>
                         {(() => {
                           const fileUrl = activity.filePath.startsWith('http') ? activity.filePath : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${activity.filePath}`;
@@ -264,15 +264,15 @@ const ReviewQueue = ({ user, token }) => {
                 </div>
 
                 {/* Review Form with Gradient Background */}
-                <div className="bg-gradient-to-br from-gray-50 via-blue-50/30 to-green-50/30 rounded-lg p-4 border border-gray-200">
-                  <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-                    <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                <div className="bg-gradient-to-br from-gray-50 via-blue-50/30 to-green-50/30 dark:from-gray-700/50 dark:via-blue-900/20 dark:to-green-900/20 rounded-lg p-4 border border-gray-200 dark:border-gray-700 transition-colors">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                    <span className="w-2 h-2 bg-green-600 dark:bg-green-500 rounded-full mr-2"></span>
                     Review Activity
                   </h4>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label htmlFor={`credits-${activity.id}`} className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                      <label htmlFor={`credits-${activity.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
                         <svg className="w-4 h-4 mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                         </svg>
@@ -285,7 +285,7 @@ const ReviewQueue = ({ user, token }) => {
                         max="10"
                         step="0.1"
                         defaultValue={activity.credits > 10 ? 10 : activity.credits}
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                        className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
                         placeholder="0-10"
                         onInput={(e) => {
                           if (parseFloat(e.target.value) > 10) {
@@ -293,7 +293,7 @@ const ReviewQueue = ({ user, token }) => {
                           }
                         }}
                       />
-                      <p className="mt-1 text-xs text-gray-500 flex items-center">
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 flex items-center">
                         <svg className="w-3 h-3 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                         </svg>
@@ -302,13 +302,13 @@ const ReviewQueue = ({ user, token }) => {
                     </div>
                     
                     <div>
-                      <label htmlFor={`remarks-${activity.id}`} className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor={`remarks-${activity.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Remarks (Optional)
                       </label>
                       <input
                         type="text"
                         id={`remarks-${activity.id}`}
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                        className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
                         placeholder="Add feedback or comments"
                       />
                     </div>
@@ -318,7 +318,7 @@ const ReviewQueue = ({ user, token }) => {
                     <button
                       onClick={() => handleQuickReject(activity.id)}
                       disabled={reviewingId === activity.id}
-                      className="px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 hover:shadow-lg"
+                      className="px-4 py-2 border border-red-300 dark:border-red-700 rounded-md shadow-sm text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center transition-all duration-200 hover:shadow-lg"
                     >
                       {reviewingId === activity.id ? (
                         <LoadingSpinner size="sm" className="mr-2" />
@@ -351,20 +351,20 @@ const ReviewQueue = ({ user, token }) => {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transition-colors">
           <div className="text-center py-12">
-            <div className="w-24 h-24 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-24 h-24 mx-auto mb-4 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center transition-colors">
+              <svg className="w-12 h-12 text-green-600 dark:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
               All Caught Up!
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               No pending activities to review at the moment.
             </p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
               New student submissions will appear here for your review.
             </p>
           </div>

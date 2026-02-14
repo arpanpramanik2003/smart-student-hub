@@ -310,7 +310,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
@@ -318,11 +318,11 @@ const Analytics = ({ user, token, onNavigate }) => {
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error Loading Analytics</h3>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-300">Error Loading Analytics</h3>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-400">{error}</p>
               <button 
                 onClick={() => fetchAnalytics()}
-                className="mt-2 text-sm text-red-600 hover:text-red-500 underline focus:outline-none"
+                className="mt-2 text-sm text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 underline focus:outline-none"
               >
                 Try Again
               </button>
@@ -502,7 +502,7 @@ const Analytics = ({ user, token, onNavigate }) => {
           {/* Enhanced Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* Enhanced Department Performance */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md flex-shrink-0">
@@ -511,11 +511,11 @@ const Analytics = ({ user, token, onNavigate }) => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900">Department Performance</h3>
-                    <p className="text-xs text-gray-500 hidden sm:block">User distribution by department</p>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">Department Performance</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block transition-colors">User distribution by department</p>
                   </div>
                 </div>
-                <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded self-start sm:self-auto">
+                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded self-start sm:self-auto transition-colors">
                   Top {Math.min(6, stats?.departmentStats?.length || 0)}
                 </span>
               </div>
@@ -565,7 +565,7 @@ const Analytics = ({ user, token, onNavigate }) => {
             </div>
 
             {/* Enhanced Activity Status Distribution */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
@@ -574,11 +574,11 @@ const Analytics = ({ user, token, onNavigate }) => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900">Activity Status</h3>
-                    <p className="text-xs text-gray-500 hidden sm:block">Approval distribution</p>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">Activity Status</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block transition-colors">Approval distribution</p>
                   </div>
                 </div>
-                <span className="text-xs sm:text-sm text-gray-500 hidden sm:inline">Distribution</span>
+                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hidden sm:inline transition-colors">Distribution</span>
               </div>
               <div className="space-y-4 sm:space-y-6">
                 <div className="text-center">
@@ -606,10 +606,10 @@ const Analytics = ({ user, token, onNavigate }) => {
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-gray-900">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 transition-colors">
                           {getGrowthPercentage(stats?.activityStats?.approvedActivities, stats?.activityStats?.totalActivities)}%
                         </div>
-                        <div className="text-sm text-gray-500">Approved</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors">Approved</div>
                       </div>
                     </div>
                   </div>
@@ -659,7 +659,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
           {/* Enhanced Top Performers */}
           {stats?.topStudents?.length > 0 && (
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
@@ -668,11 +668,11 @@ const Analytics = ({ user, token, onNavigate }) => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900">Top Performers</h3>
-                    <p className="text-xs text-gray-500 hidden sm:block">Leading students by credits</p>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">Top Performers</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block transition-colors">Leading students by credits</p>
                   </div>
                 </div>
-                <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto">
+                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 sm:px-3 py-1 rounded-full self-start sm:self-auto transition-colors">
                   Based on activity credits
                 </span>
               </div>
@@ -717,7 +717,7 @@ const Analytics = ({ user, token, onNavigate }) => {
           {(() => {
             const health = getSystemHealth();
             return (
-              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6 transition-colors">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                   <div className="flex items-center">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
@@ -726,8 +726,8 @@ const Analytics = ({ user, token, onNavigate }) => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900">System Health</h3>
-                      <p className="text-xs text-gray-500 hidden sm:block">Overall platform performance</p>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">System Health</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block transition-colors">Overall platform performance</p>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -807,7 +807,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
       {/* Enhanced Reports Tab */}
       {activeTab === 'reports' && (
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6 transition-colors">
           <div className="space-y-4 sm:space-y-6">
             <div className="flex items-center mb-4 sm:mb-6">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
@@ -817,15 +817,15 @@ const Analytics = ({ user, token, onNavigate }) => {
                 </svg>
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900">Generate Custom Reports</h3>
-                <p className="text-xs text-gray-500 hidden sm:block">Export detailed activity data</p>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">Generate Custom Reports</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block transition-colors">Export detailed activity data</p>
               </div>
             </div>
             <div>
               
               {/* Quick Date Range Buttons */}
               <div className="mb-4">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Quick Date Ranges</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Quick Date Ranges</label>
                 <div className="flex flex-wrap gap-2">
                   {[
                     { label: 'Last 3 Months', months: 3 },
@@ -846,7 +846,7 @@ const Analytics = ({ user, token, onNavigate }) => {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Start Date *</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Start Date *</label>
                   <input
                     type="date"
                     value={dateRange.startDate}
@@ -856,7 +856,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                 </div>
                 
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">End Date *</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">End Date *</label>
                   <input
                     type="date"
                     value={dateRange.endDate}
@@ -980,7 +980,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
                 {/* Enhanced Department Breakdown */}
                 <div>
-                  <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 flex items-center">
+                  <h4 className="text-sm sm:text-md font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center transition-colors">
                     <div className="w-2 h-2 bg-blue-600 rounded-full mr-2 sm:mr-3"></div>
                     Department Breakdown
                   </h4>
@@ -997,7 +997,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
                 {/* Enhanced Activity Types */}
                 <div>
-                  <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 flex items-center">
+                  <h4 className="text-sm sm:text-md font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center transition-colors">
                     <div className="w-2 h-2 bg-green-600 rounded-full mr-2 sm:mr-3"></div>
                     Activity Categories
                   </h4>
@@ -1021,7 +1021,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
       {/* Enhanced Trends Tab */}
       {activeTab === 'trends' && (
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6 transition-colors">
           <div className="flex items-center mb-4 sm:mb-6">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-2 sm:mr-3 shadow-md">
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -1029,15 +1029,15 @@ const Analytics = ({ user, token, onNavigate }) => {
               </svg>
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900">System Trends & Insights</h3>
-              <p className="text-xs text-gray-500 hidden sm:block">Performance analysis and metrics</p>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">System Trends & Insights</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block transition-colors">Performance analysis and metrics</p>
             </div>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* Enhanced User Distribution */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-              <h4 className="text-md font-semibold text-gray-900 mb-4 flex items-center">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl p-6 border border-blue-200 dark:border-blue-700 transition-colors">
+              <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center transition-colors">
                 <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
                 User Distribution
               </h4>
@@ -1051,8 +1051,8 @@ const Analytics = ({ user, token, onNavigate }) => {
                   return (
                     <div key={item.label}>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="font-medium text-gray-700">{item.label}</span>
-                        <span className="text-gray-900 font-bold">
+                        <span className="font-medium text-gray-700 dark:text-gray-300 transition-colors">{item.label}</span>
+                        <span className="text-gray-900 dark:text-gray-100 font-bold transition-colors">
                           {formatNumber(item.count)} ({percentage}%)
                         </span>
                       </div>
@@ -1069,8 +1069,8 @@ const Analytics = ({ user, token, onNavigate }) => {
             </div>
 
             {/* Enhanced Activity Insights */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
-              <h4 className="text-md font-semibold text-gray-900 mb-4 flex items-center">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl p-6 border border-green-200 dark:border-green-700 transition-colors">
+              <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center transition-colors">
                 <div className="w-2 h-2 bg-green-600 rounded-full mr-3"></div>
                 Activity Insights
               </h4>
@@ -1110,12 +1110,12 @@ const Analytics = ({ user, token, onNavigate }) => {
                     )
                   }
                 ].map((item) => (
-                  <div key={item.label} className={`flex items-center justify-between p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200`}>
+                  <div key={item.label} className={`flex items-center justify-between p-4 bg-white dark:bg-gray-700 rounded-lg shadow-sm border dark:border-gray-600 hover:shadow-md transition-all duration-200`}>
                     <div className="flex items-center">
                       <div className={`w-10 h-10 ${item.bgColor} rounded-full flex items-center justify-center mr-3`}>
                         {item.icon}
                       </div>
-                      <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors">{item.label}</span>
                     </div>
                     <span className={`font-bold text-lg ${item.color}`}>
                       {item.value}%
@@ -1127,50 +1127,50 @@ const Analytics = ({ user, token, onNavigate }) => {
           </div>
 
           {/* Enhanced System Health */}
-          <div className="mt-4 sm:mt-6 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 sm:p-6 border border-gray-200">
-            <h4 className="text-sm sm:text-md font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
+          <div className="mt-4 sm:mt-6 bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-700 dark:to-gray-800 rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 transition-colors">
+            <h4 className="text-sm sm:text-md font-semibold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4 flex items-center transition-colors">
               <div className="w-2 h-2 bg-indigo-600 rounded-full mr-2 sm:mr-3"></div>
               System Performance Metrics
             </h4>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200">
+              <div className="text-center p-4 bg-white dark:bg-gray-700 rounded-lg shadow-sm border dark:border-gray-600 hover:shadow-md transition-all duration-200">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div className="font-bold text-xl text-green-600">Excellent</div>
-                <div className="text-sm text-gray-600">System Status</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">System Status</div>
               </div>
               
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200">
+              <div className="text-center p-4 bg-white dark:bg-gray-700 rounded-lg shadow-sm border dark:border-gray-600 hover:shadow-md transition-all duration-200">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
                 <div className="font-bold text-xl text-blue-600">High</div>
-                <div className="text-sm text-gray-600">Performance</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Performance</div>
               </div>
               
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200">
+              <div className="text-center p-4 bg-white dark:bg-gray-700 rounded-lg shadow-sm border dark:border-gray-600 hover:shadow-md transition-all duration-200">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <div className="font-bold text-xl text-purple-600">Secure</div>
-                <div className="text-sm text-gray-600">Data Protection</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Data Protection</div>
               </div>
               
-              <div className="text-center p-4 bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200">
+              <div className="text-center p-4 bg-white dark:bg-gray-700 rounded-lg shadow-sm border dark:border-gray-600 hover:shadow-md transition-all duration-200">
                 <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                   </svg>
                 </div>
                 <div className="font-bold text-xl text-orange-600">Real-time</div>
-                <div className="text-sm text-gray-600">Monitoring</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Monitoring</div>
               </div>
             </div>
           </div>

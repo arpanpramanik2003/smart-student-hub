@@ -141,7 +141,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 transition-colors">
         <div className="flex justify-center items-center h-32">
           <LoadingSpinner size="lg" text="Loading your profile..." />
         </div>
@@ -153,7 +153,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
 
   return (
     <motion.div
-      className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -179,7 +179,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 sm:p-6">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-900 dark:to-purple-900 text-white p-4 sm:p-6 transition-colors">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -350,7 +350,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                 onClick={() => setShowModal(!showModal)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center"
+                className="bg-white dark:bg-gray-700 bg-opacity-20 hover:bg-opacity-30 dark:hover:bg-opacity-40 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center"
               >
                 <svg className="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -366,7 +366,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                   whileTap={{ scale: 0.95 }}
                   className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center ${editMode
                     ? 'bg-red-500 hover:bg-red-600 text-white'
-                    : 'bg-white bg-opacity-20 hover:bg-opacity-30 text-white'
+                    : 'bg-white dark:bg-gray-700 bg-opacity-20 hover:bg-opacity-30 dark:hover:bg-opacity-40 text-white'
                     }`}
                 >
                 <svg className="w-4 h-4 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,11 +392,11 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="border-b border-gray-200 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+            className="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors"
           >
             <div className="p-4 sm:p-6 lg:p-8">
               {/* Header Section with Profile */}
-              <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 mb-6 border border-gray-200">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 mb-6 border border-gray-200 dark:border-gray-700 transition-colors">
                 <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 lg:gap-8">
                   {/* Profile Picture with Frame */}
                   <div className="relative shrink-0">
@@ -529,16 +529,16 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
               {/* Information Cards Grid */}
               <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6">
                 {/* Personal Information Card */}
-                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-shadow">
-                  <div className="flex items-center mb-4 pb-3 border-b-2 border-blue-100">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                  <div className="flex items-center mb-4 pb-3 border-b-2 border-blue-100 dark:border-blue-800/50">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
-                    <h4 className="text-lg sm:text-xl font-bold text-gray-900">Personal Information</h4>
+                    <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">Personal Information</h4>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {[
                       { icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z', label: 'Phone', value: profile.phone },
                       { icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', label: 'Date of Birth', value: profile.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null },
@@ -546,8 +546,8 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                       { icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z', label: 'Category', value: profile.category },
                       { icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z', label: 'Address', value: profile.address }
                     ].map(item => item.value && (
-                      <div key={item.label} className="flex items-start p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors">
-                        <svg className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div key={item.label} className="flex items-start p-3 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-800/50 dark:to-blue-900/20 rounded-lg hover:shadow-md transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-700/50">
+                        <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                         </svg>
                         <div className="flex-1">
@@ -560,42 +560,42 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                 </div>
 
                 {/* Academic Information Card */}
-                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-shadow">
-                  <div className="flex items-center mb-4 pb-3 border-b-2 border-green-100">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                  <div className="flex items-center mb-4 pb-3 border-b-2 border-green-100 dark:border-green-800/50">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M12 14l9-5-9-5-9 5 9 5z" />
                         <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
                       </svg>
                     </div>
-                    <h4 className="text-lg sm:text-xl font-bold text-gray-900">Academic Details</h4>
+                    <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">Academic Details</h4>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {/* Academic Results */}
                     {[
-                      { icon: '📊', label: '10th Result', value: profile.tenthResult, color: 'bg-blue-50', showBadge: false },
-                      { icon: '📈', label: '12th Result', value: profile.twelfthResult, color: 'bg-purple-50', showBadge: false }
+                      { icon: '📊', label: '10th Result', value: profile.tenthResult, color: 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-100 dark:border-blue-800/50', showBadge: false },
+                      { icon: '📈', label: '12th Result', value: profile.twelfthResult, color: 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 border border-purple-100 dark:border-purple-800/50', showBadge: false }
                     ].map(item => item.value && (
                       <div key={item.label} className={`flex items-start p-3 ${item.color} rounded-lg hover:shadow-md transition-all`}>
                         <span className="text-2xl mr-3 flex-shrink-0">{item.icon}</span>
                         <div className="flex-1">
-                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">{item.label}</p>
-                          <p className="text-sm text-gray-900 font-medium">{item.value}</p>
+                          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">{item.label}</p>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 font-semibold">{item.value}</p>
                         </div>
                       </div>
                     ))}
                     
                     {/* Languages - Badge Display */}
                     {profile.languages && (
-                      <div className="flex flex-col p-3 bg-green-50 rounded-lg hover:shadow-md transition-all">
+                      <div className="flex flex-col p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg border border-green-100 dark:border-green-800/50 hover:shadow-md transition-all">
                         <div className="flex items-center mb-2">
                           <span className="text-2xl mr-3">🗣️</span>
-                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Languages</p>
+                          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Languages</p>
                         </div>
                         <div className="flex flex-wrap gap-2 ml-11">
                           {profile.languages.split(',').map((lang, idx) => (
-                            <span key={idx} className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-xs font-medium shadow-sm">
+                            <span key={idx} className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 text-white rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all">
                               {lang.trim()}
                             </span>
                           ))}
@@ -605,14 +605,14 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     
                     {/* Skills - Badge Display */}
                     {profile.skills && (
-                      <div className="flex flex-col p-3 bg-orange-50 rounded-lg hover:shadow-md transition-all">
+                      <div className="flex flex-col p-3 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 rounded-lg border border-orange-100 dark:border-orange-800/50 hover:shadow-md transition-all">
                         <div className="flex items-center mb-2">
                           <span className="text-2xl mr-3">💻</span>
-                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Technical Skills</p>
+                          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Technical Skills</p>
                         </div>
                         <div className="flex flex-wrap gap-2 ml-11">
                           {profile.skills.split(',').map((skill, idx) => (
-                            <span key={idx} className="px-3 py-1 bg-orange-200 text-orange-800 rounded-full text-xs font-medium shadow-sm">
+                            <span key={idx} className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 dark:from-orange-600 dark:to-red-600 text-white rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all">
                               {skill.trim()}
                             </span>
                           ))}
@@ -629,64 +629,64 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                   {/* Professional Divider */}
                   <div className="relative py-4">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t-2 border-gray-200"></div>
+                      <div className="w-full border-t-2 border-gray-200 dark:border-gray-700"></div>
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 px-4 text-sm font-semibold text-gray-600">ADDITIONAL DETAILS</span>
+                      <span className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400">ADDITIONAL DETAILS</span>
                     </div>
                   </div>
                   
                   <div className="space-y-4">
                   {/* Achievements & Awards */}
                   {profile.achievements && (
-                    <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
-                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                    <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🏆</span>
                         Achievements & Awards
                       </h4>
-                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
-                        <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">{profile.achievements}</p>
+                      <div className="bg-white dark:bg-gray-800 bg-opacity-70 dark:bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">{profile.achievements}</p>
                       </div>
                     </div>
                   )}
                   
                   {/* Projects */}
                   {profile.projects && (
-                    <div className="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
-                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                    <div className="bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🚀</span>
                         Projects
                       </h4>
-                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
-                        <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">{profile.projects}</p>
+                      <div className="bg-white dark:bg-gray-800 bg-opacity-70 dark:bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">{profile.projects}</p>
                       </div>
                     </div>
                   )}
                   
                   {/* Certifications */}
                   {profile.certifications && (
-                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
-                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">📜</span>
                         Certifications
                       </h4>
-                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
-                        <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line">{profile.certifications}</p>
+                      <div className="bg-white dark:bg-gray-800 bg-opacity-70 dark:bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">{profile.certifications}</p>
                       </div>
                     </div>
                   )}
                   
                   {/* Hobbies & Interests - Badge Display */}
                   {profile.hobbies && (
-                    <div className="bg-gradient-to-r from-green-100 to-teal-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
-                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                    <div className="bg-gradient-to-r from-green-100 to-teal-100 dark:from-green-900/30 dark:to-teal-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🎨</span>
                         Hobbies & Interests
                       </h4>
-                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                      <div className="bg-white dark:bg-gray-800 bg-opacity-70 dark:bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
                         <div className="flex flex-wrap gap-2">
                           {profile.hobbies.split(',').map((hobby, idx) => (
-                            <span key={idx} className="px-3 py-2 bg-teal-200 text-teal-900 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-shadow">
+                            <span key={idx} className="px-3 py-2 bg-teal-200 dark:bg-teal-700 text-teal-900 dark:text-teal-200 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-shadow">
                               {hobby.trim()}
                             </span>
                           ))}
@@ -697,13 +697,13 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                   
                   {/* Career Objective */}
                   {profile.otherDetails && (
-                    <div className="bg-gradient-to-r from-indigo-100 to-blue-100 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 hover:shadow-xl transition-all">
-                      <h4 className="text-base sm:text-lg font-bold text-gray-900 flex items-center mb-3 sm:mb-4">
+                    <div className="bg-gradient-to-r from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🎯</span>
                         Career Objective
                       </h4>
-                      <div className="bg-white bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
-                        <p className="text-sm sm:text-base text-gray-800 leading-relaxed whitespace-pre-line italic">{profile.otherDetails}</p>
+                      <div className="bg-white dark:bg-gray-800 bg-opacity-70 dark:bg-opacity-70 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+                        <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line italic">{profile.otherDetails}</p>
                       </div>
                     </div>
                   )}
@@ -726,7 +726,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
           >
             <form onSubmit={handleSave} className="p-4 sm:p-6">
               {/* Section Navigation */}
-              <div className="flex flex-wrap gap-2 mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+              <div className="flex flex-wrap gap-2 mb-6 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg transition-colors">
                 {sections.map((section) => (
                   <button
                     key={section.id}
@@ -734,7 +734,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     onClick={() => setActiveSection(section.id)}
                     className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center ${activeSection === section.id
                       ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+                      : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-600 hover:text-blue-600 dark:hover:text-blue-400'
                       }`}
                   >
                     <span className="mr-1 sm:mr-2 text-base sm:text-lg">{section.icon}</span>
@@ -753,13 +753,13 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-4"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                       <span className="mr-2">👤</span>Personal Information
                     </h3>
 
                     {/* Profile Picture Upload */}
                     <div className="flex items-center space-x-4">
-                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center overflow-hidden">
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-full flex items-center justify-center overflow-hidden transition-colors">
                         {profilePicturePreview ? (
                           <img
                             src={profilePicturePreview}
@@ -767,54 +767,54 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-2xl text-blue-600">
+                          <span className="text-2xl text-blue-600 dark:text-blue-400">
                             {user?.name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Profile Picture
                         </label>
                         <input
                           type="file"
                           accept="image/*"
                           onChange={handleProfilePictureChange}
-                          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 dark:file:bg-blue-900/50 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/70 transition-colors"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Max 5MB, JPG/PNG</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Max 5MB, JPG/PNG</p>
                       </div>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
                         <input
                           name="phone"
                           type="tel"
                           placeholder="+91 9876543210"
                           value={formData.phone}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date of Birth</label>
                         <input
                           name="dateOfBirth"
                           type="date"
                           value={formData.dateOfBirth}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gender</label>
                         <select
                           name="gender"
                           value={formData.gender}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         >
                           <option value="">Select Gender</option>
                           <option value="Male">Male</option>
@@ -823,12 +823,12 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
                         <select
                           name="category"
                           value={formData.category}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         >
                           <option value="">Select Category</option>
                           <option value="General">General</option>
@@ -840,14 +840,14 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
                       <textarea
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
                         rows={3}
                         placeholder="Complete address with city, state, pincode"
-                        className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       />
                     </div>
                   </motion.div>
@@ -860,40 +860,40 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-4"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                       <span className="mr-2">📚</span>Academic Details
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">10th Grade Result</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">10th Grade Result</label>
                         <input
                           name="tenthResult"
                           placeholder="e.g., 95% CBSE 2020"
                           value={formData.tenthResult}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">12th Grade Result</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">12th Grade Result</label>
                         <input
                           name="twelfthResult"
                           placeholder="e.g., 92% CBSE 2022"
                           value={formData.twelfthResult}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Certifications</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Certifications</label>
                       <textarea
                         name="certifications"
                         value={formData.certifications}
                         onChange={handleChange}
                         rows={3}
                         placeholder="List your certifications, courses, achievements..."
-                        className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       />
                     </div>
                   </motion.div>
@@ -906,39 +906,39 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-4"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                       <span className="mr-2">🛠️</span>Skills & Languages
                     </h3>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Languages Known</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Languages Known</label>
                         <input
                           name="languages"
                           placeholder="Hindi, English, Sanskrit..."
                           value={formData.languages}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Technical Skills</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Technical Skills</label>
                         <input
                           name="skills"
                           placeholder="Python, React, Java, Photoshop..."
                           value={formData.skills}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Hobbies & Interests</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hobbies & Interests</label>
                       <input
                         name="hobbies"
                         placeholder="Reading, Photography, Music, Sports..."
                         value={formData.hobbies}
                         onChange={handleChange}
-                        className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       />
                     </div>
                   </motion.div>
@@ -951,12 +951,12 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-4"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                       <span className="mr-2">🔗</span>Social Links
                     </h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                           <span className="mr-2">💼</span>LinkedIn URL
                         </label>
                         <input
@@ -965,11 +965,11 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                           placeholder="https://linkedin.com/in/yourprofile"
                           value={formData.linkedinUrl}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                           <span className="mr-2">💻</span>GitHub URL
                         </label>
                         <input
@@ -978,11 +978,11 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                           placeholder="https://github.com/yourusername"
                           value={formData.githubUrl}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                           <span className="mr-2">🌐</span>Portfolio Website
                         </label>
                         <input
@@ -991,7 +991,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                           placeholder="https://yourportfolio.com"
                           value={formData.portfolioUrl}
                           onChange={handleChange}
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                     </div>
@@ -1005,41 +1005,41 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     animate={{ opacity: 1, x: 0 }}
                     className="space-y-4"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                       <span className="mr-2">➕</span>Additional Information
                     </h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Projects</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Projects</label>
                         <textarea
                           name="projects"
                           value={formData.projects}
                           onChange={handleChange}
                           rows={3}
                           placeholder="Describe your major projects..."
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Achievements & Awards</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Achievements & Awards</label>
                         <textarea
                           name="achievements"
                           value={formData.achievements}
                           onChange={handleChange}
                           rows={3}
                           placeholder="List your achievements, awards, recognitions..."
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Other Details</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Other Details</label>
                         <textarea
                           name="otherDetails"
                           value={formData.otherDetails}
                           onChange={handleChange}
                           rows={4}
                           placeholder="Career objectives, additional information..."
-                          className="block w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="block w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
                       </div>
                     </div>
@@ -1048,7 +1048,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
               </div>
 
               {/* Save Button */}
-              <div className="flex justify-end pt-6 border-t-2 border-gray-200 mt-6">
+              <div className="flex justify-end pt-6 border-t-2 border-gray-200 dark:border-gray-700 mt-6 transition-colors">
                 <motion.button
                   type="submit"
                   disabled={saving}

@@ -141,9 +141,9 @@ const ActivityList = ({ user, token }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Activities</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">My Activities</h1>
 
           {/* Filters */}
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
@@ -159,7 +159,7 @@ const ActivityList = ({ user, token }) => {
                 placeholder="Search activities..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
               />
             </div>
 
@@ -167,7 +167,7 @@ const ActivityList = ({ user, token }) => {
             <select
               value={filter}
               onChange={e => setFilter(e.target.value)}
-              className="block w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
+              className="block w-full sm:w-auto px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all"
             >
               <option value="all">All Status</option>
               <option value={ACTIVITY_STATUS.PENDING}>Pending</option>
@@ -182,13 +182,13 @@ const ActivityList = ({ user, token }) => {
       {filteredActivities.length > 0 ? (
         <div className="space-y-4">
           {filteredActivities.map((activity) => (
-            <div key={activity.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <div key={activity.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all">
               <div className="p-4 sm:p-6">
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between space-y-4 lg:space-y-0 lg:space-x-6">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
                       {getStatusIcon(activity.status)}
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 flex-1 min-w-0">
                         {activity.title}
                       </h3>
                       <span className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${STATUS_COLORS[activity.status] || 'text-gray-600 bg-gray-100'}`}>
@@ -196,7 +196,7 @@ const ActivityList = ({ user, token }) => {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-600 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4">
                       <div className="flex items-center">
                         <svg className="w-4 h-4 mr-2 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -220,24 +220,24 @@ const ActivityList = ({ user, token }) => {
                     {/* Additional Info */}
                     <div>
                       {activity.organizer && (
-                        <p className="text-xs sm:text-sm text-gray-600 mb-2">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
                           <span className="font-medium">Organizer:</span> {activity.organizer}
                         </p>
                       )}
                       {activity.duration && (
-                        <p className="text-xs sm:text-sm text-gray-600 mb-2">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
                           <span className="font-medium">Duration:</span> {activity.duration}
                         </p>
                       )}
                       {activity.description && (
-                        <p className="text-xs sm:text-sm text-gray-700 mb-4">{activity.description}</p>
+                        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mb-4">{activity.description}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Right Side Panel */}
                   <div className="flex flex-col justify-between shrink-0 w-full lg:w-44 text-xs sm:text-sm space-y-3 sm:space-y-4">
-                    <div>
+                    <div className="text-gray-600 dark:text-gray-400">
                       <p>
                         <span className="font-semibold">Submitted:</span> {new Date(activity.createdAt).toLocaleDateString()}
                       </p>
@@ -249,9 +249,9 @@ const ActivityList = ({ user, token }) => {
                     </div>
 
                     {activity.remarks && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2.5 sm:p-3">
-                        <p className="font-semibold text-yellow-800 mb-1 text-xs sm:text-sm">Faculty Remarks</p>
-                        <p className="text-yellow-700 text-xs sm:text-sm">{activity.remarks}</p>
+                      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-md p-2.5 sm:p-3 transition-colors">
+                        <p className="font-semibold text-yellow-800 dark:text-yellow-300 mb-1 text-xs sm:text-sm">Faculty Remarks</p>
+                        <p className="text-yellow-700 dark:text-yellow-400 text-xs sm:text-sm">{activity.remarks}</p>
                       </div>
                     )}
 
@@ -349,17 +349,17 @@ const ActivityList = ({ user, token }) => {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-colors">
           <div className="text-center py-12">
-            <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center transition-colors">
+              <svg className="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
               {searchTerm || filter !== 'all' ? 'No matching activities' : 'No activities yet'}
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               {searchTerm || filter !== 'all'
                 ? 'Try adjusting your search or filter criteria.'
                 : 'Start building your portfolio by submitting your first activity.'}
@@ -370,14 +370,14 @@ const ActivityList = ({ user, token }) => {
 
       {/* Edit Modal */}
       {editingActivity && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4 transition-colors">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-colors">
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Edit Activity</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Edit Activity</h2>
                 <button
                   onClick={() => setEditingActivity(null)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -388,7 +388,7 @@ const ActivityList = ({ user, token }) => {
               <form onSubmit={handleEditSubmit} className="space-y-4">
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Title <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -396,20 +396,20 @@ const ActivityList = ({ user, token }) => {
                     value={editFormData.title}
                     onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   />
                 </div>
 
                 {/* Type */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Type <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={editFormData.type}
                     onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value })}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   >
                     <option value="">Select Type</option>
                     <option value="conference">Conference</option>
@@ -427,7 +427,7 @@ const ActivityList = ({ user, token }) => {
                 {/* Date and Duration */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Date <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -435,11 +435,11 @@ const ActivityList = ({ user, token }) => {
                       value={editFormData.date}
                       onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Duration
                     </label>
                     <input
@@ -447,49 +447,49 @@ const ActivityList = ({ user, token }) => {
                       value={editFormData.duration}
                       onChange={(e) => setEditFormData({ ...editFormData, duration: e.target.value })}
                       placeholder="e.g., 2 days"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     />
                   </div>
                 </div>
 
                 {/* Organizer */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Organizer
                   </label>
                   <input
                     type="text"
                     value={editFormData.organizer}
                     onChange={(e) => setEditFormData({ ...editFormData, organizer: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Description
                   </label>
                   <textarea
                     value={editFormData.description}
                     onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   />
                 </div>
 
                 {/* Certificate Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Update Certificate (Optional)
                   </label>
                   <input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                     onChange={(e) => setEditFormData({ ...editFormData, certificate: e.target.files[0] })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Leave empty to keep current certificate
                   </p>
                 </div>
@@ -500,14 +500,14 @@ const ActivityList = ({ user, token }) => {
                     type="button"
                     onClick={() => setEditingActivity(null)}
                     disabled={editSubmitting}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 text-sm sm:text-base"
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 text-sm sm:text-base transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={editSubmitting}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center text-sm sm:text-base"
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center text-sm sm:text-base transition-colors"
                   >
                     {editSubmitting ? (
                       <>

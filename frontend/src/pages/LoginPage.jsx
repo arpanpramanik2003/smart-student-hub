@@ -23,7 +23,7 @@ const LoginPage = ({ onLogin }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
@@ -44,13 +44,13 @@ const LoginPage = ({ onLogin }) => {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Smart Student Hub
             </span>
           </h1>
           
-          <p className="text-gray-600 text-lg mb-6">
+          <p className="text-gray-600 dark:text-gray-400 text-lg mb-6">
             Your comprehensive platform for academic excellence
           </p>
 
@@ -73,7 +73,7 @@ const LoginPage = ({ onLogin }) => {
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                   index === currentFeature 
                     ? 'bg-blue-600 w-8' 
-                    : 'bg-gray-300 hover:bg-gray-400'
+                    : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
                 }`}
               />
             ))}
@@ -83,35 +83,35 @@ const LoginPage = ({ onLogin }) => {
 
       {/* Test Credentials Banner */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-lg p-4 mb-4 shadow-lg">
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-700 rounded-lg p-4 mb-4 shadow-lg">
           <div className="flex items-start">
             <div className="flex-shrink-0">
-              <svg className="h-6 w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-6 w-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div className="ml-3 flex-1">
-              <h3 className="text-sm font-semibold text-amber-800">
+              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
                 🧪 Test Credentials (For Demo/Testing Only)
               </h3>
-              <div className="mt-2 text-xs text-amber-700 space-y-2">
-                <div className="bg-white/60 rounded p-2 font-mono">
-                  <p className="font-semibold text-red-600">👑 Admin Account:</p>
+              <div className="mt-2 text-xs text-amber-700 dark:text-amber-400 space-y-2">
+                <div className="bg-white/60 dark:bg-gray-800/60 rounded p-2 font-mono">
+                  <p className="font-semibold text-red-600 dark:text-red-400">👑 Admin Account:</p>
                   <p>📧 Email: <span className="font-bold">arpan@smartstudenthub.com</span></p>
                   <p>🔑 Password: <span className="font-bold">Arpan@123.</span></p>
                 </div>
-                <div className="bg-white/60 rounded p-2 font-mono">
-                  <p className="font-semibold text-blue-600">👨‍🎓 Student Account:</p>
+                <div className="bg-white/60 dark:bg-gray-800/60 rounded p-2 font-mono">
+                  <p className="font-semibold text-blue-600 dark:text-blue-400">👨‍🎓 Student Account:</p>
                   <p>📧 Email: <span className="font-bold">student@gmail.com</span></p>
                   <p>🔑 Password: <span className="font-bold">Student@123.</span></p>
                 </div>
-                <div className="bg-white/60 rounded p-2 font-mono">
-                  <p className="font-semibold text-green-600">👨‍🏫 Teacher Account:</p>
+                <div className="bg-white/60 dark:bg-gray-800/60 rounded p-2 font-mono">
+                  <p className="font-semibold text-green-600 dark:text-green-400">👨‍🏫 Teacher Account:</p>
                   <p>📧 Email: <span className="font-bold">teacher@gmail.com</span></p>
                   <p>🔑 Password: <span className="font-bold">Teacher@123.</span></p>
                 </div>
               </div>
-              <p className="mt-2 text-xs text-amber-600 font-medium">
+              <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium">
                 ⚠️ Note: Remove this section before final production deployment!
               </p>
             </div>
@@ -121,7 +121,7 @@ const LoginPage = ({ onLogin }) => {
 
       {/* Main Content */}
       <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white/80 backdrop-blur-sm py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-white/20">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-white/20 dark:border-gray-700/20 transition-colors duration-300">
           {/* Form Toggle */}
           <div className="flex mb-6">
             <button
@@ -129,7 +129,7 @@ const LoginPage = ({ onLogin }) => {
               className={`flex-1 py-2 px-4 text-center text-sm font-medium rounded-l-lg transition-all duration-200 ${
                 isLogin
                   ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               Sign In
@@ -139,7 +139,7 @@ const LoginPage = ({ onLogin }) => {
               className={`flex-1 py-2 px-4 text-center text-sm font-medium rounded-r-lg transition-all duration-200 ${
                 !isLogin
                   ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               Register
@@ -163,22 +163,22 @@ const LoginPage = ({ onLogin }) => {
         </div>
 
         {/* System Stats */}
-        <div className="mt-8 bg-white/60 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20">
-          <h3 className="text-center text-lg font-semibold text-gray-900 mb-4">
+        <div className="mt-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 dark:border-gray-700/20 transition-colors duration-300">
+          <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Trusted by Students Nationwide
           </h3>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="flex flex-col items-center">
-              <div className="text-2xl font-bold text-blue-600">500+</div>
-              <div className="text-xs text-gray-600">Active Students</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">500+</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Active Students</div>
             </div>
             <div className="flex flex-col items-center">
-              <div className="text-2xl font-bold text-green-600">1200+</div>
-              <div className="text-xs text-gray-600">Activities Tracked</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">1200+</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Activities Tracked</div>
             </div>
             <div className="flex flex-col items-center">
-              <div className="text-2xl font-bold text-purple-600">50+</div>
-              <div className="text-xs text-gray-600">Institutions</div>
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">50+</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Institutions</div>
             </div>
           </div>
         </div>
@@ -193,19 +193,19 @@ const LoginPage = ({ onLogin }) => {
           ].map((benefit, index) => (
             <div 
               key={benefit.title}
-              className="bg-white/40 backdrop-blur-sm rounded-lg p-3 text-center border border-white/20 hover:bg-white/60 transition-all duration-300 hover:scale-105"
+              className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-lg p-3 text-center border border-white/20 dark:border-gray-700/20 hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all duration-300 hover:scale-105"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="text-lg mb-1">{benefit.icon}</div>
-              <div className="text-sm font-medium text-gray-900">{benefit.title}</div>
-              <div className="text-xs text-gray-600">{benefit.desc}</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{benefit.title}</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">{benefit.desc}</div>
             </div>
           ))}
         </div>
 
         {/* Enhanced Footer */}
         <div className="mt-8 text-center">
-          <div className="text-xs text-gray-500 space-y-3">
+          <div className="text-xs text-gray-500 dark:text-gray-400 space-y-3">
             <div className="flex justify-center items-center space-x-2">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               <span>System Status: All services operational</span>
@@ -214,15 +214,15 @@ const LoginPage = ({ onLogin }) => {
             <p>© 2025 Smart Student Hub. All rights reserved.</p>
             
             <div className="flex justify-center space-x-4 text-xs">
-              <button className="hover:text-blue-600 transition-colors duration-200 underline decoration-dotted">
+              <button className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 underline decoration-dotted">
                 Privacy Policy
               </button>
               <span>•</span>
-              <button className="hover:text-blue-600 transition-colors duration-200 underline decoration-dotted">
+              <button className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 underline decoration-dotted">
                 Terms of Service
               </button>
               <span>•</span>
-              <button className="hover:text-blue-600 transition-colors duration-200 underline decoration-dotted">
+              <button className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 underline decoration-dotted">
                 Contact Support
               </button>
             </div>

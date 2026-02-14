@@ -90,7 +90,7 @@ const StudentList = ({ user }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-900 dark:via-indigo-900 dark:to-purple-900 rounded-xl shadow-lg p-6 text-white transition-colors">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2 flex items-center">
@@ -99,9 +99,9 @@ const StudentList = ({ user }) => {
               </svg>
               Students Directory
             </h1>
-            <p className="text-blue-100">View and manage student information</p>
+            <p className="text-blue-100 dark:text-blue-200">View and manage student information</p>
           </div>
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-4 py-2">
+          <div className="bg-white bg-opacity-20 dark:bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 transition-colors">
             <div className="text-xs text-blue-200">Total Students</div>
             <div className="text-2xl font-bold">{pagination.total}</div>
           </div>
@@ -109,7 +109,7 @@ const StudentList = ({ user }) => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
         <form onSubmit={handleSearch} className="space-y-4">
           {/* Search Bar */}
           <div className="flex gap-4">
@@ -120,7 +120,7 @@ const StudentList = ({ user }) => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search by name, email, or student ID..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 />
                 <svg 
                   className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" 
@@ -146,11 +146,11 @@ const StudentList = ({ user }) => {
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Department</label>
               <select
                 value={filters.department}
                 onChange={(e) => handleFilterChange('department', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               >
                 {departments.map(dept => (
                   <option key={dept} value={dept}>
@@ -160,11 +160,11 @@ const StudentList = ({ user }) => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Year</label>
               <select
                 value={filters.year}
                 onChange={(e) => handleFilterChange('year', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               >
                 {years.map(yr => (
                   <option key={yr} value={yr}>
@@ -178,40 +178,40 @@ const StudentList = ({ user }) => {
       </div>
 
       {/* Students Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700 transition-colors">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
                   Student
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
                   Student ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
                   Department
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
                   Year
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
                   Activities
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
                   Credits
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
               {students.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500 dark:text-gray-400 transition-colors">
                     <div className="flex flex-col items-center">
-                      <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                       </svg>
                       <p className="text-lg font-medium">No students found</p>
@@ -221,7 +221,7 @@ const StudentList = ({ user }) => {
                 </tr>
               ) : (
                 students.map((student) => (
-                  <tr key={student.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={student.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
@@ -238,32 +238,32 @@ const StudentList = ({ user }) => {
                           )}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                          <div className="text-sm text-gray-500">{student.email}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100 transition-colors">{student.name}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors">{student.email}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-mono text-gray-900">{student.studentId || 'N/A'}</div>
+                      <div className="text-sm font-mono text-gray-900 dark:text-gray-100 transition-colors">{student.studentId || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{student.department || 'N/A'}</div>
+                      <div className="text-sm text-gray-900 dark:text-gray-100 transition-colors">{student.department || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">Year {student.year || 'N/A'}</div>
+                      <div className="text-sm text-gray-900 dark:text-gray-100 transition-colors">Year {student.year || 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 transition-colors">
                           {student.stats?.totalActivities || 0}
                         </span>
-                        <span className="text-xs text-green-600">
+                        <span className="text-xs text-green-600 dark:text-green-400 transition-colors">
                           {student.stats?.approvedActivities || 0} approved
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 transition-colors">
                         {student.stats?.totalCredits || 0} credits
                       </span>
                     </td>
@@ -288,8 +288,8 @@ const StudentList = ({ user }) => {
 
         {/* Pagination */}
         {pagination.pages > 1 && (
-          <div className="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
-            <div className="text-sm text-gray-700">
+          <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex items-center justify-between border-t border-gray-200 dark:border-gray-600 transition-colors">
+            <div className="text-sm text-gray-700 dark:text-gray-300 transition-colors">
               Showing page <span className="font-medium">{pagination.page}</span> of{' '}
               <span className="font-medium">{pagination.pages}</span>
             </div>
@@ -297,14 +297,14 @@ const StudentList = ({ user }) => {
               <button
                 onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
                 disabled={pagination.page === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
               <button
                 onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
                 disabled={!pagination.hasMore}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
@@ -315,10 +315,10 @@ const StudentList = ({ user }) => {
 
       {/* Student Details Modal */}
       {showDetailsModal && selectedStudent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4 overflow-y-auto transition-colors">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl my-8 transition-colors">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 rounded-t-xl flex items-center justify-between">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-900 dark:to-indigo-900 text-white px-6 py-4 rounded-t-xl flex items-center justify-between transition-colors">
               <div className="flex items-center">
                 {selectedStudent.profilePicture ? (
                   <img
@@ -335,7 +335,7 @@ const StudentList = ({ user }) => {
                 )}
                 <div className="ml-4">
                   <h2 className="text-2xl font-bold">{selectedStudent.name}</h2>
-                  <p className="text-blue-100">{selectedStudent.email}</p>
+                  <p className="text-blue-100 dark:text-blue-200">{selectedStudent.email}</p>
                 </div>
               </div>
               <button
@@ -352,7 +352,7 @@ const StudentList = ({ user }) => {
             <div className="p-6 max-h-[70vh] overflow-y-auto">
               {/* Basic Information */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors">
                   <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                   </svg>
@@ -372,7 +372,7 @@ const StudentList = ({ user }) => {
 
               {/* Academic Information */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors">
                   <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
                   </svg>
@@ -386,24 +386,24 @@ const StudentList = ({ user }) => {
 
               {/* Activity Statistics */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors">
                   <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                   </svg>
                   Activity Statistics
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">Total Activities</div>
-                    <div className="text-2xl font-bold text-blue-600">{selectedStudent.stats?.totalActivities || 0}</div>
+                  <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4 transition-colors">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">Total Activities</div>
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 transition-colors">{selectedStudent.stats?.totalActivities || 0}</div>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">Approved Activities</div>
-                    <div className="text-2xl font-bold text-green-600">{selectedStudent.stats?.approvedActivities || 0}</div>
+                  <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 transition-colors">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">Approved Activities</div>
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400 transition-colors">{selectedStudent.stats?.approvedActivities || 0}</div>
                   </div>
-                  <div className="bg-purple-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">Total Credits</div>
-                    <div className="text-2xl font-bold text-purple-600">{selectedStudent.stats?.totalCredits || 0}</div>
+                  <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-4 transition-colors">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">Total Credits</div>
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 transition-colors">{selectedStudent.stats?.totalCredits || 0}</div>
                   </div>
                 </div>
               </div>
@@ -411,7 +411,7 @@ const StudentList = ({ user }) => {
               {/* Skills & Languages */}
               {(selectedStudent.skills || selectedStudent.languages) && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors">
                     <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
                       <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
@@ -421,10 +421,10 @@ const StudentList = ({ user }) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {selectedStudent.skills && (
                       <div>
-                        <div className="text-sm font-medium text-gray-700 mb-2">Technical Skills</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Technical Skills</div>
                         <div className="flex flex-wrap gap-2">
                           {selectedStudent.skills.split(',').map((skill, index) => (
-                            <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
+                            <span key={index} className="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm rounded-full transition-colors">
                               {skill.trim()}
                             </span>
                           ))}
@@ -433,10 +433,10 @@ const StudentList = ({ user }) => {
                     )}
                     {selectedStudent.languages && (
                       <div>
-                        <div className="text-sm font-medium text-gray-700 mb-2">Languages</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Languages</div>
                         <div className="flex flex-wrap gap-2">
                           {selectedStudent.languages.split(',').map((lang, index) => (
-                            <span key={index} className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+                            <span key={index} className="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 text-sm rounded-full transition-colors">
                               {lang.trim()}
                             </span>
                           ))}
@@ -450,7 +450,7 @@ const StudentList = ({ user }) => {
               {/* Additional Details */}
               {(selectedStudent.hobbies || selectedStudent.achievements || selectedStudent.projects || selectedStudent.certifications) && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors">
                     <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                       <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
@@ -469,7 +469,7 @@ const StudentList = ({ user }) => {
               {/* Links */}
               {(selectedStudent.linkedinUrl || selectedStudent.githubUrl || selectedStudent.portfolioUrl) && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors">
                     <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
                     </svg>
@@ -522,35 +522,35 @@ const StudentList = ({ user }) => {
               {/* Address */}
               {selectedStudent.address && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors">
                     <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                     </svg>
                     Contact Address
                   </h3>
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedStudent.address}</p>
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap transition-colors">{selectedStudent.address}</p>
                 </div>
               )}
 
               {/* Other Details */}
               {selectedStudent.otherDetails && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center border-b pb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-2 transition-colors">
                     <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                     </svg>
                     Other Details
                   </h3>
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedStudent.otherDetails}</p>
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap transition-colors">{selectedStudent.otherDetails}</p>
                 </div>
               )}
             </div>
 
             {/* Modal Footer */}
-            <div className="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-end">
+            <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-b-xl flex justify-end transition-colors">
               <button
                 onClick={closeModal}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                className="px-6 py-2 bg-gray-600 dark:bg-gray-500 text-white rounded-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors font-medium"
               >
                 Close
               </button>
@@ -567,19 +567,19 @@ const InfoField = ({ label, value, multiline = false }) => {
   if (!value || value === 'N/A') {
     return (
       <div>
-        <div className="text-sm font-medium text-gray-500 mb-1">{label}</div>
-        <div className="text-gray-400 italic">Not provided</div>
+        <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1 transition-colors">{label}</div>
+        <div className="text-gray-400 dark:text-gray-500 italic transition-colors">Not provided</div>
       </div>
     );
   }
 
   return (
     <div>
-      <div className="text-sm font-medium text-gray-700 mb-1">{label}</div>
+      <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">{label}</div>
       {multiline ? (
-        <p className="text-gray-900 whitespace-pre-wrap">{value}</p>
+        <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap transition-colors">{value}</p>
       ) : (
-        <div className="text-gray-900">{value}</div>
+        <div className="text-gray-900 dark:text-gray-100 transition-colors">{value}</div>
       )}
     </div>
   );

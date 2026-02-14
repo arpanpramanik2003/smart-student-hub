@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { authAPI } from './utils/api';
 import { getToken, setToken, removeToken } from './utils/auth';
 import { USER_ROLES } from './utils/constants';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Pages
 import LoginPage from './pages/LoginPage';
@@ -140,14 +141,20 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
+      <ThemeProvider>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </ThemeProvider>
     );
   }
 
   if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
+    return (
+      <ThemeProvider>
+        <LoginPage onLogin={handleLogin} />
+      </ThemeProvider>
+    );
   }
 
   const renderCurrentView = () => {
@@ -286,22 +293,22 @@ function App() {
           );
       }
     }
-
-    return <div>Unknown user role</div>;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header
-        user={user}
-        onLogout={handleLogout}
-        currentView={currentView}
-        setCurrentView={setCurrentView}
-      />
-      <Layout animated={false}>
-        {renderCurrentView()}
-      </Layout>
-    </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <Header
+          user={user}
+          onLogout={handleLogout}
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+        />
+        <Layout animated={false}>
+          {renderCurrentView()}
+        </Layout>
+      </div>
+    </ThemeProvider>
   );
 }
 

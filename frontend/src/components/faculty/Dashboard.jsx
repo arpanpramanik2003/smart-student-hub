@@ -50,7 +50,7 @@ const Dashboard = ({ user, token, onNavigate }) => {
   return (
     <div className="space-y-6">
       {/* Welcome Banner with Gradient */}
-      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 rounded-xl shadow-lg p-8 text-white">
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 dark:from-emerald-900 dark:via-teal-900 dark:to-cyan-900 rounded-xl shadow-lg p-8 text-white transition-colors">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2 flex items-center">
@@ -109,7 +109,7 @@ const Dashboard = ({ user, token, onNavigate }) => {
         ].map((stat, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-200 hover:-translate-y-1"
           >
             <div className="flex items-center justify-between mb-3">
               <div className={`p-3 rounded-lg bg-gradient-to-br ${stat.gradient} shadow-md`}>
@@ -118,15 +118,15 @@ const Dashboard = ({ user, token, onNavigate }) => {
                 </svg>
               </div>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
-            <p className="text-sm text-gray-600 font-medium">{stat.label}</p>
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">{stat.value}</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{stat.label}</p>
           </div>
         ))}
       </div>
 
       {/* Recent Reviews */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
               <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -135,8 +135,8 @@ const Dashboard = ({ user, token, onNavigate }) => {
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Recent Reviews</h2>
-              <p className="text-xs text-gray-500">Latest activity evaluations</p>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Recent Reviews</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Latest activity evaluations</p>
             </div>
           </div>
         </div>
@@ -146,19 +146,19 @@ const Dashboard = ({ user, token, onNavigate }) => {
               {stats.recentReviews.map((activity) => (
                 <div 
                   key={activity.id} 
-                  className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-gray-200"
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-lg hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border border-gray-200 dark:border-gray-600"
                 >
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{activity.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{activity.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       by {activity.student?.name} ({activity.student?.studentId}) • {activity.student?.department}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                       {activity.type.replace('_', ' ')} • {new Date(activity.date).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="ml-4 flex items-center space-x-3">
-                    <span className="text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-lg shadow-sm">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 px-3 py-1 rounded-lg shadow-sm">
                       {activity.credits} credits
                     </span>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[activity.status] || 'text-gray-600 bg-gray-100'} shadow-sm`}>
@@ -170,21 +170,21 @@ const Dashboard = ({ user, token, onNavigate }) => {
             </div>
           ) : (
             <div className="text-center py-12">
-              <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center transition-colors">
+                <svg className="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No recent reviews</h3>
-              <p className="text-gray-600">Activity reviews will appear here once you start evaluating student submissions.</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No recent reviews</h3>
+              <p className="text-gray-600 dark:text-gray-400">Activity reviews will appear here once you start evaluating student submissions.</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
               <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -192,8 +192,8 @@ const Dashboard = ({ user, token, onNavigate }) => {
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Quick Actions</h2>
-              <p className="text-xs text-gray-500">Navigate to key areas</p>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Quick Actions</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Navigate to key areas</p>
             </div>
           </div>
         </div>
@@ -201,7 +201,7 @@ const Dashboard = ({ user, token, onNavigate }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Review Pending Activities */}
             <button 
-              className="flex items-center p-5 bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl hover:shadow-lg transition-all duration-200 hover:-translate-y-1 text-left group"
+              className="flex items-center p-5 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 border-2 border-yellow-200 dark:border-yellow-700 rounded-xl hover:shadow-lg transition-all duration-200 hover:-translate-y-1 text-left group"
               onClick={handleReviewPending}
             >
               <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg mr-4 shadow-md group-hover:scale-110 transition-transform">
@@ -210,14 +210,14 @@ const Dashboard = ({ user, token, onNavigate }) => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">Review Pending Activities</h3>
-                <p className="text-sm text-gray-600">{stats?.pendingCount || 0} activities awaiting review</p>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">Review Pending Activities</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{stats?.pendingCount || 0} activities awaiting review</p>
               </div>
             </button>
             
             {/* View All Activities */}
             <button 
-              className="flex items-center p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl hover:shadow-lg transition-all duration-200 hover:-translate-y-1 text-left group"
+              className="flex items-center p-5 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-200 dark:border-blue-700 rounded-xl hover:shadow-lg transition-all duration-200 hover:-translate-y-1 text-left group"
               onClick={handleViewAllActivities}
             >
               <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg mr-4 shadow-md group-hover:scale-110 transition-transform">
@@ -226,8 +226,8 @@ const Dashboard = ({ user, token, onNavigate }) => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">View All Activities</h3>
-                <p className="text-sm text-gray-600">Browse all student submissions</p>
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-1">View All Activities</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Browse all student submissions</p>
               </div>
             </button>
           </div>

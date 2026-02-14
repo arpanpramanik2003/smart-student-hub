@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { USER_ROLES, API_BASE_URL } from '../../utils/constants';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Header = ({ user, onLogout, currentView, setCurrentView }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [scrolled, setScrolled] = useState(false);
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const isStudent = user.role === USER_ROLES.STUDENT;
   const isFaculty = user.role === USER_ROLES.FACULTY || user.role === USER_ROLES.ADMIN;
@@ -288,7 +290,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
   };
 
   return (
-    <header className={`bg-white border-b border-gray-200 sticky top-0 z-50 transition-shadow duration-200 will-change-shadow ${
+    <header className={`bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-all duration-300 will-change-shadow ${
       scrolled ? 'shadow-lg' : 'shadow-md'
     }`} style={{ backfaceVisibility: 'hidden', transform: 'translateZ(0)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -314,7 +316,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent leading-tight">
                   Smart Student Hub
                 </h1>
-                <p className="text-xs text-gray-500 font-medium">Academic Excellence Platform</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Academic Excellence Platform</p>
               </div>
               
               {/* Mobile Brand */}
@@ -340,7 +342,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 group ${
                   currentView === item.key
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400'
                 }`}
               >
                 <span className={`transition-transform duration-200 ${
@@ -356,7 +358,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
           {/* Desktop User Menu */}
           <div className="hidden sm:flex items-center space-x-3">
             {/* Notification Icon (Placeholder for future) */}
-            <button className="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
+            <button className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
@@ -369,16 +371,16 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
                   e.stopPropagation();
                   setIsProfileMenuOpen(!isProfileMenuOpen);
                 }}
-                className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-xl transition-all duration-200 group"
+                className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-all duration-200 group"
               >
                 <ProfileAvatar size="normal" />
                 <div className="hidden lg:block text-left">
-                  <p className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 group-hover:text-blue-600 transition-colors">
                     {user.name}
                   </p>
-                  <p className="text-xs text-gray-500">{user.department || 'Student'}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{user.department || 'Student'}</p>
                 </div>
-                <svg className="w-4 h-4 text-gray-500 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -386,7 +388,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
               {/* Profile Dropdown Menu */}
               {isProfileMenuOpen && (
                 <div
-                  className="absolute right-0 top-full mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden animate-fade-in"
+                  className="absolute right-0 top-full mt-3 w-72 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-fade-in"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Profile Header */}
@@ -413,16 +415,38 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
                           handleNavClick('portfolio');
                           setIsProfileMenuOpen(false);
                         }}
-                        className="w-full text-left px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center transition-colors group"
+                        className="w-full text-left px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center transition-colors group"
                       >
-                        <svg className="w-5 h-5 mr-3 text-gray-500 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         View Profile
                       </button>
                     )}
                     
-                    <div className="border-t border-gray-100 my-2"></div>
+                    {/* Dark Mode Toggle */}
+                    <button
+                      onClick={toggleTheme}
+                      className="w-full text-left px-5 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between transition-colors group"
+                    >
+                      <div className="flex items-center">
+                        {isDarkMode ? (
+                          <svg className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                          </svg>
+                        )}
+                        <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+                      </div>
+                      <div className={`w-10 h-5 rounded-full transition-colors duration-200 ${isDarkMode ? 'bg-blue-600' : 'bg-gray-300'} relative`}>
+                        <div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform duration-200 ${isDarkMode ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
+                      </div>
+                    </button>
+                    
+                    <div className="border-t border-gray-100 dark:border-gray-700 my-2"></div>
                     
                     <button
                       onClick={() => {
@@ -450,7 +474,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
                 e.stopPropagation();
                 setIsMobileMenuOpen(!isMobileMenuOpen);
               }}
-              className="p-2 rounded-lg text-gray-700 hover:bg-gray-100 focus:outline-none transition-all"
+              className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all"
             >
               {isMobileMenuOpen ? (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -469,18 +493,18 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div
-          className="sm:hidden bg-white shadow-xl border-t border-gray-200 max-h-[calc(100vh-4rem)] overflow-y-auto"
+          className="sm:hidden bg-white dark:bg-gray-800 shadow-xl border-t border-gray-200 dark:border-gray-700 max-h-[calc(100vh-4rem)] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* User Info Section */}
-          <div className="px-4 py-5 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+          <div className="px-4 py-5 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-700 dark:via-gray-750 dark:to-gray-800">
             <div className="flex items-start space-x-4">
               <ProfileAvatar size="large" />
               <div className="flex-1 min-w-0">
-                <p className="text-base font-bold text-gray-900 truncate">{user.name}</p>
-                <p className="text-xs text-gray-600 truncate mt-0.5">{user.email}</p>
+                <p className="text-base font-bold text-gray-900 dark:text-gray-100 truncate">{user.name}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 truncate mt-0.5">{user.email}</p>
                 {user.department && (
-                  <p className="text-xs text-gray-500 mt-1">{user.department}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{user.department}</p>
                 )}
                 <div className="mt-2">
                   <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${getRoleBadgeColor()}`}>
@@ -500,7 +524,7 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
                 className={`w-full text-left px-5 py-3.5 text-sm font-medium transition-all duration-200 flex items-center space-x-3 ${
                   currentView === item.key
                     ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-l-4 border-indigo-800 shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-50 border-l-4 border-transparent'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-l-4 border-transparent'
                 }`}
               >
                 <span className="flex-shrink-0">{item.icon}</span>
@@ -515,13 +539,35 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
           </div>
 
           {/* Mobile Footer Actions */}
-          <div className="border-t border-gray-200">
+          <div className="border-t border-gray-200 dark:border-gray-700">
+            {/* Dark Mode Toggle for Mobile */}
+            <button
+              onClick={toggleTheme}
+              className="w-full text-left px-5 py-4 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                {isDarkMode ? (
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+                <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+              </div>
+              <div className={`w-10 h-5 rounded-full transition-colors duration-200 ${isDarkMode ? 'bg-blue-600' : 'bg-gray-300'} relative`}>
+                <div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform duration-200 ${isDarkMode ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
+              </div>
+            </button>
+
             <button
               onClick={() => {
                 onLogout();
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full text-left px-5 py-4 text-sm font-semibold text-red-600 hover:bg-red-50 flex items-center space-x-3 transition-colors"
+              className="w-full text-left px-5 py-4 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center space-x-3 transition-colors"
             >
               <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -531,10 +577,10 @@ const Header = ({ user, onLogout, currentView, setCurrentView }) => {
           </div>
 
           {/* Connection Status */}
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+          <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-center space-x-2 text-xs font-semibold">
               <div className={`w-2.5 h-2.5 rounded-full ${isOnline ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
-              <span className={isOnline ? 'text-green-600' : 'text-red-600'}>
+              <span className={isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                 {isOnline ? 'Online' : 'Offline Mode'}
               </span>
             </div>
