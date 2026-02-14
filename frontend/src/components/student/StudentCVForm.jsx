@@ -207,140 +207,67 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            {/* Animated Completion Progress */}
+            {/* Completion Progress Ring */}
             <div className="relative">
               <div className="w-20 h-20">
-                {/* Outer glow ring */}
-                <motion.div
-                  className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-50 blur-md"
-                  animate={{
-                    scale: [1, 1.1, 1],
-                    opacity: [0.5, 0.7, 0.5]
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                
                 {/* Main circle container */}
-                <svg className="transform -rotate-90 w-20 h-20 relative z-10">
-                  {/* Background circle */}
+                <svg className="transform -rotate-90 w-20 h-20" viewBox="0 0 80 80">
+                  {/* Background track */}
                   <circle
                     cx="40"
                     cy="40"
                     r="34"
                     fill="transparent"
-                    stroke="rgba(255,255,255,0.2)"
-                    strokeWidth="6"
+                    stroke="rgba(255,255,255,0.15)"
+                    strokeWidth="5"
                   />
                   
-                  {/* Animated progress circle */}
+                  {/* Progress arc */}
                   <motion.circle
                     cx="40"
                     cy="40"
                     r="34"
                     fill="transparent"
-                    stroke="url(#progressGradient)"
-                    strokeWidth="6"
+                    stroke={completionPercentage === 100 ? "#34D399" : "rgba(255,255,255,0.9)"}
+                    strokeWidth="5"
                     strokeLinecap="round"
                     strokeDasharray={`${completionPercentage * 2.14} 214`}
                     initial={{ strokeDasharray: "0 214" }}
                     animate={{ strokeDasharray: `${completionPercentage * 2.14} 214` }}
                     transition={{
-                      duration: 1.5,
+                      duration: 1.2,
                       ease: "easeOut",
-                      delay: 0.5
+                      delay: 0.3
                     }}
                   />
-                  
-                  {/* Gradient definition */}
-                  <defs>
-                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#60A5FA" />
-                      <stop offset="50%" stopColor="#A78BFA" />
-                      <stop offset="100%" stopColor="#F0ABFC" />
-                    </linearGradient>
-                  </defs>
                 </svg>
                 
-                {/* Center percentage with animation */}
+                {/* Center content */}
                 <motion.div 
                   className="absolute inset-0 flex flex-col items-center justify-center"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ 
-                    duration: 0.5, 
-                    delay: 1,
-                    type: "spring",
-                    stiffness: 200
-                  }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.6 }}
                 >
-                  <motion.div 
-                    className="text-2xl font-bold text-white"
-                    animate={{
-                      scale: completionPercentage === 100 ? [1, 1.2, 1] : 1
-                    }}
-                    transition={{
-                      duration: 0.5,
-                      repeat: completionPercentage === 100 ? Infinity : 0,
-                      repeatDelay: 2
-                    }}
-                  >
-                    {completionPercentage}%
-                  </motion.div>
-                  <div className="text-[8px] text-blue-200 font-medium uppercase tracking-wide">Complete</div>
+                  {completionPercentage === 100 ? (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.4, delay: 1, type: "spring", stiffness: 260, damping: 20 }}
+                    >
+                      <svg className="w-7 h-7 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </motion.div>
+                  ) : (
+                    <span className="text-lg font-semibold text-white tracking-tight">
+                      {completionPercentage}%
+                    </span>
+                  )}
+                  <span className="text-[8px] text-blue-200/80 font-medium uppercase tracking-wider mt-0.5">
+                    {completionPercentage === 100 ? 'Done' : 'Complete'}
+                  </span>
                 </motion.div>
-                
-                {/* Sparkle effects when 100% */}
-                {completionPercentage === 100 && (
-                  <>
-                    {[0, 1, 2, 3].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="absolute w-1.5 h-1.5 bg-yellow-300 rounded-full"
-                        style={{
-                          top: '50%',
-                          left: '50%',
-                          marginTop: '-3px',
-                          marginLeft: '-3px'
-                        }}
-                        animate={{
-                          x: [0, Math.cos(i * Math.PI / 2) * 40],
-                          y: [0, Math.sin(i * Math.PI / 2) * 40],
-                          opacity: [1, 0],
-                          scale: [1, 0]
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          repeatDelay: 1,
-                          delay: i * 0.2
-                        }}
-                      />
-                    ))}
-                  </>
-                )}
-                
-                {/* Success checkmark when 100% */}
-                {completionPercentage === 100 && (
-                  <motion.div
-                    className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white"
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ 
-                      duration: 0.5, 
-                      delay: 1.5,
-                      type: "spring",
-                      stiffness: 200
-                    }}
-                  >
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </motion.div>
-                )}
               </div>
             </div>
 
@@ -400,7 +327,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                 <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 lg:gap-8">
                   {/* Profile Picture with Frame */}
                   <div className="relative shrink-0">
-                    <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden shadow-2xl border-4 border-white ring-4 ring-blue-100">
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden shadow-2xl border-4 border-white dark:border-gray-700 ring-4 ring-blue-100 dark:ring-blue-900">
                       {profilePicturePreview ? (
                         <img
                           src={profilePicturePreview}
@@ -415,28 +342,28 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                         </div>
                       )}
                     </div>
-                    <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 sm:w-8 sm:h-8 rounded-full border-4 border-white shadow-lg"></div>
+                    <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 sm:w-8 sm:h-8 rounded-full border-4 border-white dark:border-gray-800 shadow-lg"></div>
                   </div>
 
                   {/* Profile Info */}
                   <div className="flex-1 text-center lg:text-left">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 leading-tight">{user?.name}</h3>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">{user?.name}</h3>
                     <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-3">
-                      <p className="text-base sm:text-lg text-blue-600 font-semibold">{user?.department || 'N/A'}</p>
+                      <p className="text-base sm:text-lg text-blue-600 dark:text-blue-400 font-semibold">{user?.department || 'N/A'}</p>
                       <span className="text-gray-400">•</span>
-                      <p className="text-base sm:text-lg text-gray-700 font-medium">Year {user?.year || 'N/A'}</p>
+                      <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 font-medium">Year {user?.year || 'N/A'}</p>
                       {user?.studentId && (
                         <>
                           <span className="text-gray-400">•</span>
-                          <p className="text-xs sm:text-sm text-gray-600 font-mono bg-gray-100 px-2 py-1 rounded">ID: {user.studentId}</p>
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">ID: {user.studentId}</p>
                         </>
                       )}
                     </div>
                     
                     {/* Email - Professional Addition */}
                     {user?.email && (
-                      <div className="flex items-center justify-center lg:justify-start text-gray-700 mb-4">
-                        <svg className="w-4 h-4 mr-2 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center justify-center lg:justify-start text-gray-700 dark:text-gray-300 mb-4">
+                        <svg className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                         <span className="text-sm font-medium">{user.email}</span>
@@ -446,24 +373,24 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     {/* Quick Contact Info */}
                     <div className="flex flex-wrap justify-center lg:justify-start gap-3 sm:gap-4 mt-4">
                       {profile.phone && (
-                        <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
-                          <svg className="w-4 h-4 mr-2 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-lg">
+                          <svg className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                           </svg>
                           <span className="text-xs sm:text-sm font-medium">{profile.phone}</span>
                         </div>
                       )}
                       {profile.dateOfBirth && (
-                        <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
-                          <svg className="w-4 h-4 mr-2 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-lg">
+                          <svg className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           <span className="text-xs sm:text-sm font-medium">{new Date(profile.dateOfBirth).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                         </div>
                       )}
                       {profile.address && (
-                        <div className="flex items-center text-gray-700 bg-gray-50 px-3 py-2 rounded-lg max-w-full">
-                          <svg className="w-4 h-4 mr-2 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-lg max-w-full">
+                          <svg className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                           <span className="text-xs sm:text-sm font-medium truncate">{profile.address.split(',')[0]}</span>
@@ -522,7 +449,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
               {/* Professional Divider */}
               <div className="relative py-4">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t-2 border-gray-200"></div>
+                  <div className="w-full border-t-2 border-gray-200 dark:border-gray-700"></div>
                 </div>
               </div>
 
@@ -551,8 +478,8 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                         </svg>
                         <div className="flex-1">
-                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">{item.label}</p>
-                          <p className="text-sm text-gray-900 font-medium">{item.value}</p>
+                          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0.5">{item.label}</p>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 font-medium">{item.value}</p>
                         </div>
                       </div>
                     ))}
