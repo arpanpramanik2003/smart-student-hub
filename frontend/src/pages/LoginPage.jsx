@@ -23,57 +23,62 @@ const LoginPage = ({ onLogin }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      {/* Animated background elements */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Enhanced animated background elements with improved animations */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-200 rounded-full opacity-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full opacity-20 animate-blob" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-200 rounded-full opacity-10 animate-blob" style={{ animationDelay: '4s' }}></div>
+        {/* Additional subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-transparent pointer-events-none"></div>
       </div>
 
       {/* Header Section */}
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 animate-fadeInDown">
         <div className="text-center">
-          {/* Logo */}
+          {/* Enhanced Logo */}
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-2xl transform transition-all duration-300 hover:scale-110 hover:rotate-6">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-xl opacity-0 group-hover:opacity-75 transition duration-500 animate-pulse"></div>
+              <div className="relative w-24 h-24 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-2xl transform transition-all duration-500 hover:scale-110 hover:rotate-12 cursor-pointer">
+                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
             </div>
           </div>
 
-          {/* Title */}
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          {/* Enhanced Title */}
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-2 tracking-tight">
+            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent animate-gradient">
               Smart Student Hub
             </span>
           </h1>
           
-          <p className="text-gray-600 dark:text-gray-400 text-lg mb-6">
+          <p className="text-gray-600 dark:text-gray-400 text-lg mb-8 font-light tracking-wide">
             Your comprehensive platform for academic excellence
           </p>
 
           {/* Rotating Features */}
-          <div className="h-12 flex items-center justify-center">
-            <div className="flex items-center space-x-3 transition-all duration-500 transform">
-              <span className="text-2xl">{features[currentFeature].icon}</span>
-              <span className={`text-lg font-medium ${features[currentFeature].color} transition-colors duration-500`}>
+          <div className="h-16 flex items-center justify-center mb-2">
+            <div className="flex items-center space-x-3 transition-all duration-700 transform opacity-100 animate-fadeIn">
+              <span className="text-4xl transform hover:scale-125 transition-transform duration-300">{features[currentFeature].icon}</span>
+              <span className={`text-xl font-semibold ${features[currentFeature].color} transition-all duration-700 tracking-wide`}>
                 {features[currentFeature].text}
               </span>
             </div>
           </div>
 
-          {/* Feature Indicators */}
-          <div className="flex justify-center space-x-2 mt-4">
+          {/* Enhanced Feature Indicators */}
+          <div className="flex justify-center space-x-3 mt-1">
             {features.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentFeature(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                className={`rounded-full transition-all duration-500 hover:scale-125 ${
                   index === currentFeature 
-                    ? 'bg-blue-600 w-8' 
-                    : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 w-10 h-3 shadow-lg' 
+                    : 'bg-gray-300 dark:bg-gray-600 w-3 h-3 hover:bg-gray-400 dark:hover:bg-gray-500'
                 }`}
               />
             ))}
@@ -81,65 +86,72 @@ const LoginPage = ({ onLogin }) => {
         </div>
       </div>
 
-      {/* Test Credentials Banner */}
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-700 rounded-lg p-4 mb-4 shadow-lg">
+      {/* Enhanced Test Credentials Banner */}
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 animate-fadeInUp">
+        <div className="group bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 dark:from-amber-900/30 dark:via-orange-900/30 dark:to-amber-900/30 border-2 border-amber-200 dark:border-amber-700/50 rounded-2xl p-6 mb-4 shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
           <div className="flex items-start">
             <div className="flex-shrink-0">
-              <svg className="h-6 w-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-amber-100 dark:bg-amber-900/40">
+                <svg className="h-6 w-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
             </div>
-            <div className="ml-3 flex-1">
-              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                🧪 Test Credentials (For Demo/Testing Only)
+            <div className="ml-4 flex-1">
+              <h3 className="text-sm font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+                🧪 Test Credentials
               </h3>
-              <div className="mt-2 text-xs text-amber-700 dark:text-amber-400 space-y-2">
-                <div className="bg-white/60 dark:bg-gray-800/60 rounded p-2 font-mono">
-                  <p className="font-semibold text-red-600 dark:text-red-400">👑 Admin Account:</p>
-                  <p>📧 Email: <span className="font-bold">arpan@smartstudenthub.com</span></p>
-                  <p>🔑 Password: <span className="font-bold">Arpan@123.</span></p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 font-medium">
+                For Demo & Testing Only
+              </p>
+              <div className="mt-4 space-y-3">
+                <div className="bg-white/80 dark:bg-gray-800/80 rounded-lg p-3 font-mono text-xs border border-amber-200/50 dark:border-amber-700/30 hover:bg-white dark:hover:bg-gray-700 transition-colors duration-200">
+                  <p className="font-bold text-red-600 dark:text-red-400 mb-1">👑 Admin Account</p>
+                  <p className="text-gray-700 dark:text-gray-300">📧 <span className="font-semibold text-gray-900 dark:text-gray-100">arpan@smartstudenthub.com</span></p>
+                  <p className="text-gray-700 dark:text-gray-300">🔑 <span className="font-semibold text-gray-900 dark:text-gray-100">Arpan@123.</span></p>
                 </div>
-                <div className="bg-white/60 dark:bg-gray-800/60 rounded p-2 font-mono">
-                  <p className="font-semibold text-blue-600 dark:text-blue-400">👨‍🎓 Student Account:</p>
-                  <p>📧 Email: <span className="font-bold">student@gmail.com</span></p>
-                  <p>🔑 Password: <span className="font-bold">Student@123.</span></p>
+                <div className="bg-white/80 dark:bg-gray-800/80 rounded-lg p-3 font-mono text-xs border border-amber-200/50 dark:border-amber-700/30 hover:bg-white dark:hover:bg-gray-700 transition-colors duration-200">
+                  <p className="font-bold text-blue-600 dark:text-blue-400 mb-1">👨‍🎓 Student Account</p>
+                  <p className="text-gray-700 dark:text-gray-300">📧 <span className="font-semibold text-gray-900 dark:text-gray-100">student@gmail.com</span></p>
+                  <p className="text-gray-700 dark:text-gray-300">🔑 <span className="font-semibold text-gray-900 dark:text-gray-100">Student@123.</span></p>
                 </div>
-                <div className="bg-white/60 dark:bg-gray-800/60 rounded p-2 font-mono">
-                  <p className="font-semibold text-green-600 dark:text-green-400">👨‍🏫 Teacher Account:</p>
-                  <p>📧 Email: <span className="font-bold">teacher@gmail.com</span></p>
-                  <p>🔑 Password: <span className="font-bold">Teacher@123.</span></p>
+                <div className="bg-white/80 dark:bg-gray-800/80 rounded-lg p-3 font-mono text-xs border border-amber-200/50 dark:border-amber-700/30 hover:bg-white dark:hover:bg-gray-700 transition-colors duration-200">
+                  <p className="font-bold text-green-600 dark:text-green-400 mb-1">👨‍🏫 Teacher Account</p>
+                  <p className="text-gray-700 dark:text-gray-300">📧 <span className="font-semibold text-gray-900 dark:text-gray-100">teacher@gmail.com</span></p>
+                  <p className="text-gray-700 dark:text-gray-300">🔑 <span className="font-semibold text-gray-900 dark:text-gray-100">Teacher@123.</span></p>
                 </div>
               </div>
-              <p className="mt-2 text-xs text-amber-600 dark:text-amber-400 font-medium">
-                ⚠️ Note: Remove this section before final production deployment!
-              </p>
+              <div className="mt-4 p-3 bg-gradient-to-r from-amber-100/50 to-orange-100/50 dark:from-amber-900/30 dark:to-orange-900/30 rounded-lg border-l-4 border-amber-500 dark:border-amber-600">
+                <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold leading-relaxed">
+                  📝 Note: I will remove this section before final production deployment..
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-white/20 dark:border-gray-700/20 transition-colors duration-300">
-          {/* Form Toggle */}
-          <div className="flex mb-6">
+      {/* Enhanced Main Content */}
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md relative z-10 animate-fadeInUp" style={{ animationDelay: '200ms' }}>
+        <div className="group bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl py-10 px-6 shadow-2xl sm:rounded-3xl sm:px-12 border-2 border-white/30 dark:border-gray-700/30 hover:shadow-3xl transition-all duration-500 hover:border-white/50 dark:hover:border-gray-700/50">
+          {/* Animated Form Toggle */}
+          <div className="flex mb-8 p-1 bg-gray-100 dark:bg-gray-700 rounded-xl">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-4 text-center text-sm font-medium rounded-l-lg transition-all duration-200 ${
+              className={`flex-1 py-3 px-4 text-center text-sm font-bold rounded-lg transition-all duration-300 uppercase tracking-wider ${
                 isLogin
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105'
+                  : 'bg-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 px-4 text-center text-sm font-medium rounded-r-lg transition-all duration-200 ${
+              className={`flex-1 py-3 px-4 text-center text-sm font-bold rounded-lg transition-all duration-300 uppercase tracking-wider ${
                 !isLogin
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105'
+                  : 'bg-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
               }`}
             >
               Register
@@ -147,7 +159,7 @@ const LoginPage = ({ onLogin }) => {
           </div>
 
           {/* Forms */}
-          <div className="transition-all duration-300">
+          <div className="transition-all duration-500 animate-fadeIn">
             {isLogin ? (
               <LoginForm
                 onLogin={onLogin}
@@ -162,79 +174,87 @@ const LoginPage = ({ onLogin }) => {
           </div>
         </div>
 
-        {/* System Stats */}
-        <div className="mt-8 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 dark:border-gray-700/20 transition-colors duration-300">
-          <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Trusted by Students Nationwide
+        {/* Enhanced System Stats */}
+        <div className="mt-8 bg-gradient-to-br from-white/70 to-gray-50/70 dark:from-gray-800/70 dark:to-gray-900/70 backdrop-blur-xl rounded-2xl p-8 shadow-xl border-2 border-white/30 dark:border-gray-700/30 hover:border-white/50 dark:hover:border-gray-700/50 transition-all duration-300">
+          <h3 className="text-center text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+            Trusted Platform
           </h3>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="flex flex-col items-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">500+</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Active Students</div>
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-8 font-medium tracking-wide">
+            Empowering students nationwide
+          </p>
+          <div className="grid grid-cols-3 gap-6 text-center">
+            <div className="group flex flex-col items-center p-4 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all duration-300">
+              <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-300">500+</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 font-semibold uppercase tracking-wider">Active Students</div>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">1200+</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Activities Tracked</div>
+            <div className="group flex flex-col items-center p-4 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all duration-300">
+              <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-300">1200+</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 font-semibold uppercase tracking-wider">Activities Tracked</div>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">50+</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Institutions</div>
+            <div className="group flex flex-col items-center p-4 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all duration-300">
+              <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform duration-300">50+</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400 font-semibold uppercase tracking-wider">Institutions</div>
             </div>
           </div>
         </div>
 
-        {/* Key Benefits */}
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        {/* Enhanced Key Benefits */}
+        <div className="mt-8 grid grid-cols-2 gap-4">
           {[
-            { icon: "🔒", title: "Secure", desc: "Bank-level security" },
-            { icon: "⚡", title: "Fast", desc: "Lightning quick" },
-            { icon: "📱", title: "Mobile", desc: "Works everywhere" },
-            { icon: "🎯", title: "Smart", desc: "AI-powered insights" }
+            { icon: "🔒", title: "Secure", desc: "Bank-level encryption", color: "from-red-500 to-pink-500" },
+            { icon: "⚡", title: "Fast", desc: "Lightning responses", color: "from-yellow-500 to-orange-500" },
+            { icon: "📱", title: "Mobile", desc: "Works everywhere", color: "from-blue-500 to-cyan-500" },
+            { icon: "🎯", title: "Smart", desc: "AI-powered insights", color: "from-purple-500 to-pink-500" }
           ].map((benefit, index) => (
             <div 
               key={benefit.title}
-              className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-lg p-3 text-center border border-white/20 dark:border-gray-700/20 hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all duration-300 hover:scale-105"
+              className={`bg-gradient-to-br ${benefit.color} group rounded-xl p-4 text-center border-2 border-white/20 hover:border-white/60 cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 hover:-translate-y-1`}
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="text-lg mb-1">{benefit.icon}</div>
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{benefit.title}</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">{benefit.desc}</div>
+              <div className="text-3xl mb-2 group-hover:scale-125 transition-transform duration-300">{benefit.icon}</div>
+              <div className="text-xs font-bold text-white uppercase tracking-wider mb-1">{benefit.title}</div>
+              <div className="text-xs text-white/80 font-medium">{benefit.desc}</div>
             </div>
           ))}
         </div>
 
-        {/* Enhanced Footer */}
-        <div className="mt-8 text-center">
-          <div className="text-xs text-gray-500 dark:text-gray-400 space-y-3">
-            <div className="flex justify-center items-center space-x-2">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              <span>System Status: All services operational</span>
+        {/* Enhanced Professional Footer */}
+        <div className="mt-12 text-center">
+          <div className="text-xs text-gray-600 dark:text-gray-400 space-y-4">
+            <div className="flex justify-center items-center space-x-3">
+              <span className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full animate-pulse shadow-lg"></span>
+              <span className="font-medium tracking-wide">System Status: All services operational</span>
             </div>
             
-            <p>© 2025 Smart Student Hub. All rights reserved.</p>
-            
-            <div className="flex justify-center space-x-4 text-xs">
-              <button className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 underline decoration-dotted">
-                Privacy Policy
-              </button>
-              <span>•</span>
-              <button className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 underline decoration-dotted">
-                Terms of Service
-              </button>
-              <span>•</span>
-              <button className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 underline decoration-dotted">
-                Contact Support
-              </button>
-            </div>
-
-            <div className="flex justify-center items-center space-x-4 text-xs pt-2">
-              <div className="flex items-center">
-                <div className="w-1 h-1 bg-blue-500 rounded-full mr-1"></div>
-                Version 2.1.0
+            <div className="pt-4 border-t border-gray-300 dark:border-gray-600">
+              <p className="font-semibold text-gray-700 dark:text-gray-300 mb-3">© 2025 Smart Student Hub. All rights reserved.</p>
+              
+              <div className="flex justify-center space-x-6 text-xs mb-4">
+                <button className="group font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 relative">
+                  Privacy Policy
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+                </button>
+                <span className="text-gray-400">•</span>
+                <button className="group font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 relative">
+                  Terms of Service
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+                </button>
+                <span className="text-gray-400">•</span>
+                <button className="group font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 relative">
+                  Contact Support
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 group-hover:w-full transition-all duration-300"></span>
+                </button>
               </div>
-              <div className="flex items-center">
-                <div className="w-1 h-1 bg-green-500 rounded-full mr-1"></div>
-                99.9% Uptime
+
+              <div className="flex justify-center items-center space-x-6 text-xs pt-4 border-t border-gray-300 dark:border-gray-600">
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700/50">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">v2.1.0</span>
+                </div>
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700/50">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">99.9% Uptime</span>
+                </div>
               </div>
             </div>
           </div>
