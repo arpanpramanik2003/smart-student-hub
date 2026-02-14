@@ -32,7 +32,6 @@ const Analytics = ({ user, token, onNavigate }) => {
     });
   }, []);
 
-  // 🔥 Success/Error message functions
   const showSuccessMessage = useCallback((text) => {
     setMessage({ type: 'success', text, show: true });
     setTimeout(() => setMessage(prev => ({ ...prev, show: false })), 5000);
@@ -105,7 +104,6 @@ const Analytics = ({ user, token, onNavigate }) => {
     }
   };
 
-  // 🔥 FIXED: Proper CSV download with authentication and correct API URL
   const downloadCSVReport = async () => {
     if (!dateRange.startDate || !dateRange.endDate) {
       showErrorMessage('Please select date range before downloading CSV.');
@@ -175,7 +173,6 @@ const Analytics = ({ user, token, onNavigate }) => {
     }
   };
 
-  // 🔥 Enhanced: Quick date range buttons
   const setQuickDateRange = useCallback((months) => {
     const endDate = new Date();
     const startDate = new Date();
@@ -203,7 +200,6 @@ const Analytics = ({ user, token, onNavigate }) => {
     return total > 0 ? ((current / total) * 100).toFixed(1) : 0;
   };
 
-  // 🔥 Enhanced: Calculate system health metrics
   const getSystemHealth = () => {
     if (!stats) return { score: 0, status: 'Unknown', issues: [] };
     
