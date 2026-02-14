@@ -3,7 +3,7 @@
 A comprehensive platform for managing student academic activities, portfolios, and achievements. Built for educational institutions to track and showcase student accomplishments.
 
 ![Status](https://img.shields.io/badge/status-production--ready-green)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-orange)
 
 ---
@@ -63,6 +63,13 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 - Top student rankings
 - Activity type statistics
 
+### 🎨 UI & Design
+- **Dark Mode** - Complete dark theme with automatic system detection
+- **Modern Gradients** - Beautiful color schemes throughout
+- **Responsive Design** - Works seamlessly on all devices
+- **Enhanced Components** - Admin dashboard, portfolio, and CV sections
+- **Accessibility** - WCAG compliant color contrasts
+
 ---
 
 ## 🛠️ Tech Stack
@@ -70,9 +77,10 @@ Perfect for NAAC/AICTE compliance and student portfolio management.
 ### Frontend
 - **React 19** with Vite
 - **Tailwind CSS** for styling
+- **Dark Mode** - Full theme support with system preference detection
 - **Axios** for API calls
 - **Vercel** deployment
-- Modern ES6+ JavaScript
+- Modern ES6+ JavaScript with gradient designs
 
 ### Backend
 - **Node.js** with Express

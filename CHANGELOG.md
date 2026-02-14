@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - 2026-02-14
+
+### 🎨 Enhanced
+
+#### Dark Theme Implementation
+- **Complete Dark Mode Support** - Comprehensive dark theme across all components
+  - Automatic OS/browser preference detection
+  - Smooth theme transitions with proper color inheritance
+  - Optimized contrast ratios for better readability
+  - Translucent backgrounds with backdrop blur effects
+
+#### Admin Dashboard Improvements
+- **Popular Activity Types** - Enhanced color scheme with proper dark mode support
+  - Added dark mode variants for all activity type cards
+  - Improved pastel-to-dark translucent background transitions
+  - Better border styling for dark theme
+
+#### Portfolio Section Redesign
+- **Modern Header Gradient** - Updated from blue-indigo to indigo-purple-pink gradient
+- **Enhanced Stats Cards** - Each stat now has unique gradient color:
+  - Approved Activities: Green-to-emerald gradient
+  - Total Credits: Yellow-to-orange gradient  
+  - Categories: Blue-to-indigo gradient
+  - Avg Credits: Purple-to-pink gradient
+- **Improved Activity Sections**:
+  - Section headers with indigo-purple-pink gradient backgrounds
+  - Updated credit badges with gradient styling
+  - Enhanced certificate badges with borders
+  - Better icon colors (indigo theme)
+
+#### CV/Professional Profile
+- **Personal Information Card**:
+  - Gradient backgrounds (slate-to-blue)
+  - Enhanced hover effects with blue accents
+  - Better icon visibility in dark mode
+- **Academic Details Card**:
+  - Green-to-emerald gradient header icon
+  - 10th Result: Blue-to-indigo gradient with borders
+  - 12th Result: Purple-to-pink gradient with borders
+  - Bold result values for better emphasis
+- **Languages Section**:
+  - Green-to-emerald gradient background
+  - White text on gradient badges (improved contrast)
+  - Enhanced shadows and borders
+- **Technical Skills Section**:
+  - Orange-to-red gradient background
+  - White text on gradient skill badges
+  - Consistent styling with language badges
+
+#### Reports & Analytics
+- **System Reports Header** - Removed accidental `\n` characters
+- **System Trends & Insights** - Fixed color combinations for dark mode
+  - User Distribution card: Blue-to-indigo gradient with dark mode support
+  - Activity Insights card: Green-to-emerald gradient with dark mode support
+
+### 🔧 Fixed
+- Removed stray `)` character from Top Active Students section in Admin Dashboard
+- Fixed text contrast in Popular Activity Types (darkened from gray-700 to gray-900)
+- Corrected `\n` escape characters appearing in Reports section headers
+- Fixed System Trends cards not displaying properly in dark mode
+
+---
+
 ## [1.1.0] - 2026-02-13
 
 ### 🆕 Added
