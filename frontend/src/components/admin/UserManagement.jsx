@@ -613,8 +613,8 @@ const UserManagement = ({ user, token, onNavigate }) => {
                     <tr key={userData.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mr-3 shadow-sm">
-                          <span className="text-blue-700 font-semibold text-sm">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-full flex items-center justify-center mr-3 shadow-sm transition-colors">
+                          <span className="text-blue-700 dark:text-blue-300 font-semibold text-sm transition-colors">
                             {userData.name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
                         </div>
@@ -719,21 +719,21 @@ const UserManagement = ({ user, token, onNavigate }) => {
           </div>
 
           {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-gray-200">
+          <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
             {users.map((userData) => (
-              <div key={userData.id} className="p-4 hover:bg-gray-50 transition-colors duration-150">
+              <div key={userData.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
                 {/* User Info */}
                 <div className="flex items-start space-x-3 mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <span className="text-blue-700 font-semibold text-base">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <span className="text-blue-700 dark:text-blue-300 font-semibold text-base transition-colors">
                       {userData.name?.charAt(0)?.toUpperCase() || '?'}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 truncate">{userData.name}</div>
-                    <div className="text-xs text-gray-500 truncate">{userData.email}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate transition-colors">{userData.name}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate transition-colors">{userData.email}</div>
                     {userData.studentId && (
-                      <div className="text-xs text-blue-600 font-mono mt-0.5">ID: {userData.studentId}</div>
+                      <div className="text-xs text-blue-600 dark:text-blue-400 font-mono mt-0.5 transition-colors">ID: {userData.studentId}</div>
                     )}
                   </div>
                 </div>
@@ -741,13 +741,13 @@ const UserManagement = ({ user, token, onNavigate }) => {
                 {/* Details Grid */}
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Role</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors">Role</div>
                     <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full border ${getRoleBadgeColor(userData.role)}`}>
                       {userData.role?.charAt(0)?.toUpperCase() + userData.role?.slice(1)}
                     </span>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Status</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors">Status</div>
                     <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusBadgeColor(userData.isActive)}`}>
                       {userData.isActive ? (
                         <><span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 mt-0.5"></span>Active</>
@@ -757,15 +757,15 @@ const UserManagement = ({ user, token, onNavigate }) => {
                     </span>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Department</div>
-                    <div className="text-sm text-gray-900 truncate">{userData.department || 'N/A'}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors">Department</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100 truncate transition-colors">{userData.department || 'N/A'}</div>
                     {userData.year && (
-                      <div className="text-xs text-gray-500">Year {userData.year}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Year {userData.year}</div>
                     )}
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Joined</div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors">Joined</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100 transition-colors">
                       {new Date(userData.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
