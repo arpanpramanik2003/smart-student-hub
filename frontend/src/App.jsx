@@ -8,14 +8,16 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import LoginPage from './pages/LoginPage';
 
 // Shared Components
-import Header from './components/shared/Header';
+import TopHeader from './components/shared/TopHeader';
 import Layout from './components/shared/Layout';
+import Sidebar from './components/shared/Sidebar';
 
 // Student Components
 import StudentDashboard from './components/student/Dashboard';
 import ActivityForm from './components/student/ActivityForm';
 import ActivityList from './components/student/ActivityList';
 import Portfolio from './components/student/Portfolio';
+import BrowseStudents from './components/student/BrowseStudents';
 
 // Faculty Components
 import FacultyDashboard from './components/faculty/Dashboard';
@@ -34,6 +36,7 @@ function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [loading, setLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const token = getToken();
@@ -60,6 +63,8 @@ function App() {
         'my-activities': 'activities',
         'activities': 'activities',
         'portfolio': 'portfolio',
+        'browse': 'browse',
+        'browse-peers': 'browse',
         'dashboard': 'dashboard',
         'review': 'review',
         'all-activities': 'all-activities',
@@ -209,6 +214,8 @@ function App() {
           }
         case 'portfolio':
           return <Portfolio user={user} token={getToken()} />;
+        case 'browse':
+          return <BrowseStudents user={user} token={getToken()} />;
         default:
           return (
             <StudentDashboard
@@ -298,13 +305,18 @@ function App() {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        <Header
+        <Sidebar
           user={user}
-          onLogout={handleLogout}
           currentView={currentView}
           setCurrentView={setCurrentView}
+          onCollapsedChange={setIsSidebarCollapsed}
         />
-        <Layout animated={false}>
+        <TopHeader
+          user={user}
+          onLogout={handleLogout}
+          isSidebarCollapsed={isSidebarCollapsed}
+        />
+        <Layout animated={false} hasSidebar={true} isSidebarCollapsed={isSidebarCollapsed}>
           {renderCurrentView()}
         </Layout>
       </div>

@@ -404,8 +404,8 @@ const UserManagement = ({ user, token, onNavigate }) => {
         </div>
       )}
 
-      {/* Header with Gradient */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-900 dark:to-purple-900 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 text-white transition-colors">
+      {/* Professional Header */}
+      <div className="bg-blue-600 dark:bg-blue-700 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 text-white border border-blue-700 dark:border-blue-800 transition-colors">
         <div className="flex flex-col space-y-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold flex items-center">
@@ -414,7 +414,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
               </svg>
               User Management
             </h1>
-            <p className="text-blue-100 dark:text-blue-200 mt-2 flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm transition-colors">
+            <p className="text-blue-100 mt-2 flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm transition-colors">
               <span className="flex items-center">
                 <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
                 {pagination.total} Total

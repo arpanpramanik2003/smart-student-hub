@@ -98,6 +98,12 @@ export const studentAPI = {
   deleteActivity: (activityId) => apiRequest(`/students/activities/${activityId}`, {
     method: 'DELETE',
   }),
+
+  // Get all students to browse
+  getAllStudents: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiRequest(`/students/browse${query ? `?${query}` : ''}`);
+  },
   
   uploadAvatar: (formData) => apiRequest('/students/upload-avatar', {
     method: 'POST',

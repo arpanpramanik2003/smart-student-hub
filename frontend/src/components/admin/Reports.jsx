@@ -252,8 +252,8 @@ const Reports = ({ user, token, onNavigate }) => {
         </div>
       )}
 
-      {/* Header with Gradient */}
-      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 dark:from-purple-900 dark:via-indigo-900 dark:to-blue-900 rounded-xl shadow-lg p-8 text-white transition-colors">
+      {/* Professional Header */}
+      <div className="bg-blue-600 dark:bg-blue-700 rounded-xl shadow-lg p-8 text-white border border-blue-700 dark:border-blue-800 transition-colors">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between space-y-4 lg:space-y-0">
           <div>
             <h1 className="text-3xl font-bold flex items-center">
@@ -263,15 +263,15 @@ const Reports = ({ user, token, onNavigate }) => {
               </svg>
               System Reports & Analytics
             </h1>
-            <p className="text-blue-100 dark:text-blue-200 mt-2 flex items-center space-x-2 transition-colors">
+            <p className="text-blue-100 mt-2 flex items-center space-x-2 transition-colors">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <span>Generate comprehensive reports for NAAC, NIRF, and AICTE compliance</span>
             </p>
           </div>
-          <div className="bg-white bg-opacity-20 dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-30 dark:border-opacity-20 transition-colors">
-            <div className="text-sm text-blue-100 dark:text-blue-200 mb-1 flex items-center transition-colors">
+          <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4 border border-white border-opacity-30 transition-colors">
+            <div className="text-sm text-blue-100 mb-1 flex items-center transition-colors">
               <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>

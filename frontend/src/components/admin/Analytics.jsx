@@ -327,8 +327,8 @@ const Analytics = ({ user, token, onNavigate }) => {
         </div>
       )}
 
-      {/* Enhanced Header with Gradient */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 text-white">
+      {/* Professional Header */}
+      <div className="bg-blue-600 dark:bg-blue-700 rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 text-white border border-blue-700 dark:border-blue-800">
         <div className="flex flex-col space-y-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold flex items-center">
@@ -337,13 +337,13 @@ const Analytics = ({ user, token, onNavigate }) => {
               </svg>
               Analytics Dashboard
             </h1>
-            <p className="text-indigo-100 mt-2 flex items-center text-sm sm:text-base">
+            <p className="text-blue-100 mt-2 flex items-center text-sm sm:text-base">
               <svg className="w-4 h-4 mr-1.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
               </svg>
               <span className="line-clamp-1">Comprehensive system insights and performance metrics</span>
             </p>
-            <div className="flex items-center mt-3 text-xs sm:text-sm text-indigo-200 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1.5 inline-flex">
+            <div className="flex items-center mt-3 text-xs sm:text-sm text-blue-100 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-2 sm:px-3 py-1.5 inline-flex">
               <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 animate-pulse flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -355,7 +355,7 @@ const Analytics = ({ user, token, onNavigate }) => {
             <button
               onClick={() => fetchAnalytics(true)}
               disabled={refreshing}
-              className="flex items-center justify-center px-4 py-2.5 bg-white text-indigo-600 hover:bg-indigo-50 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none w-full sm:w-auto"
+              className="flex items-center justify-center px-4 py-2.5 bg-white text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none w-full sm:w-auto"
             >
               <svg 
                 className={`w-5 h-5 mr-2 ${refreshing ? 'animate-spin' : ''}`} 

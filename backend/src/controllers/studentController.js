@@ -349,6 +349,90 @@ const updateActivity = [
   }
 ];
 
+// Get all students with approved activities (for students to browse)
+const getAllStudents = async (req, res) => {
+  try {
+    const { page = 1, limit = 12, search, department, year } = req.query;
+    const offset = (page - 1) * limit;
+
+    const where = { role: 'student' };
+    
+    // Add search filter (name, email, or studentId)
+    if (search) {
+      const { Op } = require('sequelize');
+      where[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        { studentId: { [Op.like]: `%${search}%` } }
+      ];
+    }
+    
+    // Add department filter
+    if (department && department !== 'all') {
+      where.department = department;
+    }
+    
+    // Add year filter
+    if (year && year !== 'all') {
+      where.year = parseInt(year);
+    }
+
+    const { count, rows } = await User.findAndCountAll({
+      where,
+      attributes: [
+        'id', 'name', 'email', 'studentId', 'department', 'year',
+        'phone', 'dateOfBirth', 'gender', 'skills', 'languages', 'hobbies', 'achievements',
+        'linkedinUrl', 'githubUrl', 'portfolioUrl',
+        'profilePicture', 'otherDetails', 'createdAt'
+      ],
+      order: [['name', 'ASC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    // Get approved activity details for each student
+    const studentsWithActivities = await Promise.all(rows.map(async (student) => {
+      const approvedActivities = await Activity.findAll({
+        where: { studentId: student.id, status: 'approved' },
+        attributes: ['id', 'title', 'type', 'date', 'organizer', 'filePath'],
+        limit: 5,
+        order: [['date', 'DESC']]
+      });
+
+      const totalApprovedActivities = await Activity.count({ 
+        where: { studentId: student.id, status: 'approved' } 
+      });
+      const totalCredits = await Activity.sum('credits', { 
+        where: { studentId: student.id, status: 'approved' } 
+      }) || 0;
+
+      return {
+        ...student.toJSON(),
+        activities: approvedActivities,
+        stats: {
+          totalApprovedActivities,
+          totalCredits
+        }
+      };
+    }));
+
+    res.json({
+      students: studentsWithActivities,
+      pagination: {
+        total: count,
+        page: parseInt(page),
+        pages: Math.ceil(count / limit),
+        limit: parseInt(limit),
+        hasMore: offset + rows.length < count
+      }
+    });
+
+  } catch (error) {
+    console.error('Get all students error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   submitActivity: [upload.single('certificate'), submitActivity],  // certificate upload multer instance
   getMyActivities,
@@ -356,4 +440,5 @@ module.exports = {
   uploadAvatar,  // avatar upload multer instance
   deleteActivity,
   updateActivity,
+  getAllStudents,
 };

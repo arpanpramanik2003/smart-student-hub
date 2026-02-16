@@ -1,5 +1,5 @@
 const express = require('express');
-const { submitActivity, getMyActivities, getActivityStats, uploadAvatar, deleteActivity, updateActivity } = require('../controllers/studentController');
+const { submitActivity, getMyActivities, getActivityStats, uploadAvatar, deleteActivity, updateActivity, getAllStudents } = require('../controllers/studentController');
 const { getProfile, updateProfile } = require('../controllers/studentProfileController'); // Add import!
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const router = express.Router();
@@ -17,6 +17,9 @@ router.get('/activities', getMyActivities);
 router.get('/activities/stats', getActivityStats);
 router.put('/activities/:activityId', updateActivity);
 router.delete('/activities/:activityId', deleteActivity);
+
+// Browse other students endpoint
+router.get('/browse', getAllStudents);
 
 // Avatar upload
 router.post('/upload-avatar', uploadAvatar);
