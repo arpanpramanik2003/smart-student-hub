@@ -29,6 +29,16 @@ const createUploadDirs = () => {
 // Create upload directories
 createUploadDirs();
 
+// 🔧 Log environment information
+if (process.env.NODE_ENV === 'production') {
+  console.log(`\n🌐 ENVIRONMENT: PRODUCTION`);
+  console.log(`📍 Cloud Deployment Detected`);
+} else {
+  console.log(`\n💻 ENVIRONMENT: DEVELOPMENT (LOCAL)`);
+  console.log(`📍 Local Development Environment`);
+}
+console.log('-----------------------------------\n');
+
 // Security middleware
 app.use(helmet({ 
   crossOriginEmbedderPolicy: false, 
@@ -136,7 +146,19 @@ app.use('/api', (req, res, next) => {
   });
   next();
 });
+// Root route handler to prevent 404 errors
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Smart Student Hub API',
+    status: 'running',
+    version: '1.0.0'
+  });
+});
 
+// Handle HEAD requests to root
+app.head('/', (req, res) => {
+  res.status(200).end();
+});
 // API routes - PLACE THESE AFTER SPECIAL ROUTES
 app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/students', require('./src/routes/student'));
@@ -168,9 +190,22 @@ app.use('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const baseUrl = isProduction 
+    ? process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `https://your-app-domain.com`
+    : `http://localhost:${PORT}`;
+  
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📱 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🩺 Database test: http://localhost:${PORT}/api/test-db`);
-  console.log(`🔧 Admin setup: http://localhost:5173?setup=admin`);
+  
+  if (isProduction) {
+    console.log(`📱 Health check: ${baseUrl}/api/health`);
+    console.log(`🩺 Database test: ${baseUrl}/api/test-db`);
+    console.log(`🔧 Admin setup: ${process.env.FRONTEND_URL || 'https://your-frontend-domain.com'}?setup=admin`);
+  } else {
+    console.log(`📱 Health check: ${baseUrl}/api/health`);
+    console.log(`🩺 Database test: ${baseUrl}/api/test-db`);
+    console.log(`🔧 Admin setup: http://localhost:5173?setup=admin`);
+  }
+  
   console.log(`📁 Upload directories created successfully`);
 });
