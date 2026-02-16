@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../utils/database');
 const Joi = require('joi');
+const { PROGRAM_CATEGORIES, validateProgramSelection, getCategoryValue } = require('../constants/programsData');
 
 // Validation schemas
 const registerSchema = Joi.object({
@@ -11,11 +12,19 @@ const registerSchema = Joi.object({
       'string.pattern.base': 'Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character'
     }),
   role: Joi.string().valid('student', 'faculty').default('student'),
-  department: Joi.string().when('role', {
+  
+  // NEW: Program structure fields (required for both student and faculty)
+  programCategory: Joi.string().required(), // Required for both roles
+  program: Joi.string().when('role', {
     is: 'student',
     then: Joi.required(),
     otherwise: Joi.optional()
   }),
+  specialization: Joi.string().allow('', null).optional(),
+  
+  // Legacy department field (optional for backward compatibility)
+  department: Joi.string().optional(),
+  
   year: Joi.number().integer().when('role', {
     is: 'student', 
     then: Joi.required(),
@@ -53,7 +62,26 @@ const register = async (req, res) => {
       });
     }
 
-    const { name, email, password, role, department, year, studentId } = value;
+    const { name, email, password, role, department, programCategory, program, specialization, year, studentId } = value;
+
+    // Convert programCategory KEY to VALUE for database storage
+    const programCategoryValue = getCategoryValue(programCategory);
+    if (!programCategoryValue) {
+      return res.status(400).json({ 
+        message: 'Invalid program category' 
+      });
+    }
+
+    // Additional validation for student program selection
+    if (role === 'student' && programCategory && program) {
+      const programValidation = validateProgramSelection(programCategory, program, specialization);
+      if (!programValidation.valid) {
+        return res.status(400).json({ 
+          message: 'Invalid program selection', 
+          details: programValidation.message 
+        });
+      }
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -75,7 +103,10 @@ const register = async (req, res) => {
       email,
       password,
       role,
-      department,
+      department: department || programCategoryValue, // Use programCategoryValue if department not provided
+      programCategory: programCategoryValue, // Store as VALUE
+      program,
+      specialization: specialization || null,
       year,
       studentId
     });
@@ -92,9 +123,12 @@ const register = async (req, res) => {
         email: user.email,
         role: user.role,
         department: user.department,
+        programCategory: user.programCategory,
+        program: user.program,
+        specialization: user.specialization,
         year: user.year,
         studentId: user.studentId,
-        profilePicture: user.profilePicture // ✅ Include profilePicture
+        profilePicture: user.profilePicture
       }
     });
 
@@ -140,9 +174,12 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
         department: user.department,
+        programCategory: user.programCategory,
+        program: user.program,
+        specialization: user.specialization,
         year: user.year,
         studentId: user.studentId,
-        profilePicture: user.profilePicture // ✅ Include profilePicture
+        profilePicture: user.profilePicture
       }
     });
 
@@ -162,10 +199,13 @@ const getProfile = async (req, res) => {
         'name', 
         'email', 
         'role', 
-        'department', 
+        'department',
+        'programCategory',
+        'program',
+        'specialization',
         'year', 
         'studentId', 
-        'profilePicture', // ✅ Include profilePicture!
+        'profilePicture',
         'isActive'
       ]
     });
@@ -181,9 +221,12 @@ const getProfile = async (req, res) => {
         email: user.email,
         role: user.role,
         department: user.department,
+        programCategory: user.programCategory,
+        program: user.program,
+        specialization: user.specialization,
         year: user.year,
         studentId: user.studentId,
-        profilePicture: user.profilePicture // ✅ This will now include updated profilePicture!
+        profilePicture: user.profilePicture
       }
     });
   } catch (error) {

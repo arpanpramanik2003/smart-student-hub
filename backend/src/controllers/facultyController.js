@@ -9,9 +9,35 @@ const getPendingActivities = async (req, res) => {
 
     const where = { status: 'pending' };
     
-    // Faculty can see activities from their department or all if admin
-    if (req.user.role === 'faculty' && department) {
-      // Add department filter logic if needed
+    // 🔥 Faculty can only see activities from students in their assigned program category
+    if (req.user.role === 'faculty') {
+      // Get faculty's program category
+      const faculty = await User.findByPk(req.user.id, {
+        attributes: ['programCategory']
+      });
+      
+      // Only show activities from students in the same program category
+      if (faculty && faculty.programCategory) {
+        const studentsInCategory = await User.findAll({
+          where: { 
+            role: 'student',
+            programCategory: faculty.programCategory 
+          },
+          attributes: ['id']
+        });
+        
+        const studentIds = studentsInCategory.map(s => s.id);
+        
+        // Only filter if there are students in the category
+        // If empty array, this means no students match - activities will show as empty (correct behavior)
+        if (studentIds.length > 0) {
+          where.studentId = studentIds;
+        } else {
+          // No students in this category - return no results by adding impossible condition
+          where.id = -1;
+        }
+      }
+      // If faculty has no programCategory, show all activities (backward compatibility)
     }
 
     const { count, rows } = await Activity.findAndCountAll({
@@ -20,7 +46,7 @@ const getPendingActivities = async (req, res) => {
         { 
           model: User, 
           as: 'student', 
-          attributes: ['name', 'email', 'studentId', 'department', 'year']
+          attributes: ['name', 'email', 'studentId', 'department', 'programCategory', 'program', 'specialization', 'year']
         }
       ],
       order: [['createdAt', 'DESC']],
@@ -52,6 +78,34 @@ const getAllActivities = async (req, res) => {
 
     const where = {};
     if (status && status !== 'all') where.status = status;
+    
+    // 🔥 Faculty can only see activities from students in their assigned program category
+    if (req.user.role === 'faculty') {
+      const faculty = await User.findByPk(req.user.id, {
+        attributes: ['programCategory']
+      });
+      
+      if (faculty && faculty.programCategory) {
+        const studentsInCategory = await User.findAll({
+          where: { 
+            role: 'student',
+            programCategory: faculty.programCategory 
+          },
+          attributes: ['id']
+        });
+        
+        const studentIds = studentsInCategory.map(s => s.id);
+        
+        // Only filter if there are students in the category
+        if (studentIds.length > 0) {
+          where.studentId = studentIds;
+        } else {
+          // No students in this category - return no results by adding impossible condition
+          where.id = -1;
+        }
+      }
+      // If faculty has no programCategory, show all activities (backward compatibility)
+    }
 
     const { count, rows } = await Activity.findAndCountAll({
       where,
@@ -59,12 +113,12 @@ const getAllActivities = async (req, res) => {
         { 
           model: User, 
           as: 'student', 
-          attributes: ['name', 'email', 'studentId', 'department', 'year']
+          attributes: ['name', 'email', 'studentId', 'department', 'programCategory', 'program', 'specialization', 'year']
         },
         { 
           model: User, 
           as: 'approver', 
-          attributes: ['name', 'email'],
+          attributes: ['name', 'email', 'programCategory'],
           required: false
         }
       ],
@@ -195,24 +249,41 @@ const getFacultyStats = async (req, res) => {
 // Get all students for faculty view
 const getAllStudents = async (req, res) => {
   try {
-    const { page = 1, limit = 20, search, department, year } = req.query;
+    const { page = 1, limit = 20, search, department, year, programCategory, program, specialization } = req.query;
     const offset = (page - 1) * limit;
 
     const where = { role: 'student' };
     
-    // Add search filter (name, email, or studentId)
+    // Add search filter (name, email, studentId, program, or specialization)
     if (search) {
       const { Op } = require('sequelize');
       where[Op.or] = [
         { name: { [Op.like]: `%${search}%` } },
         { email: { [Op.like]: `%${search}%` } },
-        { studentId: { [Op.like]: `%${search}%` } }
+        { studentId: { [Op.like]: `%${search}%` } },
+        { program: { [Op.like]: `%${search}%` } },
+        { specialization: { [Op.like]: `%${search}%` } }
       ];
     }
     
-    // Add department filter
+    // Add department filter (legacy support)
     if (department && department !== 'all') {
       where.department = department;
+    }
+    
+    // Add program category filter
+    if (programCategory && programCategory !== 'all') {
+      where.programCategory = programCategory;
+    }
+    
+    // Add program filter
+    if (program && program !== 'all') {
+      where.program = program;
+    }
+    
+    // Add specialization filter
+    if (specialization && specialization !== 'all') {
+      where.specialization = specialization;
     }
     
     // Add year filter
@@ -224,6 +295,7 @@ const getAllStudents = async (req, res) => {
       where,
       attributes: [
         'id', 'name', 'email', 'studentId', 'department', 'year',
+        'programCategory', 'program', 'specialization',
         'phone', 'dateOfBirth', 'gender', 'category', 'address',
         'tenthResult', 'twelfthResult', 
         'skills', 'languages', 'hobbies', 'achievements',

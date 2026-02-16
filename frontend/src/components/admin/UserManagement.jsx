@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { adminAPI } from '../../utils/api';
 import { USER_ROLES, API_BASE_URL } from '../../utils/constants';
+import { PROGRAM_CATEGORIES, UNIVERSITY_PROGRAMS, getProgramsByCategory, getSpecializations } from '../../utils/programsData';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const UserManagement = ({ user, token, onNavigate }) => {
@@ -14,6 +15,23 @@ const UserManagement = ({ user, token, onNavigate }) => {
     return profilePicture.startsWith('http') 
       ? profilePicture 
       : `${backendBaseUrl}${profilePicture}`;
+  };
+
+  // Helper function to format program display for students
+  const formatProgramDisplay = (userData) => {
+    if (userData.role === 'student' && userData.program) {
+      const parts = [userData.program];
+      if (userData.specialization) {
+        parts.push(userData.specialization);
+      }
+      return parts.join(' - ');
+    }
+    // For faculty, show program category or department
+    if (userData.role === 'faculty') {
+      return userData.programCategory || userData.department || 'Not specified';
+    }
+    // For admins, show department if any
+    return userData.department || 'Not specified';
   };
 
   const [users, setUsers] = useState([]);
@@ -45,9 +63,27 @@ const UserManagement = ({ user, token, onNavigate }) => {
     password: '',
     role: 'student',
     department: '',
+    programCategory: '',
+    program: '',
+    specialization: '',
     year: '',
     studentId: ''
   });
+
+  // Computed values for cascading dropdowns
+  const availablePrograms = useMemo(() => {
+    if (!formData.programCategory) return [];
+    // Handle both KEY format (e.g., "ENGINEERING") and VALUE format (e.g., "Engineering & Technology")
+    const categoryName = PROGRAM_CATEGORIES[formData.programCategory] || formData.programCategory;
+    return getProgramsByCategory(categoryName);
+  }, [formData.programCategory]);
+
+  const availableSpecializations = useMemo(() => {
+    if (!formData.programCategory || !formData.program) return [];
+    // Handle both KEY format and VALUE format
+    const categoryName = PROGRAM_CATEGORIES[formData.programCategory] || formData.programCategory;
+    return getSpecializations(categoryName, formData.program);
+  }, [formData.programCategory, formData.program]);
 
   const modalRef = useRef(null);
 
@@ -163,6 +199,9 @@ const UserManagement = ({ user, token, onNavigate }) => {
       password: '',
       role: 'student',
       department: '',
+      programCategory: '',
+      program: '',
+      specialization: '',
       year: '',
       studentId: ''
     });
@@ -177,6 +216,9 @@ const UserManagement = ({ user, token, onNavigate }) => {
       password: '',
       role: userData.role || 'student',
       department: userData.department || '',
+      programCategory: userData.programCategory || '',
+      program: userData.program || '',
+      specialization: userData.specialization || '',
       year: userData.year || '',
       studentId: userData.studentId || ''
     });
@@ -191,10 +233,35 @@ const UserManagement = ({ user, token, onNavigate }) => {
     setFormData(prev => {
       const newData = { ...prev, [name]: value };
       
-      // Clear student-specific fields if role is changed from student
-      if (name === 'role' && value !== 'student') {
-        newData.year = '';
-        newData.studentId = '';
+      // Clear role-specific fields when role changes
+      if (name === 'role') {
+        if (value === 'student') {
+          // Keep student fields, clear specialization if needed
+        } else if (value === 'faculty') {
+          // Faculty only needs programCategory
+          newData.program = '';
+          newData.specialization = '';
+          newData.year = '';
+          newData.studentId = '';
+        } else {
+          // Admin doesn't need any program fields
+          newData.programCategory = '';
+          newData.program = '';
+          newData.specialization = '';
+          newData.year = '';
+          newData.studentId = '';
+        }
+      }
+      
+      // Reset dependent fields when programCategory changes
+      if (name === 'programCategory') {
+        newData.program = '';
+        newData.specialization = '';
+      }
+      
+      // Reset specialization when program changes
+      if (name === 'program') {
+        newData.specialization = '';
       }
       
       return newData;
@@ -229,6 +296,9 @@ const UserManagement = ({ user, token, onNavigate }) => {
         password: '',
         role: 'student',
         department: '',
+        programCategory: '',
+        program: '',
+        specialization: '',
         year: '',
         studentId: ''
       });
@@ -669,7 +739,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 transition-colors">
                         <div>
-                          {userData.department || 'Not specified'}
+                          {formatProgramDisplay(userData)}
                           {userData.year && (
                             <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Year {userData.year}</div>
                           )}
@@ -817,8 +887,8 @@ const UserManagement = ({ user, token, onNavigate }) => {
                     </span>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors">Department</div>
-                    <div className="text-sm text-gray-900 dark:text-gray-100 truncate transition-colors">{userData.department || 'N/A'}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors">{userData.role === 'student' ? 'Program' : 'Program Category'}</div>
+                    <div className="text-sm text-gray-900 dark:text-gray-100 truncate transition-colors">{formatProgramDisplay(userData)}</div>
                     {userData.year && (
                       <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Year {userData.year}</div>
                     )}
@@ -1059,18 +1129,82 @@ const UserManagement = ({ user, token, onNavigate }) => {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Department *</label>
-            <input
-              type="text"
-              name="department"
-              value={formData.department}
-              onChange={handleFormChange}
-              required
-              placeholder="Enter department name"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            />
-          </div>
+          {(formData.role === 'student' || formData.role === 'faculty') && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Program Category *</label>
+              <select
+                name="programCategory"
+                value={formData.programCategory}
+                onChange={handleFormChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              >
+                <option value="">Select Program Category</option>
+                {Object.entries(PROGRAM_CATEGORIES).map(([key, value]) => (
+                  <option key={key} value={key}>{value}</option>
+                ))}
+              </select>
+              {formData.role === 'faculty' && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">
+                  Faculty will only approve activities from students in this category
+                </p>
+              )}
+            </div>
+          )}
+
+          {formData.role === 'student' && formData.programCategory && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Program / Degree *</label>
+              <select
+                name="program"
+                value={formData.program}
+                onChange={handleFormChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              >
+                <option value="">Select Program</option>
+                {availablePrograms.map((prog) => (
+                  <option key={prog.degree} value={prog.degree}>
+                    {prog.degree} - {prog.name} ({prog.duration})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {formData.role === 'student' && formData.program && availableSpecializations.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Specialization</label>
+              <select
+                name="specialization"
+                value={formData.specialization}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              >
+                <option value="">Select Specialization (Optional)</option>
+                {availableSpecializations.map((spec) => (
+                  <option key={spec} value={spec}>{spec}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {formData.role === 'faculty' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Department</label>
+              <input
+                type="text"
+                name="department"
+                value={formData.department}
+                onChange={handleFormChange}
+                placeholder="e.g. Computer Science (optional)"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">
+                Optional - for display purposes only
+              </p>
+            </div>
+          )}
 
           {formData.role === 'student' && (
             <>
@@ -1182,18 +1316,82 @@ const UserManagement = ({ user, token, onNavigate }) => {
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Department *</label>
-            <input
-              type="text"
-              name="department"
-              value={formData.department}
-              onChange={handleFormChange}
-              required
-              placeholder="Enter department name"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-            />
-          </div>
+          {(formData.role === 'student' || formData.role === 'faculty') && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Program Category *</label>
+              <select
+                name="programCategory"
+                value={formData.programCategory}
+                onChange={handleFormChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              >
+                <option value="">Select Program Category</option>
+                {Object.entries(PROGRAM_CATEGORIES).map(([key, value]) => (
+                  <option key={key} value={key}>{value}</option>
+                ))}
+              </select>
+              {formData.role === 'faculty' && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">
+                  Faculty will only approve activities from students in this category
+                </p>
+              )}
+            </div>
+          )}
+
+          {formData.role === 'student' && formData.programCategory && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Program / Degree *</label>
+              <select
+                name="program"
+                value={formData.program}
+                onChange={handleFormChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              >
+                <option value="">Select Program</option>
+                {availablePrograms.map((prog) => (
+                  <option key={prog.degree} value={prog.degree}>
+                    {prog.degree} - {prog.name} ({prog.duration})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {formData.role === 'student' && formData.program && availableSpecializations.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Specialization</label>
+              <select
+                name="specialization"
+                value={formData.specialization}
+                onChange={handleFormChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              >
+                <option value="">Select Specialization (Optional)</option>
+                {availableSpecializations.map((spec) => (
+                  <option key={spec} value={spec}>{spec}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {formData.role === 'faculty' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Department</label>
+              <input
+                type="text"
+                name="department"
+                value={formData.department}
+                onChange={handleFormChange}
+                placeholder="e.g. Computer Science (optional)"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">
+                Optional - for display purposes only
+              </p>
+            </div>
+          )}
 
           {formData.role === 'student' && (
             <>
@@ -1351,10 +1549,30 @@ const UserManagement = ({ user, token, onNavigate }) => {
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Department</p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">{selectedUser.department || 'Not specified'}</p>
-                  </div>
+                  {selectedUser.role === 'student' && selectedUser.programCategory && (
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors col-span-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Program Category</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">{selectedUser.programCategory}</p>
+                    </div>
+                  )}
+                  {selectedUser.role === 'student' && selectedUser.program && (
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors col-span-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Program</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">{formatProgramDisplay(selectedUser)}</p>
+                    </div>
+                  )}
+                  {selectedUser.role === 'faculty' && selectedUser.programCategory && (
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors col-span-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Program Category</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">{selectedUser.programCategory}</p>
+                    </div>
+                  )}
+                  {selectedUser.department && (
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors col-span-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Department</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">{selectedUser.department}</p>
+                    </div>
+                  )}
                   {selectedUser.role === 'student' && selectedUser.year && (
                     <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
                       <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Year</p>
@@ -1362,7 +1580,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
                     </div>
                   )}
                   {selectedUser.role === 'student' && selectedUser.studentId && (
-                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors col-span-2">
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
                       <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Student ID</p>
                       <p className="text-sm font-mono font-medium text-blue-600 dark:text-blue-400 mt-1 transition-colors">{selectedUser.studentId}</p>
                     </div>

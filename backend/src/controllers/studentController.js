@@ -352,24 +352,41 @@ const updateActivity = [
 // Get all students with approved activities (for students to browse)
 const getAllStudents = async (req, res) => {
   try {
-    const { page = 1, limit = 12, search, department, year } = req.query;
+    const { page = 1, limit = 12, search, department, year, programCategory, program, specialization } = req.query;
     const offset = (page - 1) * limit;
 
     const where = { role: 'student' };
     
-    // Add search filter (name, email, or studentId)
+    // Add search filter (name, email, studentId, program, or specialization)
     if (search) {
       const { Op } = require('sequelize');
       where[Op.or] = [
         { name: { [Op.like]: `%${search}%` } },
         { email: { [Op.like]: `%${search}%` } },
-        { studentId: { [Op.like]: `%${search}%` } }
+        { studentId: { [Op.like]: `%${search}%` } },
+        { program: { [Op.like]: `%${search}%` } },
+        { specialization: { [Op.like]: `%${search}%` } }
       ];
     }
     
-    // Add department filter
+    // Add department filter (legacy support)
     if (department && department !== 'all') {
       where.department = department;
+    }
+    
+    // Add program category filter
+    if (programCategory && programCategory !== 'all') {
+      where.programCategory = programCategory;
+    }
+    
+    // Add program filter
+    if (program && program !== 'all') {
+      where.program = program;
+    }
+    
+    // Add specialization filter
+    if (specialization && specialization !== 'all') {
+      where.specialization = specialization;
     }
     
     // Add year filter
@@ -381,6 +398,7 @@ const getAllStudents = async (req, res) => {
       where,
       attributes: [
         'id', 'name', 'email', 'studentId', 'department', 'year',
+        'programCategory', 'program', 'specialization',
         'phone', 'dateOfBirth', 'gender', 'skills', 'languages', 'hobbies', 'achievements',
         'linkedinUrl', 'githubUrl', 'portfolioUrl',
         'profilePicture', 'otherDetails', 'createdAt'

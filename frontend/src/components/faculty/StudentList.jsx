@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { facultyAPI } from '../../utils/api';
 import { API_BASE_URL } from '../../utils/constants';
+import { PROGRAM_CATEGORIES } from '../../utils/programsData';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const StudentList = ({ user }) => {
@@ -21,6 +22,8 @@ const StudentList = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     department: 'all',
+    programCategory: 'all',
+    program: 'all',
     year: 'all',
   });
   const [pagination, setPagination] = useState({
@@ -75,9 +78,18 @@ const StudentList = ({ user }) => {
     setSelectedStudent(null);
   };
 
-  // Get unique departments and years for filters
+  // Get unique departments, programs and years for filters
   const departments = ['all', 'Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil'];
   const years = ['all', '1', '2', '3', '4'];
+  const [availablePrograms, setAvailablePrograms] = useState([]);
+
+  useEffect(() => {
+    // Extract unique programs from current students
+    if (students.length > 0) {
+      const uniqueProgs = [...new Set(students.map(s => s.program).filter(Boolean))].sort();
+      setAvailablePrograms(uniqueProgs);
+    }
+  }, [students]);
 
   if (loading && students.length === 0) {
     return (
@@ -144,7 +156,37 @@ const StudentList = ({ user }) => {
           </div>
 
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Program Category</label>
+              <select
+                value={filters.programCategory}
+                onChange={(e) => handleFilterChange('programCategory', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              >
+                <option value="all">All Categories</option>
+                {Object.values(PROGRAM_CATEGORIES).map(category => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Program</label>
+              <select
+                value={filters.program}
+                onChange={(e) => handleFilterChange('program', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              >
+                <option value="all">All Programs</option>
+                {availablePrograms.map(prog => (
+                  <option key={prog} value={prog}>
+                    {prog}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Department</label>
               <select
@@ -190,7 +232,7 @@ const StudentList = ({ user }) => {
                   Student ID
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
-                  Department
+                  Program / Department
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">
                   Year
@@ -246,8 +288,18 @@ const StudentList = ({ user }) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-mono text-gray-900 dark:text-gray-100 transition-colors">{student.studentId || 'N/A'}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-gray-100 transition-colors">{student.department || 'N/A'}</div>
+                    <td className="px-6 py-4">
+                      {student.programCategory ? (
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900 dark:text-gray-100 transition-colors">{student.program}</div>
+                          {student.specialization && (
+                            <div className="text-xs text-blue-600 dark:text-blue-400">{student.specialization}</div>
+                          )}
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{student.programCategory}</div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-900 dark:text-gray-100 transition-colors">{student.department || 'N/A'}</div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-gray-100 transition-colors">Year {student.year || 'N/A'}</div>

@@ -66,7 +66,11 @@ const migrateDatabase = async () => {
       { name: 'certifications', definition: { type: 'TEXT', allowNull: true } },
       { name: 'linkedinUrl', definition: { type: 'VARCHAR(255)', allowNull: true } },
       { name: 'githubUrl', definition: { type: 'VARCHAR(255)', allowNull: true } },
-      { name: 'portfolioUrl', definition: { type: 'VARCHAR(255)', allowNull: true } }
+      { name: 'portfolioUrl', definition: { type: 'VARCHAR(255)', allowNull: true } },
+      // New program structure fields
+      { name: 'programCategory', definition: { type: 'VARCHAR(255)', allowNull: true } },
+      { name: 'program', definition: { type: 'VARCHAR(255)', allowNull: true } },
+      { name: 'specialization', definition: { type: 'VARCHAR(255)', allowNull: true } }
     ];
 
     for (const column of newColumns) {

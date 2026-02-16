@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { authAPI } from '../../utils/api';
 import { USER_ROLES } from '../../utils/constants';
+import { PROGRAM_CATEGORIES, UNIVERSITY_PROGRAMS, getProgramsByCategory, getSpecializations } from '../../utils/programsData';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
@@ -9,7 +10,9 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
     email: '',
     password: '',
     role: USER_ROLES.STUDENT,
-    department: '',
+    programCategory: '',
+    program: '',
+    specialization: '',
     year: '',
     studentId: '',
   });
@@ -17,11 +20,29 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // Compute available programs based on selected category
+  const availablePrograms = useMemo(() => {
+    if (!formData.programCategory) return [];
+    return getProgramsByCategory(formData.programCategory);
+  }, [formData.programCategory]);
+
+  // Compute available specializations based on selected category and program
+  const availableSpecializations = useMemo(() => {
+    if (!formData.programCategory || !formData.program) return [];
+    return getSpecializations(formData.programCategory, formData.program);
+  }, [formData.programCategory, formData.program]);
+
+  // Get duration for selected program
+  const programDuration = useMemo(() => {
+    const program = availablePrograms.find(p => p.degree === formData.program);
+    return program ? program.duration : '';
+  }, [availablePrograms, formData.program]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Enhanced validation
-    if (!formData.name || !formData.email || !formData.password || !formData.department) {
+    if (!formData.name || !formData.email || !formData.password || !formData.programCategory) {
       setError('Please fill in all required fields');
       return;
     }
@@ -31,22 +52,29 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
       return;
     }
 
-    if (formData.role === USER_ROLES.STUDENT && (!formData.year || !formData.studentId)) {
-      setError('Year and Student ID are required for students');
+    if (formData.role === USER_ROLES.STUDENT && (!formData.program || !formData.year || !formData.studentId)) {
+      setError('Program, Year and Student ID are required for students');
       return;
     }
 
     setLoading(true);
     setError('');
 
-    // Remove irrelevant student fields if registering as faculty
+    // Prepare submit data
     const submitData = { ...formData };
     if (submitData.role !== USER_ROLES.STUDENT) {
+      // For faculty, keep programCategory but remove student-specific fields
+      delete submitData.program;
+      delete submitData.specialization;
       delete submitData.year;
       delete submitData.studentId;
     } else {
       // Convert year from string to integer for students
       submitData.year = parseInt(submitData.year, 10);
+      // Remove specialization if empty
+      if (!submitData.specialization) {
+        delete submitData.specialization;
+      }
     }
 
     try {
@@ -64,10 +92,20 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
   // 🔥 FIX: Stable form change handler with useCallback
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      
+      // Reset dependent fields when parent selection changes
+      if (name === 'programCategory') {
+        newData.program = '';
+        newData.specialization = '';
+      } else if (name === 'program') {
+        newData.specialization = '';
+      }
+      
+      return newData;
+    });
     
     // Clear error when user starts typing
     if (error) {
@@ -214,28 +252,159 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
             </div>
           </div>
 
-          <div>
-            <label htmlFor="department" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Department *
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
+          {formData.role === USER_ROLES.STUDENT && (
+            <>
+              <div className="sm:col-span-2">
+                <label htmlFor="programCategory" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Program Category *
+                </label>
+                <div className="mt-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <select
+                    id="programCategory"
+                    name="programCategory"
+                    required
+                    value={formData.programCategory}
+                    onChange={handleChange}
+                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                  >
+                    <option value="">Select Category</option>
+                    {Object.entries(PROGRAM_CATEGORIES).map(([key, value]) => (
+                      <option key={key} value={key}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <input
-                id="department"
-                name="department"
-                type="text"
-                required
-                value={formData.department}
-                onChange={handleChange}
-                className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
-                placeholder="e.g. Computer Science"
-              />
-            </div>
-          </div>
+
+              {formData.programCategory && (
+                <div className="sm:col-span-2">
+                  <label htmlFor="program" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Program / Degree *
+                  </label>
+                  <div className="mt-1 relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                      </svg>
+                    </div>
+                    <select
+                      id="program"
+                      name="program"
+                      required
+                      value={formData.program}
+                      onChange={handleChange}
+                      className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                    >
+                      <option value="">Select Program</option>
+                      {availablePrograms.map(prog => (
+                        <option key={prog.degree} value={prog.degree}>
+                          {prog.degree} - {prog.name} ({prog.duration})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {programDuration && (
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Duration: {programDuration}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {formData.program && availableSpecializations.length > 0 && (
+                <div className="sm:col-span-2">
+                  <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Specialization {availableSpecializations.length > 0 ? '*' : '(Optional)'}
+                  </label>
+                  <div className="mt-1 relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <select
+                      id="specialization"
+                      name="specialization"
+                      value={formData.specialization}
+                      onChange={handleChange}
+                      className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                    >
+                      <option value="">Select Specialization (Optional)</option>
+                      {availableSpecializations.map(spec => (
+                        <option key={spec} value={spec}>{spec}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {formData.role === USER_ROLES.FACULTY && (
+            <>
+              <div className="sm:col-span-1">
+                <label htmlFor="programCategory" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Program Category *
+                </label>
+                <div className="mt-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <select
+                    id="programCategory"
+                    name="programCategory"
+                    required
+                    value={formData.programCategory || ''}
+                    onChange={handleChange}
+                    className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                  >
+                    <option value="">Select Program Category</option>
+                    {Object.entries(PROGRAM_CATEGORIES).map(([key, value]) => (
+                      <option key={key} value={key}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  You will only approve activities from students in this category
+                </p>
+              </div>
+
+              <div className="sm:col-span-1">
+                <label htmlFor="department" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Department
+                </label>
+                <div className="mt-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <input
+                    id="department"
+                    name="department"
+                    type="text"
+                    value={formData.department || ''}
+                    onChange={handleChange}
+                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                    placeholder="e.g. Computer Science (optional)"
+                  />
+                </div>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Optional - for display purposes only
+                </p>
+              </div>
+            </>
+          )}
 
           {formData.role === USER_ROLES.STUDENT && (
             <>

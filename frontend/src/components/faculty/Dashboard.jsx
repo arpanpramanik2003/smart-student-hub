@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { facultyAPI } from '../../utils/api';
 import { STATUS_COLORS } from '../../utils/constants';
+import { PROGRAM_CATEGORIES } from '../../utils/programsData';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const Dashboard = ({ user, token, onNavigate }) => {
@@ -59,14 +60,24 @@ const Dashboard = ({ user, token, onNavigate }) => {
               </svg>
               <span>Welcome, Prof. {user.name}!</span>
             </h1>
-            <p className="text-sm sm:text-base text-emerald-100 flex flex-wrap items-center gap-1 sm:gap-1.5">
-              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
-              </svg>
-              <span className="whitespace-nowrap">{user.department}</span>
-              <span>•</span>
-              <span>Faculty Dashboard</span>
-            </p>
+            <div className="space-y-1">
+              <p className="text-sm sm:text-base text-emerald-100 flex flex-wrap items-center gap-1 sm:gap-1.5">
+                <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
+                </svg>
+                <span className="whitespace-nowrap">{user.department}</span>
+                <span>•</span>
+                <span>Faculty Dashboard</span>
+              </p>
+              {user.programCategory && (
+                <p className="text-xs sm:text-sm text-emerald-200 flex flex-wrap items-center gap-1 sm:gap-1.5">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                  </svg>
+                  <span>Program Category: {PROGRAM_CATEGORIES[user.programCategory]}</span>
+                </p>
+              )}
+            </div>
           </div>
           <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-2 text-right sm:text-center flex-shrink-0">
             <div className="text-xs text-emerald-200">Active Session</div>

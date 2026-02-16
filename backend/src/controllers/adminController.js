@@ -1,6 +1,7 @@
 const { Activity, User } = require('../utils/database');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
+const { validateProgramSelection, getCategoryValue } = require('../constants/programsData');
 
 // GET /api/admin/stats - Dashboard statistics
 const getAdminStats = async (req, res) => {
@@ -189,13 +190,39 @@ const getAllUsers = async (req, res) => {
 // POST /api/admin/users - Create new user
 const createUser = async (req, res) => {
   try {
-    const { name, email, password, role, department, year, studentId } = req.body;
+    const { name, email, password, role, department, programCategory, program, specialization, year, studentId } = req.body;
 
-    // Validation
-    if (!name || !email || !password || !role || !department) {
+    // Validation - programCategory required for both students and faculty
+    if (!name || !email || !password || !role || !programCategory) {
       return res.status(400).json({
-        error: 'Name, email, password, role, and department are required'
+        error: 'Name, email, password, role, and program category are required'
       });
+    }
+
+    // Convert programCategory KEY to VALUE for database storage
+    const programCategoryValue = getCategoryValue(programCategory);
+    if (!programCategoryValue) {
+      return res.status(400).json({
+        error: 'Invalid program category'
+      });
+    }
+
+    // Additional validation for students - program is required
+    if (role === 'student' && !program) {
+      return res.status(400).json({
+        error: 'Program is required for students'
+      });
+    }
+
+    // Validate program selection
+    if (role === 'student' && programCategory && program) {
+      const programValidation = validateProgramSelection(programCategory, program, specialization);
+      if (!programValidation.valid) {
+        return res.status(400).json({ 
+          error: 'Invalid program selection', 
+          details: programValidation.message 
+        });
+      }
     }
 
     // Check if user already exists
@@ -210,7 +237,10 @@ const createUser = async (req, res) => {
       email,
       password, // Don't hash here - let the model hook handle it
       role,
-      department,
+      department: department || null, // Optional
+      programCategory: programCategoryValue, // Required for both students and faculty (stored as VALUE)
+      program: role === 'student' ? program : null,
+      specialization: role === 'student' && specialization ? specialization : null,
       year: role === 'student' ? year : null,
       studentId: role === 'student' ? studentId : null,
       isActive: true
@@ -233,7 +263,7 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, role, department, year, studentId, isActive } = req.body;
+    const { name, email, role, department, programCategory, program, specialization, year, studentId, isActive } = req.body;
 
     const user = await User.findByPk(id);
     if (!user) {
@@ -245,12 +275,52 @@ const updateUser = async (req, res) => {
       return res.status(400).json({ error: 'Cannot deactivate your own account' });
     }
 
+    // Validation - programCategory required if provided role is student or faculty
+    if (role && (role === 'student' || role === 'faculty') && !programCategory) {
+      return res.status(400).json({
+        error: 'Program category is required for students and faculty'
+      });
+    }
+
+    // Convert programCategory KEY to VALUE for database storage
+    let programCategoryValue = programCategory;
+    if (programCategory) {
+      const converted = getCategoryValue(programCategory);
+      if (!converted) {
+        return res.status(400).json({
+          error: 'Invalid program category'
+        });
+      }
+      programCategoryValue = converted;
+    }
+
+    // Additional validation for students - program is required
+    if (role === 'student' && !program) {
+      return res.status(400).json({
+        error: 'Program is required for students'
+      });
+    }
+
+    // Validate program selection for students
+    if (role === 'student' && programCategory && program) {
+      const programValidation = validateProgramSelection(programCategory, program, specialization);
+      if (!programValidation.valid) {
+        return res.status(400).json({ 
+          error: 'Invalid program selection', 
+          details: programValidation.message 
+        });
+      }
+    }
+
     // Update user
     await user.update({
       name,
       email,
       role,
-      department,
+      department: department || null, // Optional
+      programCategory: programCategoryValue || user.programCategory,
+      program: role === 'student' ? program : null,
+      specialization: role === 'student' && specialization ? specialization : null,
       year: role === 'student' ? year : null,
       studentId: role === 'student' ? studentId : null,
       isActive: isActive !== undefined ? isActive : user.isActive

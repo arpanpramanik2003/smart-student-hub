@@ -8,7 +8,13 @@ module.exports = (sequelize) => {
     email: { type: DataTypes.STRING, allowNull: false, unique: true, validate: { isEmail: true } },
     password: { type: DataTypes.STRING, allowNull: false },
     role: { type: DataTypes.ENUM('student', 'faculty', 'admin'), allowNull: false, defaultValue: 'student' },
-    department: { type: DataTypes.STRING, allowNull: true },
+    department: { type: DataTypes.STRING, allowNull: true }, // Legacy field, kept for compatibility
+    
+    // 🎓 NEW PROGRAM STRUCTURE FIELDS
+    programCategory: { type: DataTypes.STRING, allowNull: true }, // e.g., "Engineering & Technology"
+    program: { type: DataTypes.STRING, allowNull: true }, // e.g., "B.Tech"
+    specialization: { type: DataTypes.STRING, allowNull: true }, // e.g., "Artificial Intelligence & Machine Learning"
+    
     year: { type: DataTypes.INTEGER, allowNull: true },
     studentId: { type: DataTypes.STRING, allowNull: true, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
