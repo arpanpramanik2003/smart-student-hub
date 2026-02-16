@@ -98,7 +98,7 @@ const reviewActivity = async (req, res) => {
     // Validation
     const schema = Joi.object({
       status: Joi.string().valid('approved', 'rejected').required(),
-      remarks: Joi.string().max(500).optional(),
+      remarks: Joi.string().max(500).allow('').optional(),
       credits: Joi.number().min(0).max(10).when('status', {
         is: 'approved',
         then: Joi.optional(),
