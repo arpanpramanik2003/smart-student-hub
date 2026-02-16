@@ -22,22 +22,22 @@ const getAdminStats = async (req, res) => {
     console.log('✅ Basic counts:', { totalUsers, studentCount, facultyCount, adminCount });
     console.log('✅ Activity counts:', { totalActivities, pendingActivities, approvedActivities, rejectedActivities });
 
-    // Department stats
-    let departmentStats = [];
+    // Program Category stats (replacing department stats)
+    let programCategoryStats = [];
     try {
-      departmentStats = await User.findAll({
-        attributes: ['department', [User.sequelize.fn('COUNT', User.sequelize.col('id')), 'count']],
+      programCategoryStats = await User.findAll({
+        attributes: ['programCategory', [User.sequelize.fn('COUNT', User.sequelize.col('id')), 'count']],
         where: {
-          department: { [Op.not]: null },
+          programCategory: { [Op.not]: null },
           role: { [Op.in]: ['student', 'faculty'] }
         },
-        group: ['department'],
+        group: ['programCategory'],
         raw: true
       });
-      console.log('✅ Department stats:', departmentStats);
+      console.log('✅ Program Category stats:', programCategoryStats);
     } catch (error) {
-      console.error('❌ Department stats error:', error);
-      departmentStats = [];
+      console.error('❌ Program Category stats error:', error);
+      programCategoryStats = [];
     }
 
     // Activity type stats
@@ -67,7 +67,7 @@ const getAdminStats = async (req, res) => {
           attributes: ['credits', 'status'],
           required: false
         }],
-        attributes: ['id', 'name', 'studentId', 'department'],
+        attributes: ['id', 'name', 'studentId', 'department', 'programCategory', 'program', 'specialization'],
         raw: false
       });
 
@@ -87,7 +87,10 @@ const getAdminStats = async (req, res) => {
           id: student.id,
           name: student.name || 'Unknown',
           studentId: student.studentId || 'N/A',
-          department: student.department || 'Unknown',
+          department: student.department || null,
+          programCategory: student.programCategory || null,
+          program: student.program || null,
+          specialization: student.specialization || null,
           totalCredits: Math.round(totalCredits * 10) / 10,
           activityCount: activityCount
         };
@@ -111,9 +114,9 @@ const getAdminStats = async (req, res) => {
     const response = {
       userStats: { totalUsers, studentCount, facultyCount, adminCount },
       activityStats: { totalActivities, pendingActivities, approvedActivities, rejectedActivities },
-      departmentStats: departmentStats.map(dept => ({
-        department: dept.department || 'Unknown',
-        count: parseInt(dept.count) || 0
+      programCategoryStats: programCategoryStats.map(cat => ({
+        programCategory: cat.programCategory || 'Unknown',
+        count: parseInt(cat.count) || 0
       })),
       activityTypeStats: activityTypeStats.map(type => ({
         type: type.type || 'Unknown',
@@ -140,7 +143,7 @@ const getAllUsers = async (req, res) => {
       limit = 20,
       search = '',
       role = 'all',
-      department = 'all'
+      programCategory = 'all'
     } = req.query;
 
     const offset = (page - 1) * limit;
@@ -152,7 +155,10 @@ const getAllUsers = async (req, res) => {
       whereClause[Op.or] = [
         { name: { [Op.like]: `%${search}%` } },
         { email: { [Op.like]: `%${search}%` } },
-        { studentId: { [Op.like]: `%${search}%` } }
+        { studentId: { [Op.like]: `%${search}%` } },
+        { programCategory: { [Op.like]: `%${search}%` } },
+        { program: { [Op.like]: `%${search}%` } },
+        { specialization: { [Op.like]: `%${search}%` } }
       ];
     }
 
@@ -160,8 +166,8 @@ const getAllUsers = async (req, res) => {
       whereClause.role = role;
     }
 
-    if (department !== 'all') {
-      whereClause.department = department;
+    if (programCategory !== 'all') {
+      whereClause.programCategory = programCategory;
     }
 
     const { count, rows: users } = await User.findAndCountAll({
@@ -473,6 +479,9 @@ const getSystemReports = async (req, res) => {
         u.name as "userName",
         u."studentId",
         u.department,
+        u."programCategory",
+        u.program,
+        u.specialization,
         u.year
       FROM activities a
       LEFT JOIN users u ON a."studentId" = u.id
@@ -499,9 +508,9 @@ const getSystemReports = async (req, res) => {
       return acc;
     }, {});
 
-    const departmentBreakdown = activities.reduce((acc, activity) => {
-      const dept = activity.department || 'Unknown';
-      acc[dept] = (acc[dept] || 0) + 1;
+    const programCategoryBreakdown = activities.reduce((acc, activity) => {
+      const category = activity.programCategory || 'Unknown';
+      acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {});
 
@@ -517,7 +526,7 @@ const getSystemReports = async (req, res) => {
         totalApprovedActivities: approvedActivities.length,
         totalCredits: Math.round(totalCredits * 10) / 10,
         statusBreakdown,
-        departmentBreakdown,
+        programCategoryBreakdown,
         activityTypeBreakdown,
         dateRange: {
           start: startDate,
@@ -538,6 +547,9 @@ const getSystemReports = async (req, res) => {
           name: activity.userName,
           studentId: activity.studentId,
           department: activity.department,
+          programCategory: activity.programCategory,
+          program: activity.program,
+          specialization: activity.specialization,
           year: activity.year
         }
       }))
@@ -549,10 +561,13 @@ const getSystemReports = async (req, res) => {
         return String(value).replace(/"/g, '""');
       };
 
-      const csvHeader = 'Student Name,Student ID,Department,Year,Activity Title,Type,Date,Credits,Organizer,Status,Created Date,Description\n';
+      const csvHeader = 'Student Name,Student ID,Program Category,Program,Specialization,Department,Year,Activity Title,Type,Date,Credits,Organizer,Status,Created Date,Description\n';
       const csvRows = activities.map(activity => [
         `"${csvSafe(activity.userName)}"`,
         `"${csvSafe(activity.studentId)}"`,
+        `"${csvSafe(activity.programCategory)}"`,
+        `"${csvSafe(activity.program)}"`,
+        `"${csvSafe(activity.specialization)}"`,
         `"${csvSafe(activity.department)}"`,
         `"${csvSafe(activity.year)}"`,
         `"${csvSafe(activity.title)}"`,

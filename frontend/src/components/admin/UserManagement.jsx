@@ -40,7 +40,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
   const [filters, setFilters] = useState({
     search: '',
     role: 'all',
-    department: 'all'
+    programCategory: 'all'
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -48,7 +48,6 @@ const UserManagement = ({ user, token, onNavigate }) => {
     total: 0,
     pages: 0
   });
-  const [departments, setDepartments] = useState([]);
   const [actionLoading, setActionLoading] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -108,9 +107,6 @@ const UserManagement = ({ user, token, onNavigate }) => {
         total: data.pagination?.total || 0,
         pages: data.pagination?.pages || 0
       }));
-      
-      const uniqueDepts = [...new Set((data.users || []).map(u => u.department))].filter(Boolean);
-      setDepartments(uniqueDepts);
     } catch (error) {
       console.error('Users fetch error:', error);
       setError(error.message || 'Failed to load users');
@@ -554,8 +550,8 @@ const UserManagement = ({ user, token, onNavigate }) => {
           <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 sm:p-4 border border-white border-opacity-30">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-xs sm:text-sm">Departments</p>
-                <p className="text-xl sm:text-2xl font-bold mt-1">{departments.length}</p>
+                <p className="text-blue-100 text-xs sm:text-sm">Program Categories</p>
+                <p className="text-xl sm:text-2xl font-bold mt-1">{Object.values(PROGRAM_CATEGORIES).length}</p>
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-400 bg-opacity-30 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-100" fill="currentColor" viewBox="0 0 20 20">
@@ -591,7 +587,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
               </div>
               <input
                 type="text"
-                placeholder="Search by name, email, or ID..."
+                placeholder="Search by name, email, program, or ID..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500"
@@ -630,17 +626,17 @@ const UserManagement = ({ user, token, onNavigate }) => {
               <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
               </svg>
-              Department
+              Program Category
             </label>
             <div className="relative">
               <select
-                value={filters.department}
-                onChange={(e) => handleFilterChange('department', e.target.value)}
+                value={filters.programCategory}
+                onChange={(e) => handleFilterChange('programCategory', e.target.value)}
                 className="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 appearance-none pr-10"
               >
-                <option value="all">All Departments</option>
-                {departments.map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
+                <option value="all">All Categories</option>
+                {Object.values(PROGRAM_CATEGORIES).map(category => (
+                  <option key={category} value={category}>{category}</option>
                 ))}
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -986,7 +982,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
             <p className="text-gray-600 mb-4">
-              {filters.search || filters.role !== 'all' || filters.department !== 'all' 
+              {filters.search || filters.role !== 'all' || filters.programCategory !== 'all' 
                 ? 'Try adjusting your search filters or add new users.' 
                 : 'Get started by adding your first user.'}
             </p>

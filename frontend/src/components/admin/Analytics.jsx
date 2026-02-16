@@ -468,11 +468,11 @@ const Analytics = ({ user, token, onNavigate }) => {
             <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-4 sm:p-6 text-white transform transition-all duration-200 hover:scale-105 hover:shadow-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-xs sm:text-sm font-medium">Departments</p>
-                  <p className="text-2xl sm:text-3xl font-bold">{formatNumber(stats?.departmentStats?.length)}</p>
+                  <p className="text-purple-100 text-xs sm:text-sm font-medium">Program Categories</p>
+                  <p className="text-2xl sm:text-3xl font-bold">{formatNumber(stats?.programCategoryStats?.length)}</p>
                   <div className="flex items-center mt-2">
                     <div className="w-2 h-2 bg-purple-300 rounded-full mr-2"></div>
-                    <span className="text-purple-200 text-xs">Active departments</span>
+                    <span className="text-purple-200 text-xs">Active categories</span>
                   </div>
                 </div>
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-400 bg-opacity-50 rounded-xl flex items-center justify-center">
@@ -486,7 +486,7 @@ const Analytics = ({ user, token, onNavigate }) => {
 
           {/* Enhanced Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* Enhanced Department Performance */}
+            {/* Enhanced Program Category Performance */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
                 <div className="flex items-center">
@@ -496,17 +496,17 @@ const Analytics = ({ user, token, onNavigate }) => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">Department Performance</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block transition-colors">User distribution by department</p>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">Program Category Performance</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block transition-colors">User distribution by program category</p>
                   </div>
                 </div>
                 <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded self-start sm:self-auto transition-colors">
-                  Top {Math.min(6, stats?.departmentStats?.length || 0)}
+                  Top {Math.min(6, stats?.programCategoryStats?.length || 0)}
                 </span>
               </div>
               <div className="space-y-3 sm:space-y-4">
-                {stats?.departmentStats?.slice(0, 6).map((dept, index) => {
-                  const percentage = getGrowthPercentage(dept.count, stats.userStats.totalUsers);
+                {stats?.programCategoryStats?.slice(0, 6).map((category, index) => {
+                  const percentage = getGrowthPercentage(category.count, stats.userStats.totalUsers);
                   const colors = [
                     { bar: 'bg-blue-500', bg: 'bg-blue-50', text: 'text-blue-700' },
                     { bar: 'bg-green-500', bg: 'bg-green-50', text: 'text-green-700' },
@@ -518,7 +518,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                   const colorScheme = colors[index] || colors[colors.length - 1];
                   
                   return (
-                    <div key={dept.department} className={`flex flex-col sm:flex-row sm:items-center p-3 rounded-lg ${colorScheme.bg} hover:shadow-sm transition-all duration-200 space-y-2 sm:space-y-0`}>
+                    <div key={category.programCategory} className={`flex flex-col sm:flex-row sm:items-center p-3 rounded-lg ${colorScheme.bg} hover:shadow-sm transition-all duration-200 space-y-2 sm:space-y-0`}>
                       <div className="flex items-center flex-1 min-w-0">
                         <div className="flex-shrink-0">
                           <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white ${colorScheme.bar}`}>
@@ -526,12 +526,12 @@ const Analytics = ({ user, token, onNavigate }) => {
                           </span>
                         </div>
                         <div className="flex-1 min-w-0 ml-3 mr-3">
-                          <p className={`text-sm font-medium truncate ${colorScheme.text}`} title={dept.department}>
-                            {dept.department}
+                          <p className={`text-sm font-medium truncate ${colorScheme.text}`} title={category.programCategory}>
+                            {category.programCategory}
                           </p>
                         </div>
                         <div className="flex-shrink-0">
-                          <span className={`text-sm font-bold ${colorScheme.text}`}>{dept.count}</span>
+                          <span className={`text-sm font-bold ${colorScheme.text}`}>{category.count}</span>
                           <span className="text-xs text-gray-500 ml-1">({percentage}%)</span>
                         </div>
                       </div>
@@ -683,7 +683,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                       <div className="space-y-1">
                         <div className="font-bold text-lg">{student.name}</div>
                         <div className="text-sm opacity-90">{student.studentId}</div>
-                        <div className="text-sm opacity-75">{student.department}</div>
+                        <div className="text-sm opacity-75">{student.program ? `${student.program}${student.specialization ? ' - ' + student.specialization : ''}` : student.department || 'N/A'}</div>
                         <div className="flex items-center mt-3 pt-3 border-t border-white border-opacity-30">
                           <svg className="w-4 h-4 mr-2 opacity-75" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

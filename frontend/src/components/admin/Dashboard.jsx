@@ -227,7 +227,7 @@ const AdminDashboard = ({ user, token, onNavigate }) => {
         </div>
       </div>
 
-      {/* Enhanced Activity Status & Department Grid */}
+      {/* Enhanced Activity Status & Program Category Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Activity Status Breakdown */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
@@ -289,15 +289,15 @@ const AdminDashboard = ({ user, token, onNavigate }) => {
           </p>
         </div>
 
-        {/* Enhanced Department Distribution */}
+        {/* Enhanced Program Category Distribution */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-colors">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center transition-colors">
             <div className="w-2 h-2 bg-indigo-600 dark:bg-indigo-400 rounded-full mr-3"></div>
-            Department Distribution
+            Program Category Distribution
           </h3>
           <div className="space-y-3 max-h-64 overflow-y-auto">
-            {stats?.departmentStats?.slice(0, 8).map((dept, index) => {
-              const percentage = getPercentage(dept.count, stats.userStats.totalUsers);
+            {stats?.programCategoryStats?.slice(0, 10).map((category, index) => {
+              const percentage = getPercentage(category.count, stats.userStats.totalUsers);
               const colors = [
                 { bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', bar: 'bg-blue-500 dark:bg-blue-400' },
                 { bg: 'bg-green-50 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-300', bar: 'bg-green-500 dark:bg-green-400' },
@@ -306,28 +306,30 @@ const AdminDashboard = ({ user, token, onNavigate }) => {
                 { bg: 'bg-purple-50 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300', bar: 'bg-purple-500 dark:bg-purple-400' },
                 { bg: 'bg-pink-50 dark:bg-pink-900/30', text: 'text-pink-700 dark:text-pink-300', bar: 'bg-pink-500 dark:bg-pink-400' },
                 { bg: 'bg-indigo-50 dark:bg-indigo-900/30', text: 'text-indigo-700 dark:text-indigo-300', bar: 'bg-indigo-500 dark:bg-indigo-400' },
+                { bg: 'bg-teal-50 dark:bg-teal-900/30', text: 'text-teal-700 dark:text-teal-300', bar: 'bg-teal-500 dark:bg-teal-400' },
+                { bg: 'bg-orange-50 dark:bg-orange-900/30', text: 'text-orange-700 dark:text-orange-300', bar: 'bg-orange-500 dark:bg-orange-400' },
                 { bg: 'bg-gray-50 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', bar: 'bg-gray-500 dark:bg-gray-400' }
               ];
               const colorScheme = colors[index] || colors[colors.length - 1];
               
               return (
-                <div key={dept.department} className={`flex items-center justify-between p-2 rounded ${colorScheme.bg} hover:shadow-sm transition-all`}>
+                <div key={category.programCategory} className={`flex items-center justify-between p-2 rounded ${colorScheme.bg} hover:shadow-sm transition-all`}>
                   <div className="flex items-center flex-1 min-w-0">
                     <div className={`w-3 h-3 rounded mr-3 ${colorScheme.bar}`}></div>
-                    <span className={`text-sm font-medium truncate ${colorScheme.text} transition-colors`} title={dept.department}>
-                      {dept.department}
+                    <span className={`text-sm font-medium truncate ${colorScheme.text} transition-colors`} title={category.programCategory}>
+                      {category.programCategory}
                     </span>
                   </div>
                   <div className="text-right ml-2">
-                    <div className={`font-semibold text-sm ${colorScheme.text} transition-colors`}>{formatNumber(dept.count)}</div>
+                    <div className={`font-semibold text-sm ${colorScheme.text} transition-colors`}>{formatNumber(category.count)}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">{percentage}%</div>
                   </div>
                 </div>
               );
             })}
-            {stats?.departmentStats?.length > 8 && (
+            {stats?.programCategoryStats?.length > 10 && (
               <div className="text-xs text-gray-500 dark:text-gray-400 text-center pt-2 border-t border-gray-200 dark:border-gray-700 transition-colors">
-                +{stats.departmentStats.length - 8} more departments
+                +{stats.programCategoryStats.length - 10} more categories
               </div>
             )}
           </div>
@@ -370,8 +372,8 @@ const AdminDashboard = ({ user, token, onNavigate }) => {
                     {student.name}
                   </div>
                   <div className="text-sm text-blue-600 dark:text-blue-400 font-mono transition-colors">{student.studentId}</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 truncate transition-colors" title={student.department}>
-                    {student.department}
+                  <div className="text-xs text-gray-600 dark:text-gray-400 truncate transition-colors" title={student.program}>
+                    {student.program ? `${student.program}${student.specialization ? ' - ' + student.specialization : ''}` : student.department || 'N/A'}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center transition-colors">
                     <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

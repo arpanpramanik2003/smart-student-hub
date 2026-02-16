@@ -171,7 +171,7 @@ const Reports = ({ user, token, onNavigate }) => {
     
     const total = reportData.summary?.totalActivities || 0;
     const approved = reportData.summary?.totalApprovedActivities || 0;
-    const departments = Object.keys(reportData.summary?.departmentBreakdown || {}).length;
+    const categories = Object.keys(reportData.summary?.programCategoryBreakdown || {}).length;
     const types = Object.keys(reportData.summary?.activityTypeBreakdown || {}).length;
     const credits = reportData.summary?.totalCredits || 0;
     
@@ -179,7 +179,7 @@ const Reports = ({ user, token, onNavigate }) => {
       naacCompliance: approved > 0 ? 'Compliant' : 'Non-Compliant',
       nirfScore: Math.min(100, Math.round((approved / 10) * 10)), // Simplified scoring based on approved activities
       aicteRequirement: credits >= 20 ? 'Met' : 'Not Met',
-      participationRate: departments > 0 ? Math.round((approved / departments) * 100) / 100 : 0
+      participationRate: categories > 0 ? Math.round((approved / categories) * 100) / 100 : 0
     };
   };
 
@@ -486,9 +486,9 @@ const Reports = ({ user, token, onNavigate }) => {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-purple-900 dark:text-purple-100 transition-colors">{Object.keys(reportData.summary?.departmentBreakdown || {}).length}</p>
-                    <p className="text-sm text-purple-700 dark:text-purple-300 transition-colors">Departments</p>
-                    <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 transition-colors">Participating units</p>
+                    <p className="text-2xl font-bold text-purple-900 dark:text-purple-100 transition-colors">{Object.keys(reportData.summary?.programCategoryBreakdown || {}).length}</p>
+                    <p className="text-sm text-purple-700 dark:text-purple-300 transition-colors">Program Categories</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 transition-colors">Participating categories</p>
                   </div>
                 </div>
               </div>
@@ -638,10 +638,10 @@ const Reports = ({ user, token, onNavigate }) => {
                       </div>
                     </div>
                     <p className="text-sm text-purple-700 dark:text-purple-300 transition-colors">
-                      Rate: {compliance.participationRate} activities/dept
+                      Rate: {compliance.participationRate} activities/category
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">
-                      Cross-departmental engagement
+                      Cross-category engagement
                     </p>
                   </div>
                 </div>
@@ -649,7 +649,7 @@ const Reports = ({ user, token, onNavigate }) => {
             );
           })()}
 
-          {/* Department Breakdown */}
+          {/* Program Category Breakdown */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 transition-colors">
             <div className="flex items-center mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 dark:from-purple-600 dark:to-indigo-700 rounded-lg flex items-center justify-center mr-3 shadow-md">
@@ -658,25 +658,25 @@ const Reports = ({ user, token, onNavigate }) => {
                 </svg>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">Department-wise Activity Breakdown</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Cross-departmental participation metrics</p>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 transition-colors">Program Category Activity Breakdown</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Cross-category participation metrics</p>
               </div>
             </div>
-            {Object.keys(reportData.summary?.departmentBreakdown || {}).length > 0 ? (
+            {Object.keys(reportData.summary?.programCategoryBreakdown || {}).length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
                   <thead className="bg-gray-50 dark:bg-gray-700 transition-colors">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Department</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Program Category</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Activities</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Percentage</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Participation Level</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 transition-colors">
-                    {Object.entries(reportData.summary.departmentBreakdown)
+                    {Object.entries(reportData.summary.programCategoryBreakdown)
                       .sort(([, a], [, b]) => b - a)
-                      .map(([department, count]) => {
+                      .map(([category, count]) => {
                         const percentage = ((count / (reportData.summary?.totalActivities || 1)) * 100).toFixed(1);
                         let participationLevel = 'Low';
                         let levelColor = 'text-red-600 bg-red-50';
@@ -690,9 +690,9 @@ const Reports = ({ user, token, onNavigate }) => {
                         }
                         
                         return (
-                          <tr key={department} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                          <tr key={category} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 transition-colors">{department}</div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 transition-colors">{category}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900 dark:text-gray-100 transition-colors">{formatNumber(count)}</div>
@@ -722,7 +722,7 @@ const Reports = ({ user, token, onNavigate }) => {
                 <svg className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
-                <p className="mt-2">No department data available</p>
+                <p className="mt-2">No program category data available</p>
               </div>
             )}
           </div>
@@ -815,7 +815,7 @@ const Reports = ({ user, token, onNavigate }) => {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Activity</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Student</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Department</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Program</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Type</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Credits</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider transition-colors">Status</th>
@@ -840,7 +840,16 @@ const Reports = ({ user, token, onNavigate }) => {
                           <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">{activity.student?.studentId || 'N/A'}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 transition-colors">
-                          {activity.student?.department || 'N/A'}
+                          {activity.student?.program ? (
+                            <div>
+                              <div className="font-medium">{activity.student.program}</div>
+                              {activity.student.specialization && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400">{activity.student.specialization}</div>
+                              )}
+                            </div>
+                          ) : (
+                            activity.student?.department || 'N/A'
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 capitalize transition-colors">
@@ -906,7 +915,7 @@ const Reports = ({ user, token, onNavigate }) => {
             <div className="flex items-start">
               <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full mr-3 mt-2"></div>
               <div>
-                <strong className="text-blue-900 dark:text-blue-100 transition-colors">NIRF Ranking:</strong> Department-wise activity distribution and student engagement metrics for ranking assessment
+                <strong className="text-blue-900 dark:text-blue-100 transition-colors">NIRF Ranking:</strong> Program-wise activity distribution and student engagement metrics for ranking assessment
               </div>
             </div>
           </div>
