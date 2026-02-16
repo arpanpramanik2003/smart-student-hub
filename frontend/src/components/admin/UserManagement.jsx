@@ -1,9 +1,21 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { adminAPI } from '../../utils/api';
-import { USER_ROLES } from '../../utils/constants';
+import { USER_ROLES, API_BASE_URL } from '../../utils/constants';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const UserManagement = ({ user, token, onNavigate }) => {
+  // Get backend base URL for image serving
+  const backendBaseUrl = API_BASE_URL.replace('/api', '');
+  
+  // Helper function to get profile image URL (works for local and cloud)
+  const getProfileImageUrl = (profilePicture) => {
+    if (!profilePicture) return null;
+    // Check if URL is already absolute (Cloudinary, external URL, etc.)
+    return profilePicture.startsWith('http') 
+      ? profilePicture 
+      : `${backendBaseUrl}${profilePicture}`;
+  };
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,6 +34,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
   const [actionLoading, setActionLoading] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '', show: false });
   
@@ -252,6 +265,15 @@ const UserManagement = ({ user, token, onNavigate }) => {
 
   const handleCloseEditModal = useCallback(() => {
     setShowEditModal(false);
+  }, []);
+
+  const handleViewDetails = useCallback((userData) => {
+    setSelectedUser(userData);
+    setShowDetailsModal(true);
+  }, []);
+
+  const handleCloseDetailsModal = useCallback(() => {
+    setShowDetailsModal(false);
   }, []);
 
   // ✅ FIXED: Modal component moved outside with stable props
@@ -613,7 +635,20 @@ const UserManagement = ({ user, token, onNavigate }) => {
                     <tr key={userData.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-full flex items-center justify-center mr-3 shadow-sm transition-colors">
+                        {userData.role === 'student' && userData.profilePicture && getProfileImageUrl(userData.profilePicture) ? (
+                          <img 
+                            src={getProfileImageUrl(userData.profilePicture)} 
+                            alt={userData.name}
+                            className="w-10 h-10 rounded-full object-cover mr-3 border-2 border-blue-300 shadow-md"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextElementSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className={`${userData.role === 'student' && userData.profilePicture && getProfileImageUrl(userData.profilePicture) ? 'hidden' : 'flex'} w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-full items-center justify-center mr-3 shadow-sm transition-colors`}
+                        >
                           <span className="text-blue-700 dark:text-blue-300 font-semibold text-sm transition-colors">
                             {userData.name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
@@ -658,6 +693,18 @@ const UserManagement = ({ user, token, onNavigate }) => {
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleViewDetails(userData)}
+                          className="group relative inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                          title="View detailed user information"
+                        >
+                          <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7C7.523 19 3.732 16.057 2.458 12z" />
+                          </svg>
+                          View
+                        </button>
+
                         <button
                           onClick={() => handleEditUser(userData)}
                           className="group relative inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
@@ -724,7 +771,20 @@ const UserManagement = ({ user, token, onNavigate }) => {
               <div key={userData.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
                 {/* User Info */}
                 <div className="flex items-start space-x-3 mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                  {userData.role === 'student' && userData.profilePicture && getProfileImageUrl(userData.profilePicture) ? (
+                    <img 
+                      src={getProfileImageUrl(userData.profilePicture)} 
+                      alt={userData.name}
+                      className="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-blue-300 shadow-md"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    className={`${userData.role === 'student' && userData.profilePicture && getProfileImageUrl(userData.profilePicture) ? 'hidden' : 'flex'} w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-full items-center justify-center flex-shrink-0 shadow-sm`}
+                  >
                     <span className="text-blue-700 dark:text-blue-300 font-semibold text-base transition-colors">
                       {userData.name?.charAt(0)?.toUpperCase() || '?'}
                     </span>
@@ -777,6 +837,18 @@ const UserManagement = ({ user, token, onNavigate }) => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col space-y-2">
+                  <button
+                    onClick={() => handleViewDetails(userData)}
+                    className="w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700 transition-all duration-200 shadow-sm"
+                    title="View detailed user information"
+                  >
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7C7.523 19 3.732 16.057 2.458 12z" />
+                    </svg>
+                    View Details
+                  </button>
+
                   <button
                     onClick={() => handleEditUser(userData)}
                     className="w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm"
@@ -1184,6 +1256,186 @@ const UserManagement = ({ user, token, onNavigate }) => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* User Details Modal */}
+      <Modal 
+        isOpen={showDetailsModal} 
+        onClose={handleCloseDetailsModal}
+        title=""
+      >
+        {selectedUser && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-lg p-6 border border-teal-200 dark:border-teal-800 transition-colors">
+              <div className="flex items-start gap-4">
+                {selectedUser.role === 'student' && selectedUser.profilePicture && getProfileImageUrl(selectedUser.profilePicture) ? (
+                  <img 
+                    src={getProfileImageUrl(selectedUser.profilePicture)} 
+                    alt={selectedUser.name}
+                    className="w-20 h-20 rounded-full object-cover flex-shrink-0 border-4 border-teal-300 shadow-lg"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`${selectedUser.role === 'student' && selectedUser.profilePicture && getProfileImageUrl(selectedUser.profilePicture) ? 'hidden' : 'flex'} w-20 h-20 bg-gradient-to-br from-teal-100 to-cyan-100 dark:from-teal-900/50 dark:to-cyan-900/50 rounded-full items-center justify-center flex-shrink-0 shadow-lg`}
+                >
+                  <span className="text-teal-700 dark:text-teal-300 font-bold text-2xl transition-colors">
+                    {selectedUser.name?.charAt(0)?.toUpperCase() || '?'}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 truncate transition-colors">{selectedUser.name}</h2>
+                  <p className="text-teal-600 dark:text-teal-400 font-medium mb-3 transition-colors">{selectedUser.email}</p>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    <span className={`px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full border ${getRoleBadgeColor(selectedUser.role)}`}>
+                      {selectedUser.role?.charAt(0)?.toUpperCase() + selectedUser.role?.slice(1)}
+                    </span>
+                    <span className={`px-3 py-1.5 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusBadgeColor(selectedUser.isActive)}`}>
+                      {selectedUser.isActive ? (
+                        <><span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 mt-0.5"></span>Active</>
+                      ) : (
+                        <><span className="w-2 h-2 bg-red-500 rounded-full mr-1.5 mt-0.5"></span>Inactive</>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="border-l-4 border-teal-500 pl-4 py-2">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-3 flex items-center transition-colors">
+                <svg className="w-4 h-4 mr-2 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Contact Information
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
+                  <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Email</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 break-all transition-colors">{selectedUser.email}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Academic Information */}
+            <div className="border-l-4 border-blue-500 pl-4 py-2">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-3 flex items-center transition-colors">
+                <svg className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+                Academic Information
+              </h3>
+              <div className="space-y-4">
+                {selectedUser.role === 'student' && selectedUser.profilePicture && getProfileImageUrl(selectedUser.profilePicture) && (
+                  <div className="bg-white dark:bg-gray-700 p-4 rounded-lg transition-colors text-center border-2 border-blue-200 dark:border-blue-800">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors mb-3 font-semibold">Profile Picture</p>
+                    <img 
+                      src={getProfileImageUrl(selectedUser.profilePicture)} 
+                      alt={selectedUser.name}
+                      className="w-40 h-40 rounded-lg object-cover mx-auto shadow-lg border-2 border-blue-300"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Department</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">{selectedUser.department || 'Not specified'}</p>
+                  </div>
+                  {selectedUser.role === 'student' && selectedUser.year && (
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Year</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">Year {selectedUser.year}</p>
+                    </div>
+                  )}
+                  {selectedUser.role === 'student' && selectedUser.studentId && (
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors col-span-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Student ID</p>
+                      <p className="text-sm font-mono font-medium text-blue-600 dark:text-blue-400 mt-1 transition-colors">{selectedUser.studentId}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Account Information */}
+            <div className="border-l-4 border-purple-500 pl-4 py-2">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-3 flex items-center transition-colors">
+                <svg className="w-4 h-4 mr-2 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Account Information
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Joined Date</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">
+                    {new Date(selectedUser.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </p>
+                </div>
+                <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Status</p>
+                  <p className={`text-sm font-bold mt-1 transition-colors ${selectedUser.isActive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {selectedUser.isActive ? 'Active' : 'Inactive'}
+                  </p>
+                </div>
+                {selectedUser.updatedAt && (
+                  <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors col-span-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Last Updated</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">
+                      {new Date(selectedUser.updatedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 transition-colors">
+              <button
+                onClick={handleCloseDetailsModal}
+                className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  handleCloseDetailsModal();
+                  handleEditUser(selectedUser);
+                }}
+                className="w-full sm:w-auto px-4 py-2 bg-teal-600 dark:bg-teal-700 text-white rounded-md text-sm font-medium hover:bg-teal-700 dark:hover:bg-teal-800 flex items-center justify-center transition-all duration-200"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit User
+              </button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );
