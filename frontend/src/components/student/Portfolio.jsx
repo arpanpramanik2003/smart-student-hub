@@ -422,7 +422,7 @@ const generateEnhancedPDF = () => {
       )}
 
       {/* Enhanced Portfolio Header */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900 text-white rounded-xl shadow-xl border border-indigo-400 dark:border-indigo-700/50 transition-all">
+      <div className="bg-blue-600 dark:bg-blue-900 text-white rounded-xl shadow-xl border border-blue-400 dark:border-blue-700/50 transition-all">
         <div className="px-4 sm:px-6 lg:px-8 py-5 sm:py-7">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex-1">
@@ -439,7 +439,7 @@ const generateEnhancedPDF = () => {
                 )}
               </h1>
               <p className="text-white text-base sm:text-lg font-semibold drop-shadow-sm">{user.name}</p>
-              <p className="text-indigo-100 dark:text-indigo-200 text-xs sm:text-sm">
+              <p className="text-blue-100 dark:text-blue-200 text-xs sm:text-sm">
                 <span className="inline-block font-medium">{user.department}</span>
                 <span className="hidden sm:inline"> • </span>
                 <span className="block sm:inline mt-1 sm:mt-0">Year {user.year} • ID: {user.studentId}</span>
@@ -452,8 +452,7 @@ const generateEnhancedPDF = () => {
                 <button
                   onClick={handleDownloadPDF}
                   disabled={isGenerating}
-                  className="bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
+                  className="bg-white dark:bg-gray-800 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                 {isGenerating ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
@@ -476,8 +475,7 @@ const generateEnhancedPDF = () => {
                     const dropdown = e.currentTarget.nextElementSibling;
                     dropdown.classList.toggle('hidden');
                   }}
-                  className="w-full bg-white dark:bg-gray-800 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-gray-700 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
+                  className="w-full bg-white dark:bg-gray-800 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                   </svg>
@@ -494,9 +492,9 @@ const generateEnhancedPDF = () => {
                       e.currentTarget.parentElement.classList.add('hidden');
                       handleSharePortfolio('link');
                     }}
-                    className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 flex items-center rounded-t-lg transition-colors"
+                    className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 flex items-center rounded-t-lg transition-colors"
                   >
-                    <svg className="w-5 h-5 mr-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                     </svg>
                     Copy Portfolio Link
@@ -506,9 +504,9 @@ const generateEnhancedPDF = () => {
                       e.currentTarget.parentElement.classList.add('hidden');
                       handleSharePortfolio('email');
                     }}
-                    className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 flex items-center border-t border-gray-100 dark:border-gray-700 transition-colors"
+                    className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 flex items-center border-t border-gray-100 dark:border-gray-700 transition-colors"
                   >
-                    <svg className="w-5 h-5 mr-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     Share via Email
@@ -518,9 +516,9 @@ const generateEnhancedPDF = () => {
                       e.currentTarget.parentElement.classList.add('hidden');
                       handleSharePortfolio('social');
                     }}
-                    className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-gray-700 flex items-center rounded-b-lg border-t border-gray-100 dark:border-gray-700 transition-colors"
+                    className="w-full text-left px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 flex items-center rounded-b-lg border-t border-gray-100 dark:border-gray-700 transition-colors"
                   >
-                    <svg className="w-5 h-5 mr-3 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                     </svg>
                     Social Media Share
@@ -534,10 +532,10 @@ const generateEnhancedPDF = () => {
           {/* Enhanced Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-5 sm:mt-7">
             {[
-              { value: stats?.byStatus?.approved || 0, label: "Approved Activities", icon: "✅", gradient: "from-green-400 to-emerald-500" },
-              { value: stats?.totalCredits || 0, label: "Total Credits", icon: "🏆", gradient: "from-yellow-400 to-orange-500" },
-              { value: Object.keys(activityGroups).length, label: "Categories", icon: "📂", gradient: "from-blue-400 to-indigo-500" },
-              { value: activities.length > 0 ? Math.round(stats?.totalCredits / activities.length * 10) / 10 : 0, label: "Avg Credits", icon: "📊", gradient: "from-purple-400 to-pink-500" }
+              { value: stats?.byStatus?.approved || 0, label: "Approved Activities", icon: "✅", color: "text-green-600 dark:text-green-400" },
+              { value: stats?.totalCredits || 0, label: "Total Credits", icon: "🏆", color: "text-amber-600 dark:text-amber-400" },
+              { value: Object.keys(activityGroups).length, label: "Categories", icon: "📂", color: "text-blue-600 dark:text-blue-400" },
+              { value: activities.length > 0 ? Math.round(stats?.totalCredits / activities.length * 10) / 10 : 0, label: "Avg Credits", icon: "📊", color: "text-teal-600 dark:text-teal-400" }
             ].map((stat, index) => (
               <div
                 key={index}
@@ -546,7 +544,7 @@ const generateEnhancedPDF = () => {
                 <div className="flex flex-col">
                   <div className="flex items-center justify-between mb-2 sm:mb-3">
                     <span className="text-2xl sm:text-3xl lg:text-4xl drop-shadow-sm">{stat.icon}</span>
-                    <div className={`text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                    <div className={`text-2xl sm:text-3xl lg:text-4xl font-bold ${stat.color}`}>
                       {stat.value}
                     </div>
                   </div>
@@ -566,11 +564,11 @@ const generateEnhancedPDF = () => {
               key={type} 
               className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-all"
             >
-              <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 border-b border-gray-200 dark:border-gray-700 transition-colors">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 bg-blue-50 dark:bg-blue-900/30 border-b border-gray-200 dark:border-gray-700 transition-colors">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center flex-wrap gap-2">
                   <span className="text-2xl sm:text-3xl">{getActivityIcon(type)}</span>
                   <span>{getTypeLabel(type)}</span>
-                  <span className="text-xs sm:text-sm font-semibold text-indigo-700 dark:text-indigo-300 bg-white dark:bg-gray-800 px-2 sm:px-3 py-1 rounded-full shadow-sm transition-colors">
+                  <span className="text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300 bg-white dark:bg-gray-800 px-2 sm:px-3 py-1 rounded-full shadow-sm transition-colors">
                     {typeActivities.length} {typeActivities.length === 1 ? 'Activity' : 'Activities'}
                   </span>
                 </h2>
@@ -581,22 +579,21 @@ const generateEnhancedPDF = () => {
                   {typeActivities.map((activity) => (
                     <article
                       key={activity.id}
-                      className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 sm:p-5 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-lg transition-all bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50"
-                    >
+                      className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 sm:p-5 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg transition-all bg-white dark:bg-gray-800">
                       <h3 className="font-semibold text-base sm:text-lg text-gray-900 dark:text-gray-100 mb-2 sm:mb-3">
                         {activity.title}
                       </h3>
 
                       <div className="grid grid-cols-1 gap-2 sm:gap-3 text-xs sm:text-sm text-gray-700 dark:text-gray-300 mb-3 sm:mb-4">
                         <div className="flex items-center">
-                          <svg className="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           <span><strong className="font-semibold">Date:</strong> {new Date(activity.date).toLocaleDateString()}</span>
                         </div>
                         {activity.organizer && (
                           <div className="flex items-center">
-                            <svg className="w-4 h-4 mr-2 text-indigo-600 dark:text-indigo-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                             <span className="break-words"><strong className="font-semibold">Organizer:</strong> {activity.organizer}</span>
@@ -609,7 +606,7 @@ const generateEnhancedPDF = () => {
                       )}
 
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 pt-3 border-t border-gray-200 dark:border-gray-700 transition-colors">
-                        <span className="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all">
+                        <span className="inline-flex items-center justify-center sm:justify-start px-3 sm:px-4 py-2 bg-amber-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all">
                           <svg className="w-4 h-4 mr-1.5 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                           </svg>
@@ -633,7 +630,7 @@ const generateEnhancedPDF = () => {
         </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center p-12 transition-colors">
-          <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center shadow-inner transition-colors">
+          <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center shadow-inner transition-colors">
             <span className="text-5xl">📋</span>
           </div>
           <h3 className="text-gray-800 dark:text-gray-200 text-xl font-semibold mb-2">No Approved Activities Yet</h3>

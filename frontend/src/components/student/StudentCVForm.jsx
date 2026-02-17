@@ -179,7 +179,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-900 dark:to-purple-900 text-white p-4 sm:p-6 transition-colors">
+      <div className="bg-blue-600 dark:bg-blue-900 text-white p-4 sm:p-6 transition-colors">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -319,7 +319,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="border-b border-gray-200 dark:border-gray-700 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors"
+            className="border-b border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 transition-colors"
           >
             <div className="p-4 sm:p-6 lg:p-8">
               {/* Header Section with Profile */}
@@ -335,7 +335,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                        <div className="w-full h-full bg-blue-600 flex items-center justify-center">
                           <span className="text-5xl sm:text-6xl font-bold text-white">
                             {user?.name?.charAt(0)?.toUpperCase() || '?'}
                           </span>
@@ -433,7 +433,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                           href={profile.portfolioUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg sm:rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-xs sm:text-sm font-medium"
+                          className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-teal-600 text-white rounded-lg sm:rounded-xl hover:bg-teal-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-xs sm:text-sm font-medium"
                         >
                           <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
@@ -458,7 +458,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                 {/* Personal Information Card */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
                   <div className="flex items-center mb-4 pb-3 border-b-2 border-blue-100 dark:border-blue-800/50">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                    <div className="w-10 h-10 bg-blue-600 dark:bg-blue-700 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
@@ -473,7 +473,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                       { icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z', label: 'Category', value: profile.category },
                       { icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z', label: 'Address', value: profile.address }
                     ].map(item => item.value && (
-                      <div key={item.label} className="flex items-start p-3 bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-800/50 dark:to-blue-900/20 rounded-lg hover:shadow-md transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-700/50">
+                      <div key={item.label} className="flex items-start p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:shadow-md transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-700/50">
                         <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
                         </svg>
@@ -489,7 +489,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                 {/* Academic Information Card */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
                   <div className="flex items-center mb-4 pb-3 border-b-2 border-green-100 dark:border-green-800/50">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-600 dark:to-emerald-700 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                    <div className="w-10 h-10 bg-green-600 dark:bg-green-700 rounded-lg flex items-center justify-center mr-3 shadow-md">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M12 14l9-5-9-5-9 5 9 5z" />
                         <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
@@ -515,14 +515,14 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     
                     {/* Languages - Badge Display */}
                     {profile.languages && (
-                      <div className="flex flex-col p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg border border-green-100 dark:border-green-800/50 hover:shadow-md transition-all">
+                      <div className="flex flex-col p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-100 dark:border-green-800/50 hover:shadow-md transition-all">
                         <div className="flex items-center mb-2">
                           <span className="text-2xl mr-3">🗣️</span>
                           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Languages</p>
                         </div>
                         <div className="flex flex-wrap gap-2 ml-11">
                           {profile.languages.split(',').map((lang, idx) => (
-                            <span key={idx} className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 text-white rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all">
+                            <span key={idx} className="px-3 py-1.5 bg-green-600 dark:bg-green-700 text-white rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all">
                               {lang.trim()}
                             </span>
                           ))}
@@ -532,14 +532,14 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                     
                     {/* Skills - Badge Display */}
                     {profile.skills && (
-                      <div className="flex flex-col p-3 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30 rounded-lg border border-orange-100 dark:border-orange-800/50 hover:shadow-md transition-all">
+                      <div className="flex flex-col p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg border border-orange-100 dark:border-orange-800/50 hover:shadow-md transition-all">
                         <div className="flex items-center mb-2">
                           <span className="text-2xl mr-3">💻</span>
                           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Technical Skills</p>
                         </div>
                         <div className="flex flex-wrap gap-2 ml-11">
                           {profile.skills.split(',').map((skill, idx) => (
-                            <span key={idx} className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 dark:from-orange-600 dark:to-red-600 text-white rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all">
+                            <span key={idx} className="px-3 py-1.5 bg-orange-600 dark:bg-orange-700 text-white rounded-full text-xs font-semibold shadow-sm hover:shadow-md transition-all">
                               {skill.trim()}
                             </span>
                           ))}
@@ -559,14 +559,14 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                       <div className="w-full border-t-2 border-gray-200 dark:border-gray-700"></div>
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400">ADDITIONAL DETAILS</span>
+                      <span className="bg-slate-50 dark:bg-gray-900 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400">ADDITIONAL DETAILS</span>
                     </div>
                   </div>
                   
                   <div className="space-y-4">
                   {/* Achievements & Awards */}
                   {profile.achievements && (
-                    <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                    <div className="bg-amber-50 dark:bg-amber-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
                       <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🏆</span>
                         Achievements & Awards
@@ -579,7 +579,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                   
                   {/* Projects */}
                   {profile.projects && (
-                    <div className="bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                    <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
                       <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🚀</span>
                         Projects
@@ -592,7 +592,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                   
                   {/* Certifications */}
                   {profile.certifications && (
-                    <div className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                    <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
                       <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">📜</span>
                         Certifications
@@ -605,7 +605,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                   
                   {/* Hobbies & Interests - Badge Display */}
                   {profile.hobbies && (
-                    <div className="bg-gradient-to-r from-green-100 to-teal-100 dark:from-green-900/30 dark:to-teal-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                    <div className="bg-teal-50 dark:bg-teal-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
                       <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🎨</span>
                         Hobbies & Interests
@@ -624,7 +624,7 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
                   
                   {/* Career Objective */}
                   {profile.otherDetails && (
-                    <div className="bg-gradient-to-r from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
+                    <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all">
                       <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center mb-3 sm:mb-4">
                         <span className="text-2xl sm:text-3xl mr-2 sm:mr-3">🎯</span>
                         Career Objective

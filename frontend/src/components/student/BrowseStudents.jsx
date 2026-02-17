@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { studentAPI } from '../../utils/api';
 import LoadingSpinner from '../shared/LoadingSpinner';
 import { API_BASE_URL } from '../../utils/constants';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PROGRAM_CATEGORIES, UNIVERSITY_PROGRAMS, getSpecializations } from '../../utils/programsData';
+import { PROGRAM_CATEGORIES, UNIVERSITY_PROGRAMS, getProgramsByCategory, getSpecializations } from '../../utils/programsData';
 
 const backendBaseUrl = API_BASE_URL.replace('/api', '');
 
@@ -23,6 +23,33 @@ const BrowseStudents = ({ user, token }) => {
   const [departments, setDepartments] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [specializations, setSpecializations] = useState([]);
+
+  // Compute filtered programs based on selected category
+  const filteredPrograms = useMemo(() => {
+    if (programCategoryFilter === 'all') {
+      return programs; // Show all programs from DB when no category selected
+    }
+    // Get programs for the selected category from our data structure
+    const categoryKey = Object.keys(PROGRAM_CATEGORIES).find(
+      key => PROGRAM_CATEGORIES[key] === programCategoryFilter
+    );
+    if (!categoryKey) return [];
+    const categoryPrograms = getProgramsByCategory(categoryKey);
+    return categoryPrograms.map(p => p.degree);
+  }, [programCategoryFilter, programs]);
+
+  // Compute filtered specializations based on selected category and program
+  const filteredSpecializations = useMemo(() => {
+    if (programCategoryFilter === 'all' || programFilter === 'all') {
+      return specializations; // Show all when no filters
+    }
+    const categoryKey = Object.keys(PROGRAM_CATEGORIES).find(
+      key => PROGRAM_CATEGORIES[key] === programCategoryFilter
+    );
+    if (!categoryKey) return [];
+    const specs = getSpecializations(categoryKey, programFilter);
+    return specs;
+  }, [programCategoryFilter, programFilter, specializations]);
 
   // Fetch students data
   const fetchStudents = useCallback(async (page = 1, search = '', dept = 'all', progCat = 'all', prog = 'all', spec = 'all', yr = 'all', admYr = 'all') => {
@@ -152,7 +179,7 @@ const BrowseStudents = ({ user, token }) => {
           {/* Profile Picture - Compact */}
           <div className="flex justify-center mb-3">
             {imageError || !student.profilePicture ? (
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg text-white font-bold text-xl">
+              <div className="w-16 h-16 rounded-full bg-blue-600 dark:bg-blue-700 flex items-center justify-center shadow-lg text-white font-bold text-xl">
                 {getInitials(student.name)}
               </div>
             ) : (
@@ -281,7 +308,7 @@ const BrowseStudents = ({ user, token }) => {
           )}
 
           {/* View Button - Compact */}
-          <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2.5 rounded-lg transition-all duration-200 text-sm flex items-center justify-center gap-2">
+          <button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold py-2.5 rounded-lg transition-all duration-200 text-sm flex items-center justify-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -314,8 +341,8 @@ const BrowseStudents = ({ user, token }) => {
             className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header with Gradient */}
-            <div className="sticky top-0 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 px-6 py-6 flex justify-between items-start z-10">
+            {/* Header */}
+            <div className="sticky top-0 bg-blue-600 dark:bg-blue-700 px-6 py-6 flex justify-between items-start z-10">
               <div className="flex items-center gap-4">
                 {imageError || !student.profilePicture ? (
                   <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border-2 border-white/30 text-white font-bold text-2xl">
@@ -582,7 +609,7 @@ const BrowseStudents = ({ user, token }) => {
   return (
     <div className="space-y-4">
       {/* Page Header */}
-      <div className="bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-xl shadow-lg p-4 sm:p-6 text-white relative overflow-hidden">
+      <div className="bg-blue-600 dark:bg-blue-900 rounded-xl shadow-lg p-4 sm:p-6 text-white relative overflow-hidden border border-blue-400 dark:border-blue-700/50">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KPGcgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIwLjA1Ij4KPHBhdGggZD0iTTM2IDM0djItaDJ2LTJoLTJ6bTAtNGg0djRoLTR2LTR6bS05LTloMTN2MTNoLTEzVjIxem05IDdoMnYyaC0ydi0yem0tNCAwaDF2Mmgtdi0yem0tMiAwaDF2Mmgtdi0yeiIvPgo8L2c+CjwvZz4KPC9zdmc+')] opacity-20" />
         <div className="relative z-10">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2 flex items-center gap-2">
@@ -644,7 +671,7 @@ const BrowseStudents = ({ user, token }) => {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
             >
               <option value="all">All Programs</option>
-              {programs.map((prog) => (
+              {filteredPrograms.map((prog) => (
                 <option key={prog} value={prog}>{prog}</option>
               ))}
             </select>
@@ -660,7 +687,7 @@ const BrowseStudents = ({ user, token }) => {
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
             >
               <option value="all">All Specializations</option>
-              {specializations.map((spec) => (
+              {filteredSpecializations.map((spec) => (
                 <option key={spec} value={spec}>{spec}</option>
               ))}
             </select>
@@ -762,7 +789,7 @@ const BrowseStudents = ({ user, token }) => {
                   onClick={() => handlePageChange(page)}
                   className={`px-3 py-2 rounded-lg font-semibold transition-all text-sm ${
                     currentPage === page
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md scale-105'
+                      ? 'bg-blue-600 dark:bg-blue-700 text-white shadow-md scale-105'
                       : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >

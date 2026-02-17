@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { facultyAPI } from '../../utils/api';
 import { API_BASE_URL } from '../../utils/constants';
-import { PROGRAM_CATEGORIES } from '../../utils/programsData';
+import { PROGRAM_CATEGORIES, getProgramsByCategory, getSpecializations } from '../../utils/programsData';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const StudentList = ({ user }) => {
@@ -20,12 +20,12 @@ const StudentList = ({ user }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    department: 'all',
-    programCategory: 'all',
-    program: 'all',
-    year: 'all',
-  });
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [programCategoryFilter, setProgramCategoryFilter] = useState('all');
+  const [programFilter, setProgramFilter] = useState('all');
+  const [specializationFilter, setSpecializationFilter] = useState('all');
+  const [yearFilter, setYearFilter] = useState('all');
+  const [admissionYearFilter, setAdmissionYearFilter] = useState('all');
   const [pagination, setPagination] = useState({
     page: 1,
     total: 0,
@@ -34,38 +34,103 @@ const StudentList = ({ user }) => {
   });
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [specializations, setSpecializations] = useState([]);
 
-  useEffect(() => {
-    fetchStudents();
-  }, [filters, pagination.page]);
+  // Compute filtered programs based on selected category
+  const filteredPrograms = useMemo(() => {
+    if (programCategoryFilter === 'all') {
+      return programs; // Show all programs from DB when no category selected
+    }
+    // Get programs for the selected category from our data structure
+    const categoryKey = Object.keys(PROGRAM_CATEGORIES).find(
+      key => PROGRAM_CATEGORIES[key] === programCategoryFilter
+    );
+    if (!categoryKey) return [];
+    const categoryPrograms = getProgramsByCategory(categoryKey);
+    return categoryPrograms.map(p => p.degree);
+  }, [programCategoryFilter, programs]);
 
-  const fetchStudents = async () => {
+  // Compute filtered specializations based on selected category and program
+  const filteredSpecializations = useMemo(() => {
+    if (programCategoryFilter === 'all' || programFilter === 'all') {
+      return specializations; // Show all when no filters
+    }
+    const categoryKey = Object.keys(PROGRAM_CATEGORIES).find(
+      key => PROGRAM_CATEGORIES[key] === programCategoryFilter
+    );
+    if (!categoryKey) return [];
+    const specs = getSpecializations(categoryKey, programFilter);
+    return specs;
+  }, [programCategoryFilter, programFilter, specializations]);
+
+  // Fetch students data
+  const fetchStudents = useCallback(async (page = 1, search = '', dept = 'all', progCat = 'all', prog = 'all', spec = 'all', yr = 'all', admYr = 'all') => {
     setLoading(true);
     try {
-      const data = await facultyAPI.getAllStudents({
-        page: pagination.page,
+      const params = {
+        page,
         limit: 20,
-        search: searchTerm,
-        ...filters
-      });
+        search: search.trim(),
+        department: dept !== 'all' ? dept : undefined,
+        programCategory: progCat !== 'all' ? progCat : undefined,
+        program: prog !== 'all' ? prog : undefined,
+        specialization: spec !== 'all' ? spec : undefined,
+        year: yr !== 'all' ? yr : undefined,
+        admissionYear: admYr !== 'all' ? admYr : undefined,
+      };
+
+      Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
+      const data = await facultyAPI.getAllStudents(params);
       setStudents(data.students);
       setPagination(data.pagination);
+
+      if (page === 1 && !search && dept === 'all' && progCat === 'all') {
+        const uniqueDepts = [...new Set(data.students.map(s => s.department).filter(Boolean))].sort();
+        const uniqueProgs = [...new Set(data.students.map(s => s.program).filter(Boolean))].sort();
+        const uniqueSpecs = [...new Set(data.students.map(s => s.specialization).filter(Boolean))].sort();
+        setDepartments(uniqueDepts);
+        setPrograms(uniqueProgs);
+        setSpecializations(uniqueSpecs);
+      }
     } catch (error) {
-      console.error('Error fetching students:', error);
+      console.error('Fetch students error:', error);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchStudents(1, '', 'all', 'all', 'all', 'all', 'all', 'all');
+  }, [fetchStudents]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPagination(prev => ({ ...prev, page: 1 }));
+      fetchStudents(1, searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter, fetchStudents]);
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+    fetchStudents(newPage, searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setPagination({ ...pagination, page: 1 });
-    fetchStudents();
-  };
-
-  const handleFilterChange = (key, value) => {
-    setFilters({ ...filters, [key]: value });
-    setPagination({ ...pagination, page: 1 });
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setDepartmentFilter('all');
+    setProgramCategoryFilter('all');
+    setProgramFilter('all');
+    setSpecializationFilter('all');
+    setYearFilter('all');
+    setAdmissionYearFilter('all');
+    setPagination(prev => ({ ...prev, page: 1 }));
+    fetchStudents(1, '', 'all', 'all', 'all', 'all', 'all', 'all');
   };
 
   const handleViewDetails = (student) => {
@@ -78,19 +143,6 @@ const StudentList = ({ user }) => {
     setSelectedStudent(null);
   };
 
-  // Get unique departments, programs and years for filters
-  const departments = ['all', 'Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil'];
-  const years = ['all', '1', '2', '3', '4'];
-  const [availablePrograms, setAvailablePrograms] = useState([]);
-
-  useEffect(() => {
-    // Extract unique programs from current students
-    if (students.length > 0) {
-      const uniqueProgs = [...new Set(students.map(s => s.program).filter(Boolean))].sort();
-      setAvailablePrograms(uniqueProgs);
-    }
-  }, [students]);
-
   if (loading && students.length === 0) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -102,7 +154,7 @@ const StudentList = ({ user }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-900 dark:via-indigo-900 dark:to-purple-900 rounded-xl shadow-lg p-6 text-white transition-colors">
+      <div className="bg-blue-600 dark:bg-blue-900 rounded-xl shadow-lg p-6 text-white border border-blue-400 dark:border-blue-700/50 transition-colors">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2 flex items-center">
@@ -122,7 +174,7 @@ const StudentList = ({ user }) => {
 
       {/* Search and Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors">
-        <form onSubmit={handleSearch} className="space-y-4">
+        <div className="space-y-4">
           {/* Search Bar */}
           <div className="flex gap-4">
             <div className="flex-1">
@@ -131,7 +183,7 @@ const StudentList = ({ user }) => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by name, email, or student ID..."
+                  placeholder="Search by name, email, student ID, program..."
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 />
                 <svg 
@@ -144,24 +196,21 @@ const StudentList = ({ user }) => {
                 </svg>
               </div>
             </div>
-            <button
-              type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Search
-            </button>
           </div>
 
-          {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Filters Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Program Category</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                🎓 Program Category
+              </label>
               <select
-                value={filters.programCategory}
-                onChange={(e) => handleFilterChange('programCategory', e.target.value)}
+                value={programCategoryFilter}
+                onChange={(e) => {
+                  setProgramCategoryFilter(e.target.value);
+                  setProgramFilter('all'); // Reset program when category changes
+                  setSpecializationFilter('all'); // Reset specialization as well
+                }}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               >
                 <option value="all">All Categories</option>
@@ -172,51 +221,116 @@ const StudentList = ({ user }) => {
                 ))}
               </select>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Program</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                📚 Program
+              </label>
               <select
-                value={filters.program}
-                onChange={(e) => handleFilterChange('program', e.target.value)}
+                value={programFilter}
+                onChange={(e) => {
+                  setProgramFilter(e.target.value);
+                  setSpecializationFilter('all'); // Reset specialization when program changes
+                }}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               >
                 <option value="all">All Programs</option>
-                {availablePrograms.map(prog => (
+                {filteredPrograms.map(prog => (
                   <option key={prog} value={prog}>
                     {prog}
                   </option>
                 ))}
               </select>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Department</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                🎯 Specialization
+              </label>
               <select
-                value={filters.department}
-                onChange={(e) => handleFilterChange('department', e.target.value)}
+                value={specializationFilter}
+                onChange={(e) => setSpecializationFilter(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               >
+                <option value="all">All Specializations</option>
+                {filteredSpecializations.map(spec => (
+                  <option key={spec} value={spec}>
+                    {spec}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                🏢 Department
+              </label>
+              <select
+                value={departmentFilter}
+                onChange={(e) => setDepartmentFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              >
+                <option value="all">All Departments</option>
                 {departments.map(dept => (
                   <option key={dept} value={dept}>
-                    {dept === 'all' ? 'All Departments' : dept}
+                    {dept}
                   </option>
                 ))}
               </select>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">Year</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                📅 Year
+              </label>
               <select
-                value={filters.year}
-                onChange={(e) => handleFilterChange('year', e.target.value)}
+                value={yearFilter}
+                onChange={(e) => setYearFilter(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               >
-                {years.map(yr => (
-                  <option key={yr} value={yr}>
-                    {yr === 'all' ? 'All Years' : `Year ${yr}`}
-                  </option>
+                <option value="all">All Years</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                🎓 Batch (Admission Year)
+              </label>
+              <select
+                value={admissionYearFilter}
+                onChange={(e) => setAdmissionYearFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              >
+                <option value="all">All Batches</option>
+                {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                  <option key={year} value={year}>{year}</option>
                 ))}
               </select>
             </div>
+
+            <div className="flex items-end">
+              {(searchTerm || departmentFilter !== 'all' || programCategoryFilter !== 'all' || programFilter !== 'all' || specializationFilter !== 'all' || yearFilter !== 'all' || admissionYearFilter !== 'all') && (
+                <button
+                  onClick={handleResetFilters}
+                  className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all hover:scale-105"
+                >
+                  🔄 Reset Filters
+                </button>
+              )}
+            </div>
           </div>
-        </form>
+
+          <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Found <span className="font-bold text-gray-900 dark:text-white">{pagination.total || 0}</span> student{pagination.total !== 1 ? 's' : ''}
+          </div>
+        </div>
       </div>
 
       {/* Students Table */}
@@ -274,7 +388,7 @@ const StudentList = ({ user }) => {
                               alt={student.name}
                             />
                           ) : (
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white font-bold">
+                            <div className="h-10 w-10 rounded-full bg-blue-600 dark:bg-blue-700 flex items-center justify-center text-white font-bold">
                               {student.name.charAt(0).toUpperCase()}
                             </div>
                           )}
@@ -347,14 +461,14 @@ const StudentList = ({ user }) => {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
+                onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
               <button
-                onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
+                onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={!pagination.hasMore}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
@@ -370,7 +484,7 @@ const StudentList = ({ user }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4 overflow-y-auto transition-colors">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl my-8 transition-colors">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-900 dark:to-indigo-900 text-white px-6 py-4 rounded-t-xl flex items-center justify-between transition-colors">
+            <div className="bg-blue-600 dark:bg-blue-900 text-white px-6 py-4 rounded-t-xl flex items-center justify-between border-b border-blue-400 dark:border-blue-700/50 transition-colors">
               <div className="flex items-center">
                 {selectedStudent.profilePicture ? (
                   <img
