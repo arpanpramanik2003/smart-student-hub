@@ -13,9 +13,10 @@ module.exports = (sequelize) => {
     // 🎓 NEW PROGRAM STRUCTURE FIELDS
     programCategory: { type: DataTypes.STRING, allowNull: true }, // e.g., "Engineering & Technology"
     program: { type: DataTypes.STRING, allowNull: true }, // e.g., "B.Tech"
-    specialization: { type: DataTypes.STRING, allowNull: true }, // e.g., "Artificial Intelligence & Machine Learning"
+    specialization: { type: DataTypes.STRING, allowNull: true }, // e.g., "Artificial Intelligence & Machine Learning" (MANDATORY for students)
     
     year: { type: DataTypes.INTEGER, allowNull: true },
+    admissionYear: { type: DataTypes.INTEGER, allowNull: true }, // Year of admission (batch year) - for students only
     studentId: { type: DataTypes.STRING, allowNull: true, unique: true },
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     

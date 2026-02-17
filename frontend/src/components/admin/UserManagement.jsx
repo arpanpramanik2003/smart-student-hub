@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { adminAPI } from '../../utils/api';
 import { USER_ROLES, API_BASE_URL } from '../../utils/constants';
-import { PROGRAM_CATEGORIES, UNIVERSITY_PROGRAMS, getProgramsByCategory, getSpecializations } from '../../utils/programsData';
+import { PROGRAM_CATEGORIES, UNIVERSITY_PROGRAMS, getProgramsByCategory, getSpecializations, getCategoryKey } from '../../utils/programsData';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const UserManagement = ({ user, token, onNavigate }) => {
@@ -40,7 +40,11 @@ const UserManagement = ({ user, token, onNavigate }) => {
   const [filters, setFilters] = useState({
     search: '',
     role: 'all',
-    programCategory: 'all'
+    programCategory: 'all',
+    program: 'all',
+    specialization: 'all',
+    year: 'all',
+    admissionYear: 'all'
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -66,31 +70,63 @@ const UserManagement = ({ user, token, onNavigate }) => {
     program: '',
     specialization: '',
     year: '',
+    admissionYear: '',
     studentId: ''
   });
 
-  // Computed values for cascading dropdowns
+  // Computed values for form cascading dropdowns
   const availablePrograms = useMemo(() => {
-    if (!formData.programCategory) return [];
-    // Handle both KEY format (e.g., "ENGINEERING") and VALUE format (e.g., "Engineering & Technology")
-    const categoryName = PROGRAM_CATEGORIES[formData.programCategory] || formData.programCategory;
-    return getProgramsByCategory(categoryName);
+    try {
+      if (!formData.programCategory) return [];
+      // Handle both KEY format (e.g., "ENGINEERING") and VALUE format (e.g., "Engineering & Technology")
+      const categoryName = PROGRAM_CATEGORIES[formData.programCategory] || formData.programCategory;
+      const programs = getProgramsByCategory(categoryName);
+      return programs || [];
+    } catch (error) {
+      console.error('Error getting available programs:', error, formData.programCategory);
+      return [];
+    }
   }, [formData.programCategory]);
 
   const availableSpecializations = useMemo(() => {
-    if (!formData.programCategory || !formData.program) return [];
-    // Handle both KEY format and VALUE format
-    const categoryName = PROGRAM_CATEGORIES[formData.programCategory] || formData.programCategory;
-    return getSpecializations(categoryName, formData.program);
+    try {
+      if (!formData.programCategory || !formData.program) return [];
+      // Handle both KEY format and VALUE format
+      const categoryName = PROGRAM_CATEGORIES[formData.programCategory] || formData.programCategory;
+      const specializations = getSpecializations(categoryName, formData.program);
+      return specializations || [];
+    } catch (error) {
+      console.error('Error getting available specializations:', error, formData.programCategory, formData.program);
+      return [];
+    }
   }, [formData.programCategory, formData.program]);
+
+  // Computed values for filter cascading dropdowns
+  const filterPrograms = useMemo(() => {
+    try {
+      if (filters.programCategory === 'all') return [];
+      const programs = getProgramsByCategory(filters.programCategory);
+      return programs || [];
+    } catch (error) {
+      console.error('Error getting filter programs:', error, filters.programCategory);
+      return [];
+    }
+  }, [filters.programCategory]);
+
+  const filterSpecializations = useMemo(() => {
+    try {
+      if (filters.programCategory === 'all' || filters.program === 'all') return [];
+      const specializations = getSpecializations(filters.programCategory, filters.program);
+      return specializations || [];
+    } catch (error) {
+      console.error('Error getting filter specializations:', error, filters.programCategory, filters.program);
+      return [];
+    }
+  }, [filters.programCategory, filters.program]);
 
   const modalRef = useRef(null);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [filters, pagination.page]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -113,7 +149,11 @@ const UserManagement = ({ user, token, onNavigate }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, pagination.page, pagination.limit]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleFilterChange = useCallback((key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -186,7 +226,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
     } finally {
       setActionLoading(null);
     }
-  }, [users, showSuccessMessage, showErrorMessage]);
+  }, [users, showSuccessMessage, showErrorMessage, fetchUsers]);
 
   const handleAddUser = useCallback(() => {
     setFormData({
@@ -199,6 +239,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
       program: '',
       specialization: '',
       year: '',
+      admissionYear: '',
       studentId: ''
     });
     setSelectedUser(null);
@@ -206,16 +247,20 @@ const UserManagement = ({ user, token, onNavigate }) => {
   }, []);
 
   const handleEditUser = useCallback((userData) => {
+    // Convert programCategory from VALUE format (from DB) to KEY format (for form)
+    const programCategoryKey = userData.programCategory ? getCategoryKey(userData.programCategory) : '';
+    
     setFormData({
       name: userData.name || '',
       email: userData.email || '',
       password: '',
       role: userData.role || 'student',
       department: userData.department || '',
-      programCategory: userData.programCategory || '',
+      programCategory: programCategoryKey || '',
       program: userData.program || '',
       specialization: userData.specialization || '',
-      year: userData.year || '',
+      year: userData.year ? String(userData.year) : '',
+      admissionYear: userData.admissionYear ? String(userData.admissionYear) : '',
       studentId: userData.studentId || ''
     });
     setSelectedUser(userData);
@@ -238,6 +283,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
           newData.program = '';
           newData.specialization = '';
           newData.year = '';
+          newData.admissionYear = '';
           newData.studentId = '';
         } else {
           // Admin doesn't need any program fields
@@ -245,6 +291,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
           newData.program = '';
           newData.specialization = '';
           newData.year = '';
+          newData.admissionYear = '';
           newData.studentId = '';
         }
       }
@@ -296,6 +343,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
         program: '',
         specialization: '',
         year: '',
+        admissionYear: '',
         studentId: ''
       });
     } catch (error) {
@@ -631,12 +679,140 @@ const UserManagement = ({ user, token, onNavigate }) => {
             <div className="relative">
               <select
                 value={filters.programCategory}
-                onChange={(e) => handleFilterChange('programCategory', e.target.value)}
+                onChange={(e) => {
+                  // Reset dependent filters in a single state update
+                  setFilters(prev => ({ 
+                    ...prev, 
+                    programCategory: e.target.value,
+                    program: 'all', 
+                    specialization: 'all' 
+                  }));
+                  setPagination(prev => ({ ...prev, page: 1 }));
+                }}
                 className="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 appearance-none pr-10"
               >
                 <option value="all">All Categories</option>
                 {Object.values(PROGRAM_CATEGORIES).map(category => (
                   <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center transition-colors">
+              <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+              </svg>
+              Program
+            </label>
+            <div className="relative">
+              <select
+                value={filters.program}
+                onChange={(e) => {
+                  // Reset specialization in a single state update
+                  setFilters(prev => ({ 
+                    ...prev, 
+                    program: e.target.value,
+                    specialization: 'all' 
+                  }));
+                  setPagination(prev => ({ ...prev, page: 1 }));
+                }}
+                disabled={filters.programCategory === 'all'}
+                className="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 appearance-none pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="all">All Programs</option>
+                {filterPrograms.map(prog => (
+                  <option key={prog.degree} value={prog.degree}>
+                    {prog.degree} - {prog.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center transition-colors">
+              <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+              </svg>
+              Specialization
+            </label>
+            <div className="relative">
+              <select
+                value={filters.specialization}
+                onChange={(e) => handleFilterChange('specialization', e.target.value)}
+                disabled={filters.programCategory === 'all' || filters.program === 'all'}
+                className="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 appearance-none pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="all">All Specializations</option>
+                {filterSpecializations.map(spec => (
+                  <option key={spec} value={spec}>{spec}</option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center transition-colors">
+              <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+              </svg>
+              Year
+            </label>
+            <div className="relative">
+              <select
+                value={filters.year}
+                onChange={(e) => handleFilterChange('year', e.target.value)}
+                className="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 appearance-none pr-10"
+              >
+                <option value="all">All Years</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center transition-colors">
+              <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+              </svg>
+              Batch (Admission Year)
+            </label>
+            <div className="relative">
+              <select
+                value={filters.admissionYear}
+                onChange={(e) => handleFilterChange('admissionYear', e.target.value)}
+                className="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 appearance-none pr-10"
+              >
+                <option value="all">All Batches</option>
+                {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                  <option key={year} value={year}>{year}</option>
                 ))}
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -738,6 +914,9 @@ const UserManagement = ({ user, token, onNavigate }) => {
                           {formatProgramDisplay(userData)}
                           {userData.year && (
                             <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Year {userData.year}</div>
+                          )}
+                          {userData.admissionYear && (
+                            <div className="text-xs text-blue-600 dark:text-blue-400 transition-colors">Batch {userData.admissionYear}</div>
                           )}
                         </div>
                       </td>
@@ -888,6 +1067,9 @@ const UserManagement = ({ user, token, onNavigate }) => {
                     {userData.year && (
                       <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Year {userData.year}</div>
                     )}
+                    {userData.admissionYear && (
+                      <div className="text-xs text-blue-600 dark:text-blue-400 transition-colors">Batch {userData.admissionYear}</div>
+                    )}
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 transition-colors">Joined</div>
@@ -982,7 +1164,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No users found</h3>
             <p className="text-gray-600 mb-4">
-              {filters.search || filters.role !== 'all' || filters.programCategory !== 'all' 
+              {filters.search || filters.role !== 'all' || filters.programCategory !== 'all' || filters.program !== 'all' || filters.specialization !== 'all' || filters.year !== 'all' || filters.admissionYear !== 'all'
                 ? 'Try adjusting your search filters or add new users.' 
                 : 'Get started by adding your first user.'}
             </p>
@@ -1170,14 +1352,15 @@ const UserManagement = ({ user, token, onNavigate }) => {
 
           {formData.role === 'student' && formData.program && availableSpecializations.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Specialization</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Specialization *</label>
               <select
                 name="specialization"
                 value={formData.specialization}
                 onChange={handleFormChange}
+                required
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               >
-                <option value="">Select Specialization (Optional)</option>
+                <option value="">Select Specialization</option>
                 {availableSpecializations.map((spec) => (
                   <option key={spec} value={spec}>{spec}</option>
                 ))}
@@ -1205,7 +1388,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
           {formData.role === 'student' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Year</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Current Year</label>
                 <select
                   name="year"
                   value={formData.year}
@@ -1218,6 +1401,22 @@ const UserManagement = ({ user, token, onNavigate }) => {
                   <option value="3">3rd Year</option>
                   <option value="4">4th Year</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Admission Year (Batch) *</label>
+                <input
+                  type="number"
+                  name="admissionYear"
+                  value={formData.admissionYear}
+                  onChange={handleFormChange}
+                  required
+                  min="1900"
+                  max="2100"
+                  placeholder="e.g., 2023"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">Year student was admitted to the program</p>
               </div>
 
               <div>
@@ -1357,14 +1556,15 @@ const UserManagement = ({ user, token, onNavigate }) => {
 
           {formData.role === 'student' && formData.program && availableSpecializations.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Specialization</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Specialization *</label>
               <select
                 name="specialization"
                 value={formData.specialization}
                 onChange={handleFormChange}
+                required
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               >
-                <option value="">Select Specialization (Optional)</option>
+                <option value="">Select Specialization</option>
                 {availableSpecializations.map((spec) => (
                   <option key={spec} value={spec}>{spec}</option>
                 ))}
@@ -1392,7 +1592,7 @@ const UserManagement = ({ user, token, onNavigate }) => {
           {formData.role === 'student' && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Year</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Current Year</label>
                 <select
                   name="year"
                   value={formData.year}
@@ -1405,6 +1605,22 @@ const UserManagement = ({ user, token, onNavigate }) => {
                   <option value="3">3rd Year</option>
                   <option value="4">4th Year</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 transition-colors">Admission Year (Batch) *</label>
+                <input
+                  type="number"
+                  name="admissionYear"
+                  value={formData.admissionYear}
+                  onChange={handleFormChange}
+                  required
+                  min="1900"
+                  max="2100"
+                  placeholder="e.g., 2023"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">Year student was admitted to the program</p>
               </div>
 
               <div>
@@ -1573,6 +1789,12 @@ const UserManagement = ({ user, token, onNavigate }) => {
                     <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
                       <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Year</p>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mt-1 transition-colors">Year {selectedUser.year}</p>
+                    </div>
+                  )}
+                  {selectedUser.role === 'student' && selectedUser.admissionYear && (
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded-lg transition-colors">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Admission Year</p>
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-1 transition-colors">Batch {selectedUser.admissionYear}</p>
                     </div>
                   )}
                   {selectedUser.role === 'student' && selectedUser.studentId && (

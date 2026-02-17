@@ -3,7 +3,7 @@ import { studentAPI } from '../../utils/api';
 import LoadingSpinner from '../shared/LoadingSpinner';
 import { API_BASE_URL } from '../../utils/constants';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PROGRAM_CATEGORIES } from '../../utils/programsData';
+import { PROGRAM_CATEGORIES, UNIVERSITY_PROGRAMS, getSpecializations } from '../../utils/programsData';
 
 const backendBaseUrl = API_BASE_URL.replace('/api', '');
 
@@ -14,15 +14,18 @@ const BrowseStudents = ({ user, token }) => {
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [programCategoryFilter, setProgramCategoryFilter] = useState('all');
   const [programFilter, setProgramFilter] = useState('all');
+  const [specializationFilter, setSpecializationFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState('all');
+  const [admissionYearFilter, setAdmissionYearFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({});
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [programs, setPrograms] = useState([]);
+  const [specializations, setSpecializations] = useState([]);
 
   // Fetch students data
-  const fetchStudents = useCallback(async (page = 1, search = '', dept = 'all', progCat = 'all', prog = 'all', yr = 'all') => {
+  const fetchStudents = useCallback(async (page = 1, search = '', dept = 'all', progCat = 'all', prog = 'all', spec = 'all', yr = 'all', admYr = 'all') => {
     setLoading(true);
     try {
       const params = {
@@ -32,7 +35,9 @@ const BrowseStudents = ({ user, token }) => {
         department: dept !== 'all' ? dept : undefined,
         programCategory: progCat !== 'all' ? progCat : undefined,
         program: prog !== 'all' ? prog : undefined,
+        specialization: spec !== 'all' ? spec : undefined,
         year: yr !== 'all' ? yr : undefined,
+        admissionYear: admYr !== 'all' ? admYr : undefined,
       };
 
       Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
@@ -44,8 +49,10 @@ const BrowseStudents = ({ user, token }) => {
       if (page === 1 && !search && dept === 'all' && progCat === 'all') {
         const uniqueDepts = [...new Set(data.students.map(s => s.department).filter(Boolean))].sort();
         const uniqueProgs = [...new Set(data.students.map(s => s.program).filter(Boolean))].sort();
+        const uniqueSpecs = [...new Set(data.students.map(s => s.specialization).filter(Boolean))].sort();
         setDepartments(uniqueDepts);
         setPrograms(uniqueProgs);
+        setSpecializations(uniqueSpecs);
       }
     } catch (error) {
       console.error('Fetch students error:', error);
@@ -55,21 +62,21 @@ const BrowseStudents = ({ user, token }) => {
   }, []);
 
   useEffect(() => {
-    fetchStudents(1, '', 'all', 'all', 'all', 'all');
+    fetchStudents(1, '', 'all', 'all', 'all', 'all', 'all', 'all');
   }, [fetchStudents]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setCurrentPage(1);
-      fetchStudents(1, searchTerm, departmentFilter, programCategoryFilter, programFilter, yearFilter);
+      fetchStudents(1, searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, departmentFilter, programCategoryFilter, programFilter, yearFilter, fetchStudents]);
+  }, [searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter, fetchStudents]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
-    fetchStudents(newPage, searchTerm, departmentFilter, programCategoryFilter, programFilter, yearFilter);
+    fetchStudents(newPage, searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -78,9 +85,11 @@ const BrowseStudents = ({ user, token }) => {
     setDepartmentFilter('all');
     setProgramCategoryFilter('all');
     setProgramFilter('all');
+    setSpecializationFilter('all');
     setYearFilter('all');
+    setAdmissionYearFilter('all');
     setCurrentPage(1);
-    fetchStudents(1, '', 'all', 'all', 'all', 'all');
+    fetchStudents(1, '', 'all', 'all', 'all', 'all', 'all', 'all');
   };
 
   const getProfileImage = (profilePicture) => {
@@ -588,7 +597,7 @@ const BrowseStudents = ({ user, token }) => {
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 border border-gray-200 dark:border-gray-700">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
               🔍 Search Students
@@ -611,6 +620,7 @@ const BrowseStudents = ({ user, token }) => {
               onChange={(e) => {
                 setProgramCategoryFilter(e.target.value);
                 setProgramFilter('all'); // Reset program when category changes
+                setSpecializationFilter('all'); // Reset specialization as well
               }}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
             >
@@ -627,12 +637,31 @@ const BrowseStudents = ({ user, token }) => {
             </label>
             <select
               value={programFilter}
-              onChange={(e) => setProgramFilter(e.target.value)}
+              onChange={(e) => {
+                setProgramFilter(e.target.value);
+                setSpecializationFilter('all'); // Reset specialization when program changes
+              }}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
             >
               <option value="all">All Programs</option>
               {programs.map((prog) => (
                 <option key={prog} value={prog}>{prog}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+              🎯 Specialization
+            </label>
+            <select
+              value={specializationFilter}
+              onChange={(e) => setSpecializationFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+            >
+              <option value="all">All Specializations</option>
+              {specializations.map((spec) => (
+                <option key={spec} value={spec}>{spec}</option>
               ))}
             </select>
           </div>
@@ -654,8 +683,24 @@ const BrowseStudents = ({ user, token }) => {
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+              🎓 Batch (Admission Year)
+            </label>
+            <select
+              value={admissionYearFilter}
+              onChange={(e) => setAdmissionYearFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+            >
+              <option value="all">All Batches</option>
+              {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex items-end">
-            {(searchTerm || departmentFilter !== 'all' || programCategoryFilter !== 'all' || programFilter !== 'all' || yearFilter !== 'all') && (
+            {(searchTerm || departmentFilter !== 'all' || programCategoryFilter !== 'all' || programFilter !== 'all' || specializationFilter !== 'all' || yearFilter !== 'all' || admissionYearFilter !== 'all') && (
               <button
                 onClick={handleResetFilters}
                 className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all hover:scale-105 text-sm"

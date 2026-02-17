@@ -352,7 +352,7 @@ const updateActivity = [
 // Get all students with approved activities (for students to browse)
 const getAllStudents = async (req, res) => {
   try {
-    const { page = 1, limit = 12, search, department, year, programCategory, program, specialization } = req.query;
+    const { page = 1, limit = 12, search, department, year, programCategory, program, specialization, admissionYear } = req.query;
     const offset = (page - 1) * limit;
 
     const where = { role: 'student' };
@@ -393,11 +393,16 @@ const getAllStudents = async (req, res) => {
     if (year && year !== 'all') {
       where.year = parseInt(year);
     }
+    
+    // Add admission year filter
+    if (admissionYear && admissionYear !== 'all') {
+      where.admissionYear = parseInt(admissionYear);
+    }
 
     const { count, rows } = await User.findAndCountAll({
       where,
       attributes: [
-        'id', 'name', 'email', 'studentId', 'department', 'year',
+        'id', 'name', 'email', 'studentId', 'department', 'year', 'admissionYear',
         'programCategory', 'program', 'specialization',
         'phone', 'dateOfBirth', 'gender', 'skills', 'languages', 'hobbies', 'achievements',
         'linkedinUrl', 'githubUrl', 'portfolioUrl',

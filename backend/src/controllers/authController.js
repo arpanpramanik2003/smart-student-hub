@@ -20,7 +20,13 @@ const registerSchema = Joi.object({
     then: Joi.required(),
     otherwise: Joi.optional()
   }),
-  specialization: Joi.string().allow('', null).optional(),
+  specialization: Joi.string().when('role', {
+    is: 'student',
+    then: Joi.required().messages({
+      'any.required': 'Specialization is mandatory for students'
+    }),
+    otherwise: Joi.optional().allow('', null)
+  }),
   
   // Legacy department field (optional for backward compatibility)
   department: Joi.string().optional(),
@@ -28,6 +34,13 @@ const registerSchema = Joi.object({
   year: Joi.number().integer().when('role', {
     is: 'student', 
     then: Joi.required(),
+    otherwise: Joi.optional()
+  }),
+  admissionYear: Joi.number().integer().min(1900).max(new Date().getFullYear()).when('role', {
+    is: 'student',
+    then: Joi.required().messages({
+      'any.required': 'Admission year is mandatory for students'
+    }),
     otherwise: Joi.optional()
   }),
   studentId: Joi.string().when('role', {
@@ -62,7 +75,7 @@ const register = async (req, res) => {
       });
     }
 
-    const { name, email, password, role, department, programCategory, program, specialization, year, studentId } = value;
+    const { name, email, password, role, department, programCategory, program, specialization, year, admissionYear, studentId } = value;
 
     // Convert programCategory KEY to VALUE for database storage
     const programCategoryValue = getCategoryValue(programCategory);
@@ -73,7 +86,15 @@ const register = async (req, res) => {
     }
 
     // Additional validation for student program selection
-    if (role === 'student' && programCategory && program) {
+    if (role === 'student') {
+      // Validate that specialization is provided and not empty for students
+      if (!specialization || specialization.trim() === '') {
+        return res.status(400).json({ 
+          message: 'Specialization is mandatory for students'
+        });
+      }
+      
+      // Validate program selection
       const programValidation = validateProgramSelection(programCategory, program, specialization);
       if (!programValidation.valid) {
         return res.status(400).json({ 
@@ -105,10 +126,11 @@ const register = async (req, res) => {
       role,
       department: department || programCategoryValue, // Use programCategoryValue if department not provided
       programCategory: programCategoryValue, // Store as VALUE
-      program,
-      specialization: specialization || null,
-      year,
-      studentId
+      program: role === 'student' ? program : null,
+      specialization: role === 'student' ? specialization : null, // Only for students
+      year: role === 'student' ? year : null,
+      admissionYear: role === 'student' ? admissionYear : null, // Only for students
+      studentId: role === 'student' ? studentId : null
     });
 
     // Generate token
@@ -127,6 +149,7 @@ const register = async (req, res) => {
         program: user.program,
         specialization: user.specialization,
         year: user.year,
+        admissionYear: user.admissionYear,
         studentId: user.studentId,
         profilePicture: user.profilePicture
       }

@@ -70,7 +70,8 @@ const migrateDatabase = async () => {
       // New program structure fields
       { name: 'programCategory', definition: { type: 'VARCHAR(255)', allowNull: true } },
       { name: 'program', definition: { type: 'VARCHAR(255)', allowNull: true } },
-      { name: 'specialization', definition: { type: 'VARCHAR(255)', allowNull: true } }
+      { name: 'specialization', definition: { type: 'VARCHAR(255)', allowNull: true } },
+      { name: 'admissionYear', definition: { type: 'INTEGER', allowNull: true } }
     ];
 
     for (const column of newColumns) {

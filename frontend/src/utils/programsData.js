@@ -342,6 +342,17 @@ export const getCategoryValue = (categoryKeyOrValue) => {
   return null;
 };
 
+// Helper function to convert VALUE to KEY (e.g., "Engineering & Technology" to "ENGINEERING")
+export const getCategoryKey = (categoryValueOrKey) => {
+  // If it's already a KEY (found in PROGRAM_CATEGORIES keys), return it
+  if (PROGRAM_CATEGORIES[categoryValueOrKey]) {
+    return categoryValueOrKey;
+  }
+  // If it's a VALUE, find the corresponding KEY
+  const entry = Object.entries(PROGRAM_CATEGORIES).find(([key, value]) => value === categoryValueOrKey);
+  return entry ? entry[0] : null;
+};
+
 // Helper function to get all programs by category (accepts both KEY and VALUE)
 export const getProgramsByCategory = (category) => {
   const categoryValue = getCategoryValue(category);

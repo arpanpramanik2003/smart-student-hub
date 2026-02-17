@@ -143,7 +143,11 @@ const getAllUsers = async (req, res) => {
       limit = 20,
       search = '',
       role = 'all',
-      programCategory = 'all'
+      programCategory = 'all',
+      program = 'all',
+      specialization = 'all',
+      year = 'all',
+      admissionYear = 'all'
     } = req.query;
 
     const offset = (page - 1) * limit;
@@ -168,6 +172,22 @@ const getAllUsers = async (req, res) => {
 
     if (programCategory !== 'all') {
       whereClause.programCategory = programCategory;
+    }
+    
+    if (program !== 'all') {
+      whereClause.program = program;
+    }
+    
+    if (specialization !== 'all') {
+      whereClause.specialization = specialization;
+    }
+    
+    if (year !== 'all') {
+      whereClause.year = parseInt(year);
+    }
+    
+    if (admissionYear !== 'all') {
+      whereClause.admissionYear = parseInt(admissionYear);
     }
 
     const { count, rows: users } = await User.findAndCountAll({
@@ -196,7 +216,7 @@ const getAllUsers = async (req, res) => {
 // POST /api/admin/users - Create new user
 const createUser = async (req, res) => {
   try {
-    const { name, email, password, role, department, programCategory, program, specialization, year, studentId } = req.body;
+    const { name, email, password, role, department, programCategory, program, specialization, year, admissionYear, studentId } = req.body;
 
     // Validation - programCategory required for both students and faculty
     if (!name || !email || !password || !role || !programCategory) {
@@ -213,14 +233,26 @@ const createUser = async (req, res) => {
       });
     }
 
-    // Additional validation for students - program is required
-    if (role === 'student' && !program) {
-      return res.status(400).json({
-        error: 'Program is required for students'
-      });
+    // Additional validation for students - program, specialization, and admissionYear are required
+    if (role === 'student') {
+      if (!program) {
+        return res.status(400).json({
+          error: 'Program is required for students'
+        });
+      }
+      if (!specialization || specialization.trim() === '') {
+        return res.status(400).json({
+          error: 'Specialization is mandatory for students'
+        });
+      }
+      if (!admissionYear) {
+        return res.status(400).json({
+          error: 'Admission year is mandatory for students'
+        });
+      }
     }
 
-    // Validate program selection
+    // Validate program selection for students
     if (role === 'student' && programCategory && program) {
       const programValidation = validateProgramSelection(programCategory, program, specialization);
       if (!programValidation.valid) {
@@ -246,8 +278,9 @@ const createUser = async (req, res) => {
       department: department || null, // Optional
       programCategory: programCategoryValue, // Required for both students and faculty (stored as VALUE)
       program: role === 'student' ? program : null,
-      specialization: role === 'student' && specialization ? specialization : null,
+      specialization: role === 'student' ? specialization : null, // Only for students (mandatory)
       year: role === 'student' ? year : null,
+      admissionYear: role === 'student' ? admissionYear : null, // Only for students (mandatory)
       studentId: role === 'student' ? studentId : null,
       isActive: true
     });
@@ -269,7 +302,7 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, role, department, programCategory, program, specialization, year, studentId, isActive } = req.body;
+    const { name, email, role, department, programCategory, program, specialization, year, admissionYear, studentId, isActive } = req.body;
 
     const user = await User.findByPk(id);
     if (!user) {
@@ -300,11 +333,23 @@ const updateUser = async (req, res) => {
       programCategoryValue = converted;
     }
 
-    // Additional validation for students - program is required
-    if (role === 'student' && !program) {
-      return res.status(400).json({
-        error: 'Program is required for students'
-      });
+    // Additional validation for students - program, specialization, and admissionYear are required
+    if (role === 'student') {
+      if (!program) {
+        return res.status(400).json({
+          error: 'Program is required for students'
+        });
+      }
+      if (!specialization || specialization.trim() === '') {
+        return res.status(400).json({
+          error: 'Specialization is mandatory for students'
+        });
+      }
+      if (!admissionYear) {
+        return res.status(400).json({
+          error: 'Admission year is mandatory for students'
+        });
+      }
     }
 
     // Validate program selection for students
@@ -323,12 +368,13 @@ const updateUser = async (req, res) => {
       name,
       email,
       role,
-      department: department || null, // Optional
+      department: department !== undefined ? department : user.department,
       programCategory: programCategoryValue || user.programCategory,
-      program: role === 'student' ? program : null,
-      specialization: role === 'student' && specialization ? specialization : null,
-      year: role === 'student' ? year : null,
-      studentId: role === 'student' ? studentId : null,
+      program: role === 'student' ? (program !== undefined ? program : user.program) : null,
+      specialization: role === 'student' ? (specialization !== undefined ? specialization : user.specialization) : null,
+      year: role === 'student' ? (year !== undefined ? year : user.year) : null,
+      admissionYear: role === 'student' ? (admissionYear !== undefined ? admissionYear : user.admissionYear) : null,
+      studentId: role === 'student' ? (studentId !== undefined ? studentId : user.studentId) : null,
       isActive: isActive !== undefined ? isActive : user.isActive
     });
 
@@ -482,7 +528,8 @@ const getSystemReports = async (req, res) => {
         u."programCategory",
         u.program,
         u.specialization,
-        u.year
+        u.year,
+        u."admissionYear"
       FROM activities a
       LEFT JOIN users u ON a."studentId" = u.id
       WHERE ${whereClause}
@@ -550,7 +597,8 @@ const getSystemReports = async (req, res) => {
           programCategory: activity.programCategory,
           program: activity.program,
           specialization: activity.specialization,
-          year: activity.year
+          year: activity.year,
+          admissionYear: activity.admissionYear
         }
       }))
     };
@@ -561,7 +609,7 @@ const getSystemReports = async (req, res) => {
         return String(value).replace(/"/g, '""');
       };
 
-      const csvHeader = 'Student Name,Student ID,Program Category,Program,Specialization,Department,Year,Activity Title,Type,Date,Credits,Organizer,Status,Created Date,Description\n';
+      const csvHeader = 'Student Name,Student ID,Program Category,Program,Specialization,Department,Year,Admission Year,Activity Title,Type,Date,Credits,Organizer,Status,Created Date,Description\n';
       const csvRows = activities.map(activity => [
         `"${csvSafe(activity.userName)}"`,
         `"${csvSafe(activity.studentId)}"`,
@@ -570,6 +618,7 @@ const getSystemReports = async (req, res) => {
         `"${csvSafe(activity.specialization)}"`,
         `"${csvSafe(activity.department)}"`,
         `"${csvSafe(activity.year)}"`,
+        `"${csvSafe(activity.admissionYear || '')}"`,
         `"${csvSafe(activity.title)}"`,
         `"${csvSafe(activity.type)}"`,
         `"${csvSafe(activity.date)}"`,

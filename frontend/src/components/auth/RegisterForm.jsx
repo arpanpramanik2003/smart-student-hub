@@ -14,6 +14,7 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
     program: '',
     specialization: '',
     year: '',
+    admissionYear: '',
     studentId: '',
   });
   const [loading, setLoading] = useState(false);
@@ -52,9 +53,19 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
       return;
     }
 
-    if (formData.role === USER_ROLES.STUDENT && (!formData.program || !formData.year || !formData.studentId)) {
-      setError('Program, Year and Student ID are required for students');
-      return;
+    if (formData.role === USER_ROLES.STUDENT) {
+      if (!formData.program || !formData.year || !formData.studentId) {
+        setError('Program, Year and Student ID are required for students');
+        return;
+      }
+      if (!formData.specialization || formData.specialization.trim() === '') {
+        setError('Specialization is mandatory for students');
+        return;
+      }
+      if (!formData.admissionYear) {
+        setError('Admission year is mandatory for students');
+        return;
+      }
     }
 
     setLoading(true);
@@ -67,14 +78,12 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
       delete submitData.program;
       delete submitData.specialization;
       delete submitData.year;
+      delete submitData.admissionYear;
       delete submitData.studentId;
     } else {
-      // Convert year from string to integer for students
+      // Convert year and admissionYear from string to integer for students
       submitData.year = parseInt(submitData.year, 10);
-      // Remove specialization if empty
-      if (!submitData.specialization) {
-        delete submitData.specialization;
-      }
+      submitData.admissionYear = parseInt(submitData.admissionYear, 10);
     }
 
     try {
@@ -320,7 +329,7 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
               {formData.program && availableSpecializations.length > 0 && (
                 <div className="sm:col-span-2">
                   <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Specialization {availableSpecializations.length > 0 ? '*' : '(Optional)'}
+                    Specialization *
                   </label>
                   <div className="mt-1 relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -331,11 +340,12 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
                     <select
                       id="specialization"
                       name="specialization"
+                      required
                       value={formData.specialization}
                       onChange={handleChange}
                       className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
                     >
-                      <option value="">Select Specialization (Optional)</option>
+                      <option value="">Select Specialization</option>
                       {availableSpecializations.map(spec => (
                         <option key={spec} value={spec}>{spec}</option>
                       ))}
@@ -410,7 +420,7 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
             <>
               <div>
                 <label htmlFor="year" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Academic Year *
+                  Current Year *
                 </label>
                 <div className="mt-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -433,6 +443,32 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
                     <option value="4">4th Year</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label htmlFor="admissionYear" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Admission Year (Batch) *
+                </label>
+                <div className="mt-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <input
+                    id="admissionYear"
+                    name="admissionYear"
+                    type="number"
+                    required
+                    min="1900"
+                    max="2100"
+                    value={formData.admissionYear}
+                    onChange={handleChange}
+                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                    placeholder="e.g., 2023"
+                  />
+                </div>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Year you were admitted to the program</p>
               </div>
 
               <div>
