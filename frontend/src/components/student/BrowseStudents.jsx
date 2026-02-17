@@ -11,7 +11,6 @@ const BrowseStudents = ({ user, token }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('all');
   const [programCategoryFilter, setProgramCategoryFilter] = useState('all');
   const [programFilter, setProgramFilter] = useState('all');
   const [specializationFilter, setSpecializationFilter] = useState('all');
@@ -20,7 +19,6 @@ const BrowseStudents = ({ user, token }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({});
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [departments, setDepartments] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [specializations, setSpecializations] = useState([]);
 
@@ -52,14 +50,13 @@ const BrowseStudents = ({ user, token }) => {
   }, [programCategoryFilter, programFilter, specializations]);
 
   // Fetch students data
-  const fetchStudents = useCallback(async (page = 1, search = '', dept = 'all', progCat = 'all', prog = 'all', spec = 'all', yr = 'all', admYr = 'all') => {
+  const fetchStudents = useCallback(async (page = 1, search = '', progCat = 'all', prog = 'all', spec = 'all', yr = 'all', admYr = 'all') => {
     setLoading(true);
     try {
       const params = {
         page,
         limit: 12,
         search: search.trim(),
-        department: dept !== 'all' ? dept : undefined,
         programCategory: progCat !== 'all' ? progCat : undefined,
         program: prog !== 'all' ? prog : undefined,
         specialization: spec !== 'all' ? spec : undefined,
@@ -73,11 +70,9 @@ const BrowseStudents = ({ user, token }) => {
       setStudents(data.students);
       setPagination(data.pagination);
 
-      if (page === 1 && !search && dept === 'all' && progCat === 'all') {
-        const uniqueDepts = [...new Set(data.students.map(s => s.department).filter(Boolean))].sort();
+      if (page === 1 && !search && progCat === 'all') {
         const uniqueProgs = [...new Set(data.students.map(s => s.program).filter(Boolean))].sort();
         const uniqueSpecs = [...new Set(data.students.map(s => s.specialization).filter(Boolean))].sort();
-        setDepartments(uniqueDepts);
         setPrograms(uniqueProgs);
         setSpecializations(uniqueSpecs);
       }
@@ -89,34 +84,33 @@ const BrowseStudents = ({ user, token }) => {
   }, []);
 
   useEffect(() => {
-    fetchStudents(1, '', 'all', 'all', 'all', 'all', 'all', 'all');
+    fetchStudents(1, '', 'all', 'all', 'all', 'all', 'all');
   }, [fetchStudents]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setCurrentPage(1);
-      fetchStudents(1, searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter);
+      fetchStudents(1, searchTerm, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter, fetchStudents]);
+  }, [searchTerm, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter, fetchStudents]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
-    fetchStudents(newPage, searchTerm, departmentFilter, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter);
+    fetchStudents(newPage, searchTerm, programCategoryFilter, programFilter, specializationFilter, yearFilter, admissionYearFilter);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleResetFilters = () => {
     setSearchTerm('');
-    setDepartmentFilter('all');
     setProgramCategoryFilter('all');
     setProgramFilter('all');
     setSpecializationFilter('all');
     setYearFilter('all');
     setAdmissionYearFilter('all');
     setCurrentPage(1);
-    fetchStudents(1, '', 'all', 'all', 'all', 'all', 'all', 'all');
+    fetchStudents(1, '', 'all', 'all', 'all', 'all', 'all');
   };
 
   const getProfileImage = (profilePicture) => {
@@ -727,7 +721,7 @@ const BrowseStudents = ({ user, token }) => {
           </div>
 
           <div className="flex items-end">
-            {(searchTerm || departmentFilter !== 'all' || programCategoryFilter !== 'all' || programFilter !== 'all' || specializationFilter !== 'all' || yearFilter !== 'all' || admissionYearFilter !== 'all') && (
+            {(searchTerm || programCategoryFilter !== 'all' || programFilter !== 'all' || specializationFilter !== 'all' || yearFilter !== 'all' || admissionYearFilter !== 'all') && (
               <button
                 onClick={handleResetFilters}
                 className="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all hover:scale-105 text-sm"

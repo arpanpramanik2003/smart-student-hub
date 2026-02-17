@@ -292,7 +292,7 @@ const getFacultyStats = async (req, res) => {
 // Get all students for faculty view
 const getAllStudents = async (req, res) => {
   try {
-    const { page = 1, limit = 20, search, department, year, programCategory, program, specialization, admissionYear } = req.query;
+    const { page = 1, limit = 20, search, year, programCategory, program, specialization, admissionYear } = req.query;
     const offset = (page - 1) * limit;
 
     const where = { role: 'student' };
@@ -311,11 +311,6 @@ const getAllStudents = async (req, res) => {
         { program: { [Op.like]: `%${search}%` } },
         { specialization: { [Op.like]: `%${search}%` } }
       ];
-    }
-    
-    // Add department filter (legacy support)
-    if (department && department !== 'all') {
-      where.department = department;
     }
     
     // Add program category filter (only if explicitly requested by user)

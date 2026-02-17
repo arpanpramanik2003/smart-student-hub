@@ -352,7 +352,7 @@ const updateActivity = [
 // Get all students with approved activities (for students to browse)
 const getAllStudents = async (req, res) => {
   try {
-    const { page = 1, limit = 12, search, department, year, programCategory, program, specialization, admissionYear } = req.query;
+    const { page = 1, limit = 12, search, year, programCategory, program, specialization, admissionYear } = req.query;
     const offset = (page - 1) * limit;
 
     const where = { role: 'student' };
@@ -367,11 +367,6 @@ const getAllStudents = async (req, res) => {
         { program: { [Op.like]: `%${search}%` } },
         { specialization: { [Op.like]: `%${search}%` } }
       ];
-    }
-    
-    // Add department filter (legacy support)
-    if (department && department !== 'all') {
-      where.department = department;
     }
     
     // Add program category filter
