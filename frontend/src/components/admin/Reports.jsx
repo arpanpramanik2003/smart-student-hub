@@ -11,9 +11,12 @@ const Reports = ({ user, token, onNavigate }) => {
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
-    format: 'json'
+    format: 'json',
+    status: 'all'
   });
   const [csvDownloading, setCsvDownloading] = useState(false);
+
+
 
   useEffect(() => {
     // Set default date range (last 6 months)
@@ -69,7 +72,7 @@ const Reports = ({ user, token, onNavigate }) => {
     }
   };
 
-  // 🔥 FIXED: Proper CSV download implementation with correct API URL
+  // 🔥 FIXED: Proper CSV download implementation with correct API URL and all filters
   const handleDownloadCSV = async () => {
     if (!filters.startDate || !filters.endDate) {
       showErrorMessage('Please select date range before downloading CSV.');
@@ -79,7 +82,7 @@ const Reports = ({ user, token, onNavigate }) => {
     setCsvDownloading(true);
     
     try {
-      console.log('📥 Starting CSV download...');
+      console.log('📥 Starting CSV download with filters:', filters);
       
       // Get the token from localStorage or props
       const authToken = localStorage.getItem('token') || token;
@@ -88,13 +91,17 @@ const Reports = ({ user, token, onNavigate }) => {
         throw new Error('Authentication required. Please log in again.');
       }
       
-      // Create the URL with parameters using correct API_BASE_URL
-      const params = new URLSearchParams({
+      // Create params object with all filters (excluding 'all' values)
+      const paramsObj = {
         startDate: filters.startDate,
         endDate: filters.endDate,
         format: 'csv'
-      });
+      };
       
+      // Add activity status filter if not 'all'
+      if (filters.status !== 'all') paramsObj.status = filters.status;
+      
+      const params = new URLSearchParams(paramsObj);
       const url = `${API_BASE_URL}/admin/reports?${params.toString()}`;
       console.log('📡 CSV Request URL:', url);
       
@@ -122,7 +129,9 @@ const Reports = ({ user, token, onNavigate }) => {
       if (link.download !== undefined) {
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
-        link.setAttribute('download', `activity-report-${filters.startDate}-to-${filters.endDate}.csv`);
+        
+        // Create filename with date range
+        link.setAttribute('download', `student-activity-report-${filters.startDate}-to-${filters.endDate}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -139,6 +148,8 @@ const Reports = ({ user, token, onNavigate }) => {
       setCsvDownloading(false);
     }
   };
+
+
 
   // 🔥 Enhanced: Quick date range buttons
   const setQuickDateRange = useCallback((months) => {
@@ -361,7 +372,85 @@ const Reports = ({ user, token, onNavigate }) => {
               required
             />
           </div>
-          
+        </div>
+
+        {/* Additional Filters Section */}
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center mb-4">
+            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <h3 className="text-md font-bold text-gray-900 dark:text-gray-100">Advanced Filters (Optional)</h3>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Filter reports by activity status to view pending, approved, or rejected activities
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Activity Status Filter */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                <svg className="w-4 h-4 mr-1.5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Activity Status
+              </label>
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                className="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm dark:bg-gray-700 dark:text-gray-100 transition-all"
+              >
+                <option value="all">All Activities</option>
+                <option value="approved">✅ Approved Only</option>
+                <option value="pending">⏳ Pending Review</option>
+                <option value="rejected">❌ Rejected</option>
+              </select>
+            </div>
+
+            {/* Clear Filters Button */}
+            <div className="flex items-end">
+              <button
+                onClick={() => setFilters(prev => ({ ...prev, status: 'all' }))}
+                className="w-full px-4 py-2.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Clear Status Filter
+              </button>
+            </div>
+
+            {/* Info Box */}
+            <div className="flex items-center px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span className="text-xs text-blue-800 dark:text-blue-300">
+                Reports include all student activities
+              </span>
+            </div>
+          </div>
+
+          {/* Active Filters Display */}
+          {filters.status !== 'all' && (
+            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+              <div className="flex items-center mb-2">
+                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm font-semibold text-blue-800 dark:text-blue-300">Active Filter:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-xs font-medium">
+                  Status: {filters.status.charAt(0).toUpperCase() + filters.status.slice(1)}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="flex items-end">
             <button
               onClick={handleGenerateReport}

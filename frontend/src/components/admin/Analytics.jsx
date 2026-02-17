@@ -17,9 +17,11 @@ const Analytics = ({ user, token, onNavigate }) => {
   });
   const [activeTab, setActiveTab] = useState('overview');
   const [refreshing, setRefreshing] = useState(false);
+  const [programBreakdown, setProgramBreakdown] = useState(null);
 
   useEffect(() => {
     fetchAnalytics();
+    fetchProgramBreakdown();
     
     // Set default date range (last 6 months)
     const endDate = new Date();
@@ -69,6 +71,86 @@ const Analytics = ({ user, token, onNavigate }) => {
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const fetchProgramBreakdown = async () => {
+    try {
+      console.log('📊 Fetching program breakdown data...');
+      const users = await adminAPI.getUsers({ limit: 1000 }); // Fetch all users
+      
+      // Process program breakdown
+      const programMap = {};
+      const yearMap = {};
+      const batchMap = {};
+      
+      users.users?.forEach(user => {
+        if (user.role === 'student' && user.programCategory) {
+          // Program category breakdown
+          if (!programMap[user.programCategory]) {
+            programMap[user.programCategory] = {
+              students: 0,
+              programs: new Set(),
+              specializations: new Set(),
+              years: {},
+              batches: {}
+            };
+          }
+          
+          programMap[user.programCategory].students++;
+          
+          if (user.program) {
+            programMap[user.programCategory].programs.add(user.program);
+          }
+          
+          if (user.specialization) {
+            programMap[user.programCategory].specializations.add(user.specialization);
+          }
+          
+          // Year distribution
+          if (user.year) {
+            programMap[user.programCategory].years[user.year] = 
+              (programMap[user.programCategory].years[user.year] || 0) + 1;
+            yearMap[user.year] = (yearMap[user.year] || 0) + 1;
+          }
+          
+          // Batch distribution
+          if (user.admissionYear) {
+            programMap[user.programCategory].batches[user.admissionYear] = 
+              (programMap[user.programCategory].batches[user.admissionYear] || 0) + 1;
+            batchMap[user.admissionYear] = (batchMap[user.admissionYear] || 0) + 1;
+          }
+        }
+      });
+      
+      // Count faculty per program category
+      const facultyMap = {};
+      users.users?.forEach(user => {
+        if (user.role === 'faculty' && user.programCategory) {
+          facultyMap[user.programCategory] = (facultyMap[user.programCategory] || 0) + 1;
+        }
+      });
+      
+      // Convert sets to counts
+      Object.keys(programMap).forEach(key => {
+        programMap[key].programCount = programMap[key].programs.size;
+        programMap[key].specializationCount = programMap[key].specializations.size;
+        programMap[key].faculty = facultyMap[key] || 0;
+        delete programMap[key].programs;
+        delete programMap[key].specializations;
+      });
+      
+      setProgramBreakdown({
+        byCategory: programMap,
+        byYear: yearMap,
+        byBatch: batchMap,
+        totalStudents: users.users?.filter(u => u.role === 'student').length || 0,
+        totalFaculty: users.users?.filter(u => u.role === 'faculty').length || 0
+      });
+      
+      console.log('✅ Program breakdown processed:', { programMap, yearMap, batchMap });
+    } catch (error) {
+      console.error('Program breakdown fetch error:', error);
     }
   };
 
@@ -368,7 +450,7 @@ const Analytics = ({ user, token, onNavigate }) => {
               {refreshing ? 'Refreshing...' : 'Refresh Data'}
             </button>
             
-            <div className="grid grid-cols-2 gap-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-1">
+            <div className="grid grid-cols-3 gap-2 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-1">
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`flex flex-col sm:flex-row items-center justify-center px-2 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-md transition-all duration-200 ${
@@ -381,6 +463,17 @@ const Analytics = ({ user, token, onNavigate }) => {
                 <span className="text-xs sm:text-sm">Overview</span>
               </button>
               <button
+                onClick={() => setActiveTab('programs')}
+                className={`flex flex-col sm:flex-row items-center justify-center px-2 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-md transition-all duration-200 ${
+                  activeTab === 'programs'
+                    ? 'bg-white text-indigo-600 shadow-md'
+                    : 'text-white hover:text-indigo-100 hover:bg-white hover:bg-opacity-10'
+                }`}
+              >
+                <span className="text-lg sm:text-base sm:mr-2">🎓</span>
+                <span className="text-xs sm:text-sm">Programs</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('trends')}
                 className={`flex flex-col sm:flex-row items-center justify-center px-2 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-md transition-all duration-200 ${
                   activeTab === 'trends'
@@ -388,7 +481,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                     : 'text-white hover:text-indigo-100 hover:bg-white hover:bg-opacity-10'
                 }`}
               >
-                <span className="text-lg sm:text-base sm:mr-2">📉</span>
+                <span className="text-lg sm:text-base sm:mr-2">📈</span>
                 <span className="text-xs sm:text-sm">Trends</span>
               </button>
             </div>
@@ -788,6 +881,312 @@ const Analytics = ({ user, token, onNavigate }) => {
             );
           })()}
         </>
+      )}
+
+      {/* Programs Analytics Tab */}
+      {activeTab === 'programs' && (
+        <div className="space-y-6">
+          {/* Program Overview Cards */}
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 bg-white bg-opacity-30 rounded-lg flex items-center justify-center mr-3">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold">Program-wise Analytics</h3>
+                <p className="text-indigo-100 text-sm">Comprehensive breakdown by programs, years, and batches</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+              <div className="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
+                <p className="text-indigo-100 text-sm mb-1">Total Students</p>
+                <p className="text-3xl font-bold">{programBreakdown?.totalStudents || 0}</p>
+              </div>
+              <div className="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
+                <p className="text-indigo-100 text-sm mb-1">Total Faculty</p>
+                <p className="text-3xl font-bold">{programBreakdown?.totalFaculty || 0}</p>
+              </div>
+              <div className="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
+                <p className="text-indigo-100 text-sm mb-1">Program Categories</p>
+                <p className="text-3xl font-bold">{Object.keys(programBreakdown?.byCategory || {}).length}</p>
+              </div>
+              <div className="bg-white bg-opacity-20 rounded-lg p-4 backdrop-blur-sm">
+                <p className="text-indigo-100 text-sm mb-1">Active Batches</p>
+                <p className="text-3xl font-bold">{Object.keys(programBreakdown?.byBatch || {}).length}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Program Category Breakdown */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 transition-colors">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">Program Category Details</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Student-Faculty ratio and distribution</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {Object.entries(programBreakdown?.byCategory || {}).map(([category, data], index) => {
+                const colors = [
+                  { gradient: 'from-blue-500 to-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-700', text: 'text-blue-700 dark:text-blue-300' },
+                  { gradient: 'from-green-500 to-green-600', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-700', text: 'text-green-700 dark:text-green-300' },
+                  { gradient: 'from-purple-500 to-purple-600', bg: 'bg-purple-50 dark:bg-purple-900/20', border: 'border-purple-200 dark:border-purple-700', text: 'text-purple-700 dark:text-purple-300' },
+                  { gradient: 'from-orange-500 to-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20', border: 'border-orange-200 dark:border-orange-700', text: 'text-orange-700 dark:text-orange-300' },
+                  { gradient: 'from-pink-500 to-pink-600', bg: 'bg-pink-50 dark:bg-pink-900/20', border: 'border-pink-200 dark:border-pink-700', text: 'text-pink-700 dark:text-pink-300' },
+                  { gradient: 'from-indigo-500 to-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20', border: 'border-indigo-200 dark:border-indigo-700', text: 'text-indigo-700 dark:text-indigo-300' },
+                ];
+                const colorScheme = colors[index % colors.length];
+                const studentFacultyRatio = data.faculty > 0 ? (data.students / data.faculty).toFixed(1) : 'N/A';
+                
+                return (
+                  <div key={category} className={`${colorScheme.bg} ${colorScheme.border} border rounded-xl p-5 transition-all hover:shadow-lg`}>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h5 className={`text-lg font-bold ${colorScheme.text} mb-2`}>{category}</h5>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-gray-600 dark:text-gray-400 mb-1">Students</p>
+                            <p className={`text-2xl font-bold ${colorScheme.text}`}>{data.students}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 dark:text-gray-400 mb-1">Faculty</p>
+                            <p className={`text-2xl font-bold ${colorScheme.text}`}>{data.faculty}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={`w-12 h-12 bg-gradient-to-br ${colorScheme.gradient} rounded-lg flex items-center justify-center text-white text-xl font-bold shadow-md`}>
+                        {index + 1}
+                      </div>
+                    </div>
+                    
+                    <div className="border-t dark:border-gray-600 pt-3 mt-3">
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div className="text-center">
+                          <p className="text-gray-600 dark:text-gray-400 mb-1">Programs</p>
+                          <p className={`text-lg font-bold ${colorScheme.text}`}>{data.programCount}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-gray-600 dark:text-gray-400 mb-1">Specializations</p>
+                          <p className={`text-lg font-bold ${colorScheme.text}`}>{data.specializationCount}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-gray-600 dark:text-gray-400 mb-1">S:F Ratio</p>
+                          <p className={`text-lg font-bold ${colorScheme.text}`}>{studentFacultyRatio}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Year Distribution */}
+                    {Object.keys(data.years || {}).length > 0 && (
+                      <div className="mt-4 pt-4 border-t dark:border-gray-600">
+                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Year Distribution</p>
+                        <div className="space-y-2">
+                          {Object.entries(data.years).map(([year, count]) => {
+                            const percentage = (count / data.students * 100).toFixed(1);
+                            return (
+                              <div key={year} className="flex items-center justify-between">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Year {year}</span>
+                                <div className="flex items-center flex-1 mx-3">
+                                  <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                                    <div 
+                                      className={`bg-gradient-to-r ${colorScheme.gradient} h-2 rounded-full transition-all duration-500`}
+                                      style={{ width: `${Math.max(10, percentage)}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                                <span className={`text-sm font-bold ${colorScheme.text} min-w-[60px] text-right`}>
+                                  {count} ({percentage}%)
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Year-wise and Batch-wise Distribution */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Year-wise Distribution */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 transition-colors">
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">Year-wise Distribution</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Current year enrollment</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {Object.entries(programBreakdown?.byYear || {})
+                  .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+                  .map(([year, count]) => {
+                    const percentage = (count / (programBreakdown?.totalStudents || 1) * 100).toFixed(1);
+                    return (
+                      <div key={year} className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4 rounded-lg border border-teal-200 dark:border-teal-700">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <span className="text-3xl font-bold text-teal-600 dark:text-teal-400 mr-3">
+                              {year}
+                            </span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Year</span>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{count}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">students</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 mr-3">
+                            <div 
+                              className="bg-gradient-to-r from-teal-500 to-cyan-600 h-2.5 rounded-full transition-all duration-500"
+                              style={{ width: `${Math.max(5, percentage)}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-bold text-teal-600 dark:text-teal-400 min-w-[50px] text-right">
+                            {percentage}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* Batch-wise Distribution */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 transition-colors">
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">Batch-wise Distribution</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">By admission year</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {Object.entries(programBreakdown?.byBatch || {})
+                  .sort((a, b) => parseInt(b[0]) - parseInt(a[0]))
+                  .slice(0, 8)
+                  .map(([batch, count]) => {
+                    const percentage = (count / (programBreakdown?.totalStudents || 1) * 100).toFixed(1);
+                    const currentYear = new Date().getFullYear();
+                    const isRecent = parseInt(batch) >= currentYear - 2;
+                    
+                    return (
+                      <div key={batch} className={`${isRecent ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20' : 'bg-gray-50 dark:bg-gray-700'} p-4 rounded-lg border ${isRecent ? 'border-amber-200 dark:border-amber-700' : 'border-gray-200 dark:border-gray-600'}`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <span className="text-3xl font-bold text-amber-600 dark:text-amber-400 mr-3">
+                              '{batch.toString().slice(-2)}
+                            </span>
+                            <div>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">Batch of</span>
+                              <p className="text-xs text-gray-500 dark:text-gray-500">{batch}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{count}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">students</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 mr-3">
+                            <div 
+                              className="bg-gradient-to-r from-amber-500 to-orange-600 h-2.5 rounded-full transition-all duration-500"
+                              style={{ width: `${Math.max(5, percentage)}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-bold text-amber-600 dark:text-amber-400 min-w-[50px] text-right">
+                            {percentage}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+
+          {/* Faculty Workload Analysis */}
+          <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 rounded-xl p-6 border border-rose-200 dark:border-rose-700">
+            <div className="flex items-center mb-6">
+              <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-pink-600 rounded-lg flex items-center justify-center mr-3">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100">Faculty Workload & Ratios</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Student-to-Faculty ratios across programs</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(programBreakdown?.byCategory || {})
+                .sort((a, b) => {
+                  const ratioA = a[1].faculty > 0 ? a[1].students / a[1].faculty : 999;
+                  const ratioB = b[1].faculty > 0 ? b[1].students / b[1].faculty : 999;
+                  return ratioB - ratioA;
+                })
+                .map(([category, data]) => {
+                  const ratio = data.faculty > 0 ? (data.students / data.faculty).toFixed(1) : 'N/A';
+                  const idealRatio = 25; // Ideal student-faculty ratio
+                  const workloadLevel = data.faculty > 0 && (data.students / data.faculty) > idealRatio ? 'high' : 'normal';
+                  
+                  return (
+                    <div key={category} className={`bg-white dark:bg-gray-800 p-4 rounded-lg border-2 ${workloadLevel === 'high' ? 'border-red-300 dark:border-red-700' : 'border-green-300 dark:border-green-700'}`}>
+                      <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 truncate" title={category}>
+                        {category}
+                      </h5>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Faculty</span>
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.faculty}</span>
+                      </div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Students</span>
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.students}</span>
+                      </div>
+                      <div className={`text-center py-2 rounded-lg ${workloadLevel === 'high' ? 'bg-red-100 dark:bg-red-900/40' : 'bg-green-100 dark:bg-green-900/40'}`}>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">S:F Ratio</p>
+                        <p className={`text-2xl font-bold ${workloadLevel === 'high' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                          {ratio}:1
+                        </p>
+                        <p className="text-xs mt-1">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${workloadLevel === 'high' ? 'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200' : 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'}`}>
+                            {workloadLevel === 'high' ? '⚠ High Load' : '✓ Optimal'}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Enhanced Reports Tab */}
