@@ -297,17 +297,9 @@ const getAllStudents = async (req, res) => {
 
     const where = { role: 'student' };
     
-    // 🔥 Faculty can only see students from their assigned program category
-    if (req.user.role === 'faculty') {
-      const faculty = await User.findByPk(req.user.id, {
-        attributes: ['programCategory']
-      });
-      
-      if (faculty && faculty.programCategory) {
-        // Always filter by faculty's program category first
-        where.programCategory = faculty.programCategory;
-      }
-    }
+    // 🔥 "View All, Approve Own" pattern - Faculty can VIEW all students
+    // (Activity approval is restricted by program category in getPendingActivities/getAllActivities)
+    // No automatic filtering by faculty's program category for student browsing
     
     // Add search filter (name, email, studentId, program, or specialization)
     if (search) {
@@ -326,7 +318,7 @@ const getAllStudents = async (req, res) => {
       where.department = department;
     }
     
-    // Additional program category filter (if user manually filters - will be within their category)
+    // Add program category filter (only if explicitly requested by user)
     if (programCategory && programCategory !== 'all') {
       where.programCategory = programCategory;
     }
