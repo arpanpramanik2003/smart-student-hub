@@ -212,18 +212,61 @@ const reviewActivity = async (req, res) => {
 // Get faculty dashboard statistics
 const getFacultyStats = async (req, res) => {
   try {
-    const totalActivities = await Activity.count();
-    const pendingCount = await Activity.count({ where: { status: 'pending' } });
-    const approvedCount = await Activity.count({ where: { status: 'approved' } });
-    const rejectedCount = await Activity.count({ where: { status: 'rejected' } });
+    // 🔥 Faculty can only see stats from students in their assigned program category
+    let studentIds = null;
+    
+    if (req.user.role === 'faculty') {
+      const faculty = await User.findByPk(req.user.id, {
+        attributes: ['programCategory']
+      });
+      
+      if (faculty && faculty.programCategory) {
+        const studentsInCategory = await User.findAll({
+          where: { 
+            role: 'student',
+            programCategory: faculty.programCategory 
+          },
+          attributes: ['id']
+        });
+        
+        studentIds = studentsInCategory.map(s => s.id);
+        
+        // If no students in this category, set to empty array to show zero stats
+        if (studentIds.length === 0) {
+          return res.json({
+            totalActivities: 0,
+            pendingCount: 0,
+            approvedCount: 0,
+            rejectedCount: 0,
+            reviewedByMe: 0,
+            recentReviews: []
+          });
+        }
+      }
+      // If faculty has no programCategory, show all activities (backward compatibility)
+    }
+    
+    // Build where clause for filtering by student IDs
+    const activityWhere = studentIds ? { studentId: studentIds } : {};
+    
+    const totalActivities = await Activity.count({ where: activityWhere });
+    const pendingCount = await Activity.count({ 
+      where: { ...activityWhere, status: 'pending' } 
+    });
+    const approvedCount = await Activity.count({ 
+      where: { ...activityWhere, status: 'approved' } 
+    });
+    const rejectedCount = await Activity.count({ 
+      where: { ...activityWhere, status: 'rejected' } 
+    });
     
     const reviewedByMe = await Activity.count({ 
-      where: { approvedBy: req.user.id } 
+      where: { ...activityWhere, approvedBy: req.user.id } 
     });
 
-    // Recent activities reviewed by this faculty
+    // Recent activities reviewed by this faculty (also filtered by program category)
     const recentReviews = await Activity.findAll({
-      where: { approvedBy: req.user.id },
+      where: { ...activityWhere, approvedBy: req.user.id },
       include: [
         { model: User, as: 'student', attributes: ['name', 'studentId'] }
       ],
@@ -249,10 +292,22 @@ const getFacultyStats = async (req, res) => {
 // Get all students for faculty view
 const getAllStudents = async (req, res) => {
   try {
-    const { page = 1, limit = 20, search, department, year, programCategory, program, specialization } = req.query;
+    const { page = 1, limit = 20, search, department, year, programCategory, program, specialization, admissionYear } = req.query;
     const offset = (page - 1) * limit;
 
     const where = { role: 'student' };
+    
+    // 🔥 Faculty can only see students from their assigned program category
+    if (req.user.role === 'faculty') {
+      const faculty = await User.findByPk(req.user.id, {
+        attributes: ['programCategory']
+      });
+      
+      if (faculty && faculty.programCategory) {
+        // Always filter by faculty's program category first
+        where.programCategory = faculty.programCategory;
+      }
+    }
     
     // Add search filter (name, email, studentId, program, or specialization)
     if (search) {
@@ -271,7 +326,7 @@ const getAllStudents = async (req, res) => {
       where.department = department;
     }
     
-    // Add program category filter
+    // Additional program category filter (if user manually filters - will be within their category)
     if (programCategory && programCategory !== 'all') {
       where.programCategory = programCategory;
     }
@@ -290,12 +345,17 @@ const getAllStudents = async (req, res) => {
     if (year && year !== 'all') {
       where.year = parseInt(year);
     }
+    
+    // Add admission year filter
+    if (admissionYear && admissionYear !== 'all') {
+      where.admissionYear = parseInt(admissionYear);
+    }
 
     const { count, rows } = await User.findAndCountAll({
       where,
       attributes: [
         'id', 'name', 'email', 'studentId', 'department', 'year',
-        'programCategory', 'program', 'specialization',
+        'programCategory', 'program', 'specialization', 'admissionYear',
         'phone', 'dateOfBirth', 'gender', 'category', 'address',
         'tenthResult', 'twelfthResult', 
         'skills', 'languages', 'hobbies', 'achievements',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { facultyAPI } from '../../utils/api';
 import { STATUS_COLORS, ACTIVITY_STATUS } from '../../utils/constants';
+import { PROGRAM_CATEGORIES } from '../../utils/programsData';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const AllActivities = ({ user, token }) => {
@@ -110,7 +111,7 @@ const AllActivities = ({ user, token }) => {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header with Stats */}
-      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 dark:from-purple-900 dark:via-indigo-900 dark:to-blue-900 rounded-xl shadow-lg p-4 sm:p-6 transition-colors">
+      <div className="bg-blue-600 dark:bg-blue-900 rounded-xl shadow-lg p-4 sm:p-6 border border-blue-400 dark:border-blue-700/50 transition-colors">
         <div className="flex flex-col gap-4">
           <div>
             <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -121,9 +122,17 @@ const AllActivities = ({ user, token }) => {
               </div>
               <h1 className="text-xl sm:text-2xl font-bold text-white">All Activities</h1>
             </div>
-            <p className="text-sm sm:text-base text-purple-100 dark:text-purple-200 ml-11 sm:ml-13 transition-colors">
+            <p className="text-sm sm:text-base text-blue-100 dark:text-blue-200 ml-11 sm:ml-13 transition-colors">
               Overview of all student activity submissions
             </p>
+            {user.programCategory && (
+              <div className="mt-2 ml-11 sm:ml-13 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 text-sm text-white">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                </svg>
+                <span className="font-medium">Showing only: {PROGRAM_CATEGORIES[user.programCategory]}</span>
+              </div>
+            )}
           </div>
 
           {/* Quick Stats */}
@@ -132,19 +141,19 @@ const AllActivities = ({ user, token }) => {
               <div className="text-lg sm:text-2xl font-bold text-white">
                 {stats?.totalActivities || 0}
               </div>
-              <div className="text-purple-100 dark:text-purple-200 transition-colors text-xs">Total</div>
+              <div className="text-blue-100 dark:text-blue-200 transition-colors text-xs">Total</div>
             </div>
             <div className="text-center bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-lg px-2 sm:px-4 py-2 sm:py-3 transition-colors">
               <div className="text-lg sm:text-2xl font-bold text-white">
                 {stats?.pendingCount || 0}
               </div>
-              <div className="text-purple-100 dark:text-purple-200 transition-colors text-xs">Pending</div>
+              <div className="text-blue-100 dark:text-blue-200 transition-colors text-xs">Pending</div>
             </div>
             <div className="text-center bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-lg px-2 sm:px-4 py-2 sm:py-3 transition-colors">
               <div className="text-lg sm:text-2xl font-bold text-white">
                 {stats?.approvedCount || 0}
               </div>
-              <div className="text-purple-100 dark:text-purple-200 transition-colors text-xs">Approved</div>
+              <div className="text-blue-100 dark:text-blue-200 transition-colors text-xs">Approved</div>
             </div>
           </div>
         </div>

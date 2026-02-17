@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { facultyAPI } from '../../utils/api';
 import { STATUS_COLORS } from '../../utils/constants';
+import { PROGRAM_CATEGORIES } from '../../utils/programsData';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const ReviewQueue = ({ user, token }) => {
@@ -74,8 +75,8 @@ const ReviewQueue = ({ user, token }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Gradient Design */}
-      <div className="bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 dark:from-teal-900 dark:via-emerald-900 dark:to-green-900 rounded-xl shadow-lg p-6 text-white transition-colors">
+      {/* Header */}
+      <div className="bg-blue-600 dark:bg-blue-900 rounded-xl shadow-lg p-6 text-white border border-blue-400 dark:border-blue-700/50 transition-colors">
         <div className="flex items-center space-x-4">
           {/* Icon Badge */}
           <div className="flex-shrink-0">
@@ -92,6 +93,14 @@ const ReviewQueue = ({ user, token }) => {
             <p className="text-white/90 mt-1">
               {activities.length} {activities.length === 1 ? 'activity' : 'activities'} pending your review
             </p>
+            {user.programCategory && (
+              <div className="mt-2 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 text-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                </svg>
+                <span className="font-medium">Showing only: {PROGRAM_CATEGORIES[user.programCategory]}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

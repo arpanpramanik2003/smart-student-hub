@@ -156,7 +156,7 @@ const StudentList = ({ user }) => {
       {/* Header */}
       <div className="bg-blue-600 dark:bg-blue-900 rounded-xl shadow-lg p-6 text-white border border-blue-400 dark:border-blue-700/50 transition-colors">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2 flex items-center">
               <svg className="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
@@ -164,6 +164,14 @@ const StudentList = ({ user }) => {
               Students Directory
             </h1>
             <p className="text-blue-100 dark:text-blue-200">View and manage student information</p>
+            {user.programCategory && (
+              <div className="mt-2 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 text-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                </svg>
+                <span className="font-medium">Showing only: {PROGRAM_CATEGORIES[user.programCategory]}</span>
+              </div>
+            )}
           </div>
           <div className="bg-white bg-opacity-20 dark:bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 transition-colors">
             <div className="text-xs text-blue-200">Total Students</div>

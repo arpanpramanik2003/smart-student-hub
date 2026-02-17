@@ -9,6 +9,10 @@ require('dotenv').config();
 
 const app = express();
 
+// Trust proxy - required for Render and other reverse proxies
+// This allows express-rate-limit to correctly identify client IPs
+app.set('trust proxy', 1);
+
 // 🔥 Create upload directories if they don't exist
 const createUploadDirs = () => {
   const dirs = [
