@@ -326,7 +326,7 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
                 </div>
               )}
 
-              {formData.program && availableSpecializations.length > 0 && (
+              {formData.program && (
                 <div className="sm:col-span-2">
                   <label htmlFor="specialization" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Specialization *
@@ -346,9 +346,13 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
                       className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
                     >
                       <option value="">Select Specialization</option>
-                      {availableSpecializations.map(spec => (
-                        <option key={spec} value={spec}>{spec}</option>
-                      ))}
+                      {availableSpecializations.length > 0 ? (
+                        availableSpecializations.map(spec => (
+                          <option key={spec} value={spec}>{spec}</option>
+                        ))
+                      ) : (
+                        <option value="General">General</option>
+                      )}
                     </select>
                   </div>
                 </div>
@@ -455,18 +459,29 @@ const RegisterForm = ({ onLogin, onSwitchToLogin }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <input
+                  <select
                     id="admissionYear"
                     name="admissionYear"
-                    type="number"
                     required
-                    min="1900"
-                    max="2100"
                     value={formData.admissionYear}
                     onChange={handleChange}
-                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
-                    placeholder="e.g., 2023"
-                  />
+                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200"
+                  >
+                    <option value="">Select Admission Year</option>
+                    <option value="2027">2027</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2017">2017</option>
+                    <option value="2016">2016</option>
+                    <option value="2015">2015</option>
+                  </select>
                 </div>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Year you were admitted to the program</p>
               </div>
