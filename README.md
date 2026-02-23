@@ -17,7 +17,9 @@ A comprehensive platform for managing student academic activities, portfolios, a
 - [Environment Variables](#environment-variables)
 - [Test Credentials](#test-credentials)
 - [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)- [User Guides](#user-guides)- [Security](#security)
+- [API Documentation](#api-documentation)
+- [User Guides](#user-guides)
+- [Security](#security)
 
 ---
 
@@ -158,7 +160,7 @@ Storage  → Cloudinary CDN (25GB Free)
 
 ### Quick Deploy
 
-See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete step-by-step instructions including:
+See **[ADMIN_GUIDE.md → Deployment Guide](ADMIN_GUIDE.md#deployment-guide)** for complete step-by-step instructions including:
 - Supabase PostgreSQL setup
 - Cloudinary CDN configuration
 - Render backend deployment
@@ -256,8 +258,11 @@ smart-student-hub/
 │   │   └── App.jsx          # Main component
 │   └── .env                 # Frontend config
 │
-├── README.md                 # This file
-└── DEPLOYMENT.md            # Deployment guide
+├── README.md                 # Project overview & quick start
+├── ADMIN_GUIDE.md            # Admin setup, security & deployment
+├── FACULTY_GUIDE.md          # Faculty user guide
+├── STUDENT_GUIDE.md          # Student user guide & API reference
+└── DATABASE_API_ARCHITECTURE.md  # Technical API reference
 ```
 
 ---
@@ -300,27 +305,35 @@ Authorization: Bearer <token>
 
 ---
 
-## � User Guides
+## 🗺️ User Guides
 
 Comprehensive guides for all user roles:
+
+### 👨‍🎓 [Student Guide](STUDENT_GUIDE.md)
+Complete guide for students including:
+- Registration with hierarchical program selection
+- Activity submission and tracking
+- Dashboard and portfolio usage
+- Profile management
+- Full student API reference
+- Troubleshooting common issues
 
 ### 👨‍🏫 [Faculty Guide](FACULTY_GUIDE.md)
 Complete guide for faculty members including:
 - Dashboard overview and navigation
-- Activity review workflow
-- Credit assignment guidelines
-- **NEW: All Students Directory** - Search, filter, and view complete student profiles
-- Best practices and tips
-- Troubleshooting common issues
+- Activity review workflow and credit guidelines
+- All Students Directory — search, filter, view profiles
+- Program Category assignment system
+- Best practices and troubleshooting
 
 ### 👑 [Admin Guide](ADMIN_GUIDE.md)
 Administrator documentation covering:
 - Secure admin setup and credentials
-- User management
+- User management and security best practices
 - Database access and backups
-- Security best practices
-- Environment variables
-- Production deployment checklist
+- Environment variables configuration
+- Production deployment (Supabase + Cloudinary + Render + Vercel)
+- Production checklist
 
 ### 📡 [API Documentation](DATABASE_API_ARCHITECTURE.md)
 Technical API reference:
@@ -329,15 +342,6 @@ Technical API reference:
 - Request/response formats
 - Authentication flows
 - SQL queries and optimization
-
-### 🚀 [Deployment Guide](DEPLOYMENT.md)
-Step-by-step deployment instructions:
-- Supabase PostgreSQL setup
-- Cloudinary CDN configuration
-- Render backend deployment
-- Vercel frontend deployment
-- Environment configuration
-- Testing and troubleshooting
 
 ---
 
@@ -417,10 +421,10 @@ For issues, questions, or suggestions:
 - Email: support@smartstudenthub.com
 
 **Documentation:**
+- 👨‍� [Student Guide](STUDENT_GUIDE.md) - Student registration, activities, portfolio & API reference
 - 👨‍🏫 [Faculty Guide](FACULTY_GUIDE.md) - Complete faculty user manual
-- 👑 [Admin Guide](ADMIN_GUIDE.md) - Administrator documentation
+- 👑 [Admin Guide](ADMIN_GUIDE.md) - Administrator documentation & deployment guide
 - 📡 [API Documentation](DATABASE_API_ARCHITECTURE.md) - Technical API reference
-- 🚀 [Deployment Guide](DEPLOYMENT.md) - Production deployment steps
 
 ---
 

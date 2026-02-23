@@ -6,6 +6,7 @@
 - [Review Queue](#review-queue)
 - [All Activities](#all-activities)
 - [All Students Directory](#all-students-directory)
+- [Program Category System](#program-category-system)
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
@@ -252,7 +253,77 @@ Click **"View Details"** on any student to see comprehensive information:
 
 ---
 
-## 💡 Best Practices
+## 🎓 Program Category System
+
+### Overview
+
+Faculty are assigned to a **Program Category** during registration. This controls which students' activities they can approve, ensuring clear jurisdiction and preventing conflicts between departments.
+
+**Core principle — "View All, Approve Own":**
+- Faculty can **VIEW** all students (for collaboration and advising)
+- Faculty can only **APPROVE / REJECT** activities from students in **their own program category**
+
+### Program Categories
+
+| Key | Category |
+|-----|----------|
+| `ENGINEERING_TECHNOLOGY` | Engineering & Technology |
+| `COMPUTER_APPLICATIONS` | Computer Applications (BCA, MCA) |
+| `SCIENCE` | Science Programs |
+| `AGRICULTURE_FISHERIES` | Agriculture & Fisheries Science |
+| `HEALTH_SCIENCES_PHARMACY` | Health Sciences & Pharmacy |
+| `NURSING` | Nursing & Midwifery |
+| `MARITIME_STUDIES` | Maritime Studies |
+| `MANAGEMENT_COMMERCE_LAW` | Management, Commerce & Law |
+| `HOSPITALITY_CULINARY` | Hospitality & Culinary Arts |
+| `PHD_PROGRAMS` | PhD Programs |
+
+### Faculty Registration Flow
+
+During registration, faculty must select their Program Category:
+1. Select **Faculty** role
+2. Select **Program Category** from the dropdown — this controls approval jurisdiction
+3. Enter Department name (free text, e.g., "Computer Science")
+4. Complete remaining required fields
+
+> Your program category is displayed in your faculty dashboard's welcome banner.
+
+### Activity Approval Flow
+
+1. A student submits an activity linked to their program category
+2. **Faculty dashboard** shows only pending activities from students in the **same program category**
+3. Faculty reviews and approves/rejects — other faculty from different categories **cannot** see or interfere with these activities
+4. Students in **other program categories** are visible in the Students Directory but their activities do not appear in the review queue
+
+### Benefits
+- **Clear jurisdiction**: Each faculty has defined responsibility over their category's students
+- **No conflicts**: Faculty from different categories do not interfere with each other's approval decisions
+- **Relevant expertise**: Faculty review activities from students in their area
+- **Transparency maintained**: Faculty can still browse all students for collaboration
+
+### Database Migration (for Existing Faculty)
+
+If existing faculty accounts have no `programCategory`, run these SQL queries in Supabase:
+
+```sql
+-- Check faculty without programCategory
+SELECT id, name, email, department FROM users
+WHERE role = 'faculty' AND programCategory IS NULL;
+
+-- Update by department mapping
+UPDATE users SET programCategory = 'COMPUTER_APPLICATIONS'
+WHERE role = 'faculty' AND department LIKE '%Computer%';
+
+UPDATE users SET programCategory = 'ENGINEERING_TECHNOLOGY'
+WHERE role = 'faculty' AND department IN ('Mechanical', 'Electrical', 'Civil', 'Electronics');
+
+-- Verify
+SELECT programCategory, COUNT(*) FROM users
+WHERE role = 'faculty'
+GROUP BY programCategory;
+```
+
+---
 
 ### Time Management
 - Review activities daily
@@ -328,7 +399,7 @@ Contact: technical support or admin
 **Documentation:**
 - [API Documentation](DATABASE_API_ARCHITECTURE.md)
 - [Admin Guide](ADMIN_GUIDE.md)
-- [Deployment Guide](DEPLOYMENT.md)
+- [Student Guide](STUDENT_GUIDE.md)
 
 ---
 

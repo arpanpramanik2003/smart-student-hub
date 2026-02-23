@@ -7,6 +7,7 @@
 - [Files to Remove Before Production](#files-to-remove-before-production)
 - [Database Access](#database-access)
 - [Environment Variables Security](#environment-variables-security)
+- [Deployment Guide](#deployment-guide)
 
 ---
 
@@ -435,12 +436,152 @@ Before going live:
 
 ---
 
+## � Deployment Guide
+
+### Architecture Overview
+
+```
+Frontend (Vercel) → React + Vite (Free)
+Backend (Render)  → Node.js + Express (Free)
+Database          → Supabase PostgreSQL 500MB (Free)
+Storage           → Cloudinary CDN 25GB (Free)
+Total Cost: $0/month
+```
+
+---
+
+### Step 1: Supabase PostgreSQL Setup
+
+1. Go to [supabase.com](https://supabase.com) → **New Project**
+2. Set project name, database password, and region
+3. After creation (~2 min), go to **Project Settings → Database**
+4. Copy the **Connection String** (URI format):
+   ```
+   postgresql://postgres:[YOUR-PASSWORD]@db.xxxxx.supabase.co:5432/postgres
+   ```
+5. Save this — you'll need it for Render
+
+---
+
+### Step 2: Cloudinary Setup
+
+1. Sign up at [cloudinary.com](https://cloudinary.com/users/register_free)
+2. From the Dashboard, copy these credentials:
+   ```
+   CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+   CLOUDINARY_API_KEY=<your-api-key>
+   CLOUDINARY_API_SECRET=<click Reveal to show>
+   ```
+
+---
+
+### Step 3: Deploy Backend to Render
+
+1. Go to [render.com](https://render.com) → **New → Web Service**
+2. Connect your GitHub repository (`smart-student-hub`)
+3. Configure:
+   ```
+   Root Directory: backend
+   Runtime: Node
+   Build Command: npm install
+   Start Command: npm start
+   Instance Type: Free
+   ```
+4. Add **Environment Variables** (click Advanced):
+
+| Key | Value |
+|-----|-------|
+| `NODE_ENV` | `production` |
+| `PORT` | `5000` |
+| `JWT_SECRET` | _(generate: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`)_ |
+| `JWT_EXPIRES_IN` | `24h` |
+| `DATABASE_URL` | Your Supabase connection string |
+| `ALLOWED_ORIGINS` | `https://your-app.vercel.app` _(update after frontend deploy)_ |
+| `CLOUDINARY_CLOUD_NAME` | From Step 2 |
+| `CLOUDINARY_API_KEY` | From Step 2 |
+| `CLOUDINARY_API_SECRET` | From Step 2 |
+| `ADMIN_RESET_CODE` | _(generate: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)_ |
+
+5. Click **Create Web Service** — wait 5–10 minutes
+6. Your backend URL: `https://smart-student-hub-api.onrender.com`
+7. After deployment, create the admin account using the secure endpoint (see [Default Admin Setup](#default-admin-setup))
+
+---
+
+### Step 4: Deploy Frontend to Vercel
+
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → Import GitHub repo
+2. Configure:
+   ```
+   Framework Preset: Vite
+   Root Directory: frontend
+   Build Command: npm run build
+   Output Directory: dist
+   ```
+3. Add **Environment Variables**:
+
+| Key | Value |
+|-----|-------|
+| `VITE_API_URL` | `https://smart-student-hub-api.onrender.com/api` |
+| `VITE_APP_NAME` | `Smart Student Hub` |
+| `VITE_APP_VERSION` | `1.0.0` |
+
+4. Click **Deploy** — wait 2–3 minutes
+5. Your frontend URL: `https://smart-student-hub.vercel.app`
+6. **Important:** Go back to Render and update `ALLOWED_ORIGINS` with the actual Vercel URL
+
+---
+
+### Step 5: Post-Deployment Testing
+
+**Health check:**
+```bash
+# Should return: { "status": "ok", "database": "connected" }
+GET https://smart-student-hub-api.onrender.com/api/health
+```
+
+**Test logins:**
+```
+Admin:   admin@smartstudenthub.com  /  Admin@123
+Student: pramanikarpan089@gmail.com /  Arpan@123
+Faculty: faculty@smartstudenthub.com / Faculty@123
+```
+> ⚠️ Remove test credentials from `frontend/src/pages/LoginPage.jsx` before final production!
+
+**Test file upload:** Log in as a student, submit an activity with a certificate, and verify the file appears in your Cloudinary Media Library.
+
+---
+
+### Deployment Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Database connection failed | Verify `DATABASE_URL`, check Supabase project is not paused |
+| Cloudinary upload failed | Check all 3 Cloudinary env vars; verify API Secret is revealed |
+| CORS error | Update `ALLOWED_ORIGINS` in Render to exact Vercel URL (with `https://`, no trailing slash) |
+| Render cold start (first request slow) | Normal for free tier — first request wakes the service (30-60s) |
+| File too large error | Certificates max 5MB, avatars max 2MB |
+| Supabase paused | Free tier pauses after 7 days inactivity — log in to wake it |
+
+---
+
+### Free Tier Limits
+
+| Service | Free Tier | Paid Tier |
+|---------|-----------|-----------|
+| **Vercel** | 100 GB bandwidth/month | $20/month |
+| **Render** | 750 hours/month | $7/month (always-on) |
+| **Supabase** | 500 MB database | $25/month |
+| **Cloudinary** | 25 GB storage + bandwidth | $99/month |
+
+---
+
 ## 📚 Additional Documentation
 
-- 👨‍🏫 [Faculty User Guide](FACULTY_GUIDE.md) - Complete guide for faculty members
-- 🚀 [Deployment Guide](DEPLOYMENT.md) - Production deployment instructions
-- 🔌 [API Documentation](DATABASE_API_ARCHITECTURE.md) - Technical API reference
-- 📖 [Main README](README.md) - Project overview and setup
+- 👨‍🎓 [Student Guide](STUDENT_GUIDE.md) - Registration, activities, profile, and API reference for students
+- 👨‍🏫 [Faculty Guide](FACULTY_GUIDE.md) - Complete guide for faculty members
+- 🔌 [API Documentation](DATABASE_API_ARCHITECTURE.md) - Technical API and database reference
+- 📖 [Main README](README.md) - Project overview and quick start
 
 ---
 
