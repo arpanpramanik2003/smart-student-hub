@@ -1,0 +1,34 @@
+# Monorepo ignore
+
+# Node
+**/node_modules/
+
+# Build outputs
+frontend/.next/
+frontend/out/
+backend/.cache/
+
+# Logs
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Environment files
+frontend/.env.local
+frontend/.env.*.local
+backend/.env
+backend/.env.local
+
+# Local databases
+**/*.db
+**/*.db-journal
+**/*.db-shm
+**/*.db-wal
+
+# Local uploads/artifacts
+backend/public/uploads/
+frontend/public/uploads/
+
+# OS/editor
+.DS_Store
+.vscode/

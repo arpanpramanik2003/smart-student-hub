@@ -1,0 +1,9 @@
+{
+  "name": "smart-student-hub-workspace",
+  "private": true,
+  "scripts": {
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "lint:backend": "npm --prefix backend run lint"
+  }
+}

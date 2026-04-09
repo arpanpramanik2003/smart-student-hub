@@ -1,441 +1,150 @@
-# 🎓 Smart Student Hub
+# Smart Student Hub Workspace
 
-A comprehensive platform for managing student academic activities, portfolios, and achievements. Built for educational institutions to track and showcase student accomplishments.
+## What This Repository Contains
 
-![Status](https://img.shields.io/badge/status-production--ready-green)
-![Version](https://img.shields.io/badge/version-1.1.1-blue)
-![License](https://img.shields.io/badge/license-MIT-orange)
+This monorepo contains the complete Smart Student Hub platform in separated services:
 
----
+- frontend: Next.js 15 application for UI, routing, and client-side workflows
+- backend: Express.js API for authentication, business rules, persistence, and file handling
+- docs: role guides, architecture, and operational instructions
 
-## 📋 Table of Contents
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Quick Start](#quick-start)
-- [Deployment](#deployment)
-- [Environment Variables](#environment-variables)
-- [Test Credentials](#test-credentials)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [User Guides](#user-guides)
-- [Security](#security)
+## Architecture Summary
 
----
+High-level request path:
 
-## 📝 Overview
-
-Smart Student Hub is a full-stack web application that enables:
-- **Students** to submit and track academic activities
-- **Faculty** to review and approve student submissions
-- **Admins** to manage users and generate comprehensive reports
-
-Perfect for NAAC/AICTE compliance and student portfolio management.
-
----
-
-## ✨ Features
-
-### 👨‍🎓 Student Portal
-- Submit academic activities (conferences, workshops, certifications, etc.)
-- Track activity status (pending, approved, rejected)
-- Build digital portfolio
-- Upload certificates and documents
-- View personal statistics and credits
-- Update profile and avatar
-
-### 👨‍🏫 Faculty Portal
-- Review pending student activities
-- Approve or reject submissions with remarks
-- Filter by department and status
-- View comprehensive activity dashboard
-- Track department-wise statistics
-- **All Students Directory** - Search, filter, and view complete student profiles
-  - Advanced search by name, email, or student ID
-  - Filter by department and year
-  - View student activity statistics
-  - Access detailed student information (read-only)
-  - Professional academic-style layout with pagination
-
-### 👑 Admin Portal
-- User management (create, edit, delete, deactivate)
-- Generate detailed reports (JSON/CSV)
-- View system-wide analytics
-- Department-wise breakdowns
-- Top student rankings
-- Activity type statistics
-
-### 🎨 UI & Design
-- **Dark Mode** - Complete dark theme with automatic system detection
-- **Modern Gradients** - Beautiful color schemes throughout
-- **Responsive Design** - Works seamlessly on all devices
-- **Enhanced Components** - Admin dashboard, portfolio, and CV sections
-- **Accessibility** - WCAG compliant color contrasts
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **React 19** with Vite
-- **Tailwind CSS** for styling
-- **Dark Mode** - Full theme support with system preference detection
-- **Axios** for API calls
-- **Vercel** deployment
-- Modern ES6+ JavaScript with gradient designs
-
-### Backend
-- **Node.js** with Express
-- **PostgreSQL** (Supabase) for production
-- **SQLite** for local development
-- **JWT** authentication
-- **Cloudinary** for file storage (25GB with CDN)
-- **Multer** for file uploads
-- **Helmet** & **CORS** for security
-- **Rate limiting** for API protection
-- **Render** deployment
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-
-### Local Development
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/arpanpramanik2003/smart-student-hub.git
-   cd smart-student-hub
-   ```
-
-2. **Setup Backend**
-   ```bash
-   cd backend
-   npm install
-   
-   # Copy environment template
-   cp .env.example .env
-   
-   # Create admin account
-   npm run create-admin
-   
-   # Start backend on port 5000
-   npm run dev
-   ```
-
-3. **Setup Frontend** (in new terminal)
-   ```bash
-   cd frontend
-   npm install
-   
-   # Copy environment template
-   cp .env.example .env
-   
-   # Start frontend on port 5173
-   npm run dev
-   ```
-
-4. **Access Application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:5000/api
-   - API Health: http://localhost:5000/api/health
-
----
-
-## 🌐 Deployment
-
-### Production Stack (Recommended)
-
-```
-Frontend → Vercel (Free)
-Backend  → Render (Free)
-Database → Supabase PostgreSQL (500MB Free)
-Storage  → Cloudinary CDN (25GB Free)
+```text
+User Browser
+	-> Next.js Frontend
+	-> Express Backend (/api/*)
+	-> SQLite (local) or PostgreSQL (production)
 ```
 
-**Total Cost: $0/month**
+Design decisions:
 
-### Quick Deploy
+- keep browser-safe configuration only in frontend
+- keep secrets and security controls only in backend
+- expose all business APIs from backend route modules
+- keep migration and schema lifecycle backend-owned
 
-See **[ADMIN_GUIDE.md → Deployment Guide](ADMIN_GUIDE.md#deployment-guide)** for complete step-by-step instructions including:
-- Supabase PostgreSQL setup
-- Cloudinary CDN configuration
-- Render backend deployment
-- Vercel frontend deployment
-- Environment variables
-- Testing & troubleshooting
+## Major Features
 
----
+Student workflows:
 
-## 🔐 Environment Variables
+- registration and login
+- profile and CV metadata management
+- activity submit/edit/delete (pending only)
+- portfolio and stats view
 
-### Backend (.env)
+Faculty workflows:
+
+- pending queue review
+- approve/reject with remarks and credits
+- student profile inspection
+
+Admin workflows:
+
+- user and role administration
+- account activation management
+- reporting and system-wide stats
+
+## Security Baseline
+
+Implemented backend controls:
+
+- JWT authentication with role-based authorization
+- CORS origin allow-list validation
+- strict security headers and production HSTS
+- auth route rate limiting with pluggable store
+- production error redaction
+- graceful shutdown and process-level exception handling
+
+Recommended security operations:
+
+- use strong rotating JWT secrets
+- keep admin reset code private and rotated
+- avoid wildcard CORS in production
+- use distributed rate-limiter backend in multi-instance deployments
+
+## Observability Baseline
+
+Backend observability stack:
+
+- structured logging: Pino
+- metrics: prom-client at /metrics
+- tracing: OpenTelemetry middleware
+- readiness/liveness endpoints for orchestration checks
+
+Core operational endpoints:
+
+- GET /healthz/live
+- GET /healthz/ready
+- GET /metrics
+
+## Environment Setup
+
+1. create frontend env file from template
+2. create backend env file from template
+3. set NEXT_PUBLIC_API_URL to backend API origin
+4. configure backend database source
+
+Backend DB options:
+
+- DB_PATH (absolute SQLite path)
+- DB_NAME (relative SQLite path)
+- DATABASE_URL (PostgreSQL)
+
+## Development Workflow
+
+Install dependencies:
 
 ```bash
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Security
-JWT_SECRET=your-secret-key-generate-new-for-production
-JWT_EXPIRES_IN=24h
-
-# Database (Development: SQLite, Production: PostgreSQL)
-DB_NAME=smart_student_hub.db
-DATABASE_URL=postgresql://postgres:password@db.xxxxx.supabase.co:5432/postgres
-
-# Cloudinary (Production file storage)
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-
-# CORS
-ALLOWED_ORIGINS=http://localhost:5173,https://your-app.vercel.app
+npm --prefix frontend install
+npm --prefix backend install
 ```
 
-### Frontend (.env)
+Run services:
 
 ```bash
-# API URL
-VITE_API_URL=http://localhost:5000/api
-
-# App Info
-VITE_APP_NAME=Smart Student Hub
-VITE_APP_VERSION=1.0.0
+npm --prefix frontend run dev
+npm --prefix backend run dev
 ```
 
----
+Lint:
 
-## 🔑 Test Credentials
-
-These credentials are visible on the login page for testing:
-
-### Admin
-- Email: `admin@smartstudenthub.com`
-- Password: `Admin@123`
-
-### Student
-- Email: `pramanikarpan089@gmail.com`
-- Password: `Arpan@123`
-
-### Faculty
-- Email: `faculty@smartstudenthub.com`
-- Password: `Faculty@123`
-
-⚠️ **Note:** Remove test credentials banner from `pages/LoginPage.jsx` before final production!
-
----
-
-## 📂 Project Structure
-
-```
-smart-student-hub/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/      # Request handlers
-│   │   ├── middleware/       # Auth & validation
-│   │   ├── models/           # Database models
-│   │   ├── routes/           # API routes
-│   │   └── utils/            # Helper functions
-│   ├── scripts/              # Admin creation script
-│   ├── uploads/              # Local file storage
-│   ├── .env                  # Environment variables
-│   └── server.js             # Entry point
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/       # React components
-│   │   │   ├── admin/       # Admin components
-│   │   │   ├── auth/        # Login/Register
-│   │   │   ├── faculty/     # Faculty components
-│   │   │   ├── shared/      # Shared components
-│   │   │   └── student/     # Student components
-│   │   ├── pages/           # Page components
-│   │   ├── utils/           # API & constants
-│   │   └── App.jsx          # Main component
-│   └── .env                 # Frontend config
-│
-├── README.md                 # Project overview & quick start
-├── ADMIN_GUIDE.md            # Admin setup, security & deployment
-├── FACULTY_GUIDE.md          # Faculty user guide
-├── STUDENT_GUIDE.md          # Student user guide & API reference
-└── DATABASE_API_ARCHITECTURE.md  # Technical API reference
+```bash
+npm run lint
 ```
 
----
+Migrations:
 
-## 📊 API Documentation
-
-### Base URL
-- Development: `http://localhost:5000/api`
-- Production: `https://your-backend.onrender.com/api`
-
-### Authentication
-All protected routes require JWT token in header:
-```
-Authorization: Bearer <token>
+```bash
+npm --prefix backend run migrate
 ```
 
-### Key Endpoints
+## Production Guidance
 
-#### Authentication
-- `POST /auth/login` - User login
-- `POST /auth/register` - User registration
-- `GET /auth/profile` - Get current user
+Before production rollout:
 
-#### Student
-- `GET /students/activities` - Get student activities
-- `POST /students/activities` - Submit activity
-- `GET /students/activities/stats` - Get statistics
-- `PUT /students/profile` - Update profile
+- set DB_SYNC_STRATEGY=none
+- apply migrations through migration runner
+- confirm JWT_SECRET and ADMIN_RESET_CODE are strong
+- configure CORS_ORIGIN for actual frontend domains
+- configure rate limiter backend (redis/upstash)
 
-#### Faculty
-- `GET /faculty/activities/pending` - Get pending reviews
-- `PUT /faculty/activities/:id` - Review activity
-- `GET /faculty/stats` - Get faculty statistics
+After deployment:
 
-#### Admin
-- `GET /admin/stats` - System statistics
-- `GET /admin/users` - List all users
-- `POST /admin/users` - Create user
-- `GET /admin/reports` - Generate reports
+- verify health endpoints
+- verify login and role-protected endpoints
+- verify metrics output
+- run smoke create/delete activity flow
 
----
+## Documentation Index
 
-## 🗺️ User Guides
+- central docs index: docs/frontend/README.md
+- frontend README: frontend/README.md
+- admin guide: docs/frontend/ADMIN_GUIDE.md
+- faculty guide: docs/frontend/FACULTY_GUIDE.md
+- student guide: docs/frontend/STUDENT_GUIDE.md
+- architecture guide: docs/frontend/DATABASE_API_ARCHITECTURE.md
 
-Comprehensive guides for all user roles:
-
-### 👨‍🎓 [Student Guide](STUDENT_GUIDE.md)
-Complete guide for students including:
-- Registration with hierarchical program selection
-- Activity submission and tracking
-- Dashboard and portfolio usage
-- Profile management
-- Full student API reference
-- Troubleshooting common issues
-
-### 👨‍🏫 [Faculty Guide](FACULTY_GUIDE.md)
-Complete guide for faculty members including:
-- Dashboard overview and navigation
-- Activity review workflow and credit guidelines
-- All Students Directory — search, filter, view profiles
-- Program Category assignment system
-- Best practices and troubleshooting
-
-### 👑 [Admin Guide](ADMIN_GUIDE.md)
-Administrator documentation covering:
-- Secure admin setup and credentials
-- User management and security best practices
-- Database access and backups
-- Environment variables configuration
-- Production deployment (Supabase + Cloudinary + Render + Vercel)
-- Production checklist
-
-### 📡 [API Documentation](DATABASE_API_ARCHITECTURE.md)
-Technical API reference:
-- Database schema and relationships
-- All API endpoints with examples
-- Request/response formats
-- Authentication flows
-- SQL queries and optimization
-
----
-
-## �🔒 Security Features
-
-- ✅ **JWT Authentication** - Secure token-based auth
-- ✅ **Password Hashing** - bcrypt with 12 rounds
-- ✅ **Strong Password Policy** - 8+ chars, mixed case, numbers, special chars
-- ✅ **Rate Limiting** - 5 attempts/15 min on auth routes
-- ✅ **CORS Protection** - Only allow frontend domain
-- ✅ **SSL/TLS** - HTTPS everywhere (Render + Vercel)
-- ✅ **Database SSL** - Encrypted Supabase connection
-- ✅ **Input Validation** - Joi schema validation
-- ✅ **XSS Prevention** - Helmet.js security headers
-- ✅ **SQL Injection** - Sequelize parameterized queries
-- ✅ **File Upload Limits** - 5MB certificates, 2MB avatars
-
-**Security Score: 8/10** 🛡️
-
----
-
-## 🎯 Activity Types
-
-- Conference Participation
-- Workshop Attendance
-- Certifications
-- Competitions
-- Internships
-- Leadership Roles
-- Community Service
-- Club Activities
-- Online Courses
-
----
-
-## 📈 Roadmap
-
-- [ ] Email notifications
-- [ ] PDF report generation
-- [ ] Advanced analytics dashboard
-- [ ] Mobile app (React Native)
-- [ ] Integration with LMS
-- [ ] Bulk user import
-- [ ] Activity templates
-- [ ] Peer reviews
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
----
-
-## 👥 Team
-
-Built by the Smart Student Hub Team for SIH 2025
-
----
-
-## 📧 Support
-
-For issues, questions, or suggestions:
-- Create an issue on [GitHub](https://github.com/arpanpramanik2003/smart-student-hub/issues)
-- Email: support@smartstudenthub.com
-
-**Documentation:**
-- 👨‍� [Student Guide](STUDENT_GUIDE.md) - Student registration, activities, portfolio & API reference
-- 👨‍🏫 [Faculty Guide](FACULTY_GUIDE.md) - Complete faculty user manual
-- 👑 [Admin Guide](ADMIN_GUIDE.md) - Administrator documentation & deployment guide
-- 📡 [API Documentation](DATABASE_API_ARCHITECTURE.md) - Technical API reference
-
----
-
-## 🙏 Acknowledgments
-
-- Built with ❤️ for educational institutions
-- Designed for NAAC/AICTE compliance
-- Inspired by the need for better student portfolio management
-
----
-
-**Repository:** https://github.com/arpanpramanik2003/smart-student-hub
-
-**Happy Coding! 🚀**
+Last Updated: April 2026

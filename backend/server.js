@@ -1,215 +1,186 @@
-const cors = require('cors');
-const express = require('express');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const path = require('path');
-const fs = require('fs');
-const { syncDatabase } = require('./src/utils/database');
-require('dotenv').config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import dotenv from 'dotenv';
+import express from 'express';
+import { registerRoutes } from './lib/routeLoader.js';
+import { initDB } from './lib/database.js';
+import { loadConfig } from './lib/config.js';
+import { createAuthRateLimiter } from './lib/rateLimiter.js';
+import { createLogger, createRequestLogger } from './lib/observability/logger.js';
+import { createMetrics } from './lib/observability/metrics.js';
+import { initTracing } from './lib/observability/tracing.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
+const config = loadConfig();
+const logger = createLogger(config);
 
 const app = express();
+const port = config.port;
 
-// Trust proxy - required for Render and other reverse proxies
-// This allows express-rate-limit to correctly identify client IPs
-app.set('trust proxy', 1);
+app.set('trust proxy', config.trustProxy);
 
-// 🔥 Create upload directories if they don't exist
-const createUploadDirs = () => {
-  const dirs = [
-    'uploads',
-    'uploads/profiles',
-    'uploads/avatars', 
-    'uploads/certificates'
-  ];
-  
-  dirs.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-      console.log(`📁 Created directory: ${dir}`);
+app.disable('x-powered-by');
+
+const startTime = Date.now();
+let isShuttingDown = false;
+const authRateLimiter = await createAuthRateLimiter(config);
+const tracing = await initTracing(config, logger);
+const metrics = createMetrics(config, logger);
+
+app.use(createRequestLogger(logger));
+app.use(tracing.middleware);
+app.use(metrics.middleware);
+app.use(authRateLimiter.middleware);
+
+app.use((req, res, next) => {
+  if (!isShuttingDown) {
+    next();
+    return;
+  }
+
+  res.status(503).json({ message: 'Server is shutting down. Please retry shortly.' });
+});
+
+app.use((req, res, next) => {
+  const requestOrigin = req.headers.origin;
+  const allowAnyOrigin = config.corsOrigins.includes('*');
+  const originAllowed = requestOrigin && config.corsOrigins.includes(requestOrigin);
+
+  if (requestOrigin && !allowAnyOrigin && !originAllowed) {
+    res.status(403).json({ message: 'Origin is not allowed by CORS policy' });
+    return;
+  }
+
+  res.setHeader('Access-Control-Allow-Origin', allowAnyOrigin ? '*' : (requestOrigin || config.corsOrigins[0]));
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Range');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Range, Accept-Ranges, Location');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (config.isProduction) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  next();
+});
+
+app.use(express.raw({ type: () => true, limit: config.requestBodyLimit }));
+
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+const exposeLocalUploads = config.exposeLocalUploads;
+const uploadsMaxAge = config.uploadsCacheControlMaxAge;
+
+if (exposeLocalUploads) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  app.use('/uploads', express.static(uploadsDir, {
+    dotfiles: 'deny',
+    maxAge: uploadsMaxAge,
+    etag: true,
+    index: false,
+  }));
+}
+
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Smart Student Hub backend',
+    status: 'ok',
+    apiBase: '/api',
+  });
+});
+
+metrics.registerEndpoint(app);
+
+app.get('/healthz/live', (req, res) => {
+  res.json({
+    status: 'alive',
+    uptimeSec: Math.floor((Date.now() - startTime) / 1000),
+  });
+});
+
+app.get('/healthz/ready', async (req, res) => {
+  try {
+    const { sequelize } = await initDB();
+    await sequelize.authenticate();
+    res.json({ status: 'ready' });
+  } catch (error) {
+    res.status(503).json({ status: 'not-ready' });
+  }
+});
+
+await initDB();
+await registerRoutes(app);
+
+const server = app.listen(port, () => {
+  logger.info({ port }, 'Express backend listening');
+});
+
+server.requestTimeout = config.requestTimeoutMs;
+server.headersTimeout = config.requestTimeoutMs + 5000;
+server.keepAliveTimeout = 5000;
+
+const shutdown = (signal) => {
+  if (isShuttingDown) {
+    return;
+  }
+
+  isShuttingDown = true;
+  logger.info({ signal }, 'Starting graceful shutdown');
+
+  const forceExitTimer = setTimeout(() => {
+    logger.error('Graceful shutdown timeout reached. Forcing process exit.');
+    process.exit(1);
+  }, config.shutdownTimeoutMs);
+
+  server.close(async (error) => {
+    clearTimeout(forceExitTimer);
+    if (error) {
+      logger.error({ err: error }, 'Error while closing HTTP server');
+      process.exit(1);
     }
+
+    try {
+      await authRateLimiter.close();
+      await tracing.shutdown();
+    } catch (closeError) {
+      logger.error({ err: closeError }, 'Error while closing observability resources');
+      process.exit(1);
+    }
+
+    logger.info('HTTP server closed cleanly');
+    process.exit(0);
   });
 };
 
-// Create upload directories
-createUploadDirs();
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
 
-// 🔧 Log environment information
-if (process.env.NODE_ENV === 'production') {
-  console.log(`\n🌐 ENVIRONMENT: PRODUCTION`);
-  console.log(`📍 Cloud Deployment Detected`);
-} else {
-  console.log(`\n💻 ENVIRONMENT: DEVELOPMENT (LOCAL)`);
-  console.log(`📍 Local Development Environment`);
-}
-console.log('-----------------------------------\n');
-
-// Security middleware
-app.use(helmet({ 
-  crossOriginEmbedderPolicy: false, 
-  crossOriginOpenerPolicy: false, 
-  crossOriginResourcePolicy: { policy: 'cross-origin' } 
-}));
-
-// CORS configuration - use environment variable
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-  : ['http://localhost:5173', 'http://localhost:3000'];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// 🔥 Enhanced static file serving with better logging
-app.use('/uploads', (req, res, next) => {
-  console.log(`📂 Static file request: ${req.path}`);
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  next();
-}, cors(), express.static(path.join(__dirname, 'uploads')));
-
-const PORT = process.env.PORT || 5000;
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
-
-// Balanced rate limiting for authentication routes
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 login attempts per 15 minutes per IP
-  message: 'Too many login attempts from this IP, please try again after 15 minutes',
-  standardHeaders: true,
-  legacyHeaders: false,
-  skipSuccessfulRequests: true, // Don't count successful logins towards limit
+process.on('uncaughtException', (error) => {
+  logger.error({ err: error }, 'Uncaught exception');
+  shutdown('uncaughtException');
 });
 
-// Apply strict rate limiting to auth routes
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
-
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Changed to true for form data
-
-// Initialize database
-syncDatabase();
-
-// Routes
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    message: 'Smart Student Hub API is running!',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    database: 'Connected ✅'
-  });
+process.on('unhandledRejection', (reason) => {
+  logger.error({ reason }, 'Unhandled rejection');
+  shutdown('unhandledRejection');
 });
 
-// 🔒 SECURE: Admin creation must be done through database seeding or CLI
-// Public admin creation endpoint removed for security
-
-// 🩺 DATABASE TEST ROUTE
-app.get('/api/test-db', async (req, res) => {
-  try {
-    const { User } = require('./src/utils/database');
-    const userCount = await User.count();
-    
-    res.json({ 
-      success: true, 
-      message: 'Database connected!',
-      userCount: userCount,
-      tables: 'User table exists'
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    logger.error({ port }, 'Port is already in use. Stop existing process or change PORT in backend/.env.');
+    process.exit(1);
   }
-});
 
-// 🔥 Debug middleware to log all API requests
-app.use('/api', (req, res, next) => {
-  console.log(`🌐 ${req.method} ${req.path}`, {
-    body: req.body,
-    files: req.files,
-    contentType: req.get('Content-Type')
-  });
-  next();
-});
-// Root route handler to prevent 404 errors
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Smart Student Hub API',
-    status: 'running',
-    version: '1.0.0'
-  });
-});
-
-// Handle HEAD requests to root
-app.head('/', (req, res) => {
-  res.status(200).end();
-});
-// API routes - PLACE THESE AFTER SPECIAL ROUTES
-app.use('/api/auth', require('./src/routes/auth'));
-app.use('/api/students', require('./src/routes/student'));
-app.use('/api/faculty', require('./src/routes/faculty'));
-app.use('/api/admin', require('./src/routes/admin'));
-
-// 🔥 CRITICAL: Special CORS for file proxy - allow ALL origins for PDF.js viewer
-app.use('/api/files', cors({
-  origin: '*', // Allow all origins (Mozilla PDF.js viewer needs this)
-  methods: ['GET', 'OPTIONS'],
-  allowedHeaders: ['Range', 'Content-Type', 'Accept'],
-  exposedHeaders: ['Content-Length', 'Content-Range', 'Accept-Ranges'],
-  credentials: false
-}), require('./src/routes/file'));
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('❌ Server Error:', err.stack);
-  res.status(500).json({ 
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-  });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  console.log(`❌ 404 - Route not found: ${req.method} ${req.originalUrl}`);
-  res.status(404).json({ message: 'Route not found' });
-});
-
-app.listen(PORT, () => {
-  const isProduction = process.env.NODE_ENV === 'production';
-  const baseUrl = isProduction 
-    ? process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `https://your-app-domain.com`
-    : `http://localhost:${PORT}`;
-  
-  console.log(`🚀 Server running on port ${PORT}`);
-  
-  if (isProduction) {
-    console.log(`📱 Health check: ${baseUrl}/api/health`);
-    console.log(`🩺 Database test: ${baseUrl}/api/test-db`);
-    console.log(`🔧 Admin setup: ${process.env.FRONTEND_URL || 'https://your-frontend-domain.com'}?setup=admin`);
-  } else {
-    console.log(`📱 Health check: ${baseUrl}/api/health`);
-    console.log(`🩺 Database test: ${baseUrl}/api/test-db`);
-    console.log(`🔧 Admin setup: http://localhost:5173?setup=admin`);
-  }
-  
-  console.log(`📁 Upload directories created successfully`);
+  logger.error({ err: error }, 'Server startup error');
+  process.exit(1);
 });

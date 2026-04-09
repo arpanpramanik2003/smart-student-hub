@@ -1,0 +1,196 @@
+import { createClient } from 'redis';
+
+const createMemoryAuthLimiter = (config) => {
+  const store = new Map();
+
+  return {
+    mode: 'memory',
+    middleware: (req, res, next) => {
+      if (!req.path.startsWith('/api/auth/')) {
+        next();
+        return;
+      }
+
+      const now = Date.now();
+      const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+      const key = `${ip}:${req.path}`;
+      const current = store.get(key);
+
+      if (!current || current.expiresAt <= now) {
+        store.set(key, { count: 1, expiresAt: now + config.authRateLimitWindowMs });
+        next();
+        return;
+      }
+
+      if (current.count >= config.authRateLimitMax) {
+        const retryAfterSec = Math.ceil((current.expiresAt - now) / 1000);
+        res.setHeader('Retry-After', String(Math.max(retryAfterSec, 1)));
+        res.status(429).json({ message: 'Too many requests. Please try again later.' });
+        return;
+      }
+
+      current.count += 1;
+      store.set(key, current);
+      next();
+    },
+    close: async () => {
+      store.clear();
+    },
+  };
+};
+
+const createRedisAuthLimiter = async (config) => {
+  const client = createClient({ url: config.redisUrl });
+  client.on('error', (error) => {
+    console.error('Redis client error:', error.message);
+  });
+
+  await client.connect();
+
+  return {
+    mode: 'redis',
+    middleware: async (req, res, next) => {
+      if (!req.path.startsWith('/api/auth/')) {
+        next();
+        return;
+      }
+
+      const now = Date.now();
+      const windowMs = config.authRateLimitWindowMs;
+      const windowId = Math.floor(now / windowMs);
+      const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+      const key = `rl:auth:${req.path}:${ip}:${windowId}`;
+      const ttlSec = Math.ceil(windowMs / 1000) + 1;
+
+      const count = await client.incr(key);
+      if (count === 1) {
+        await client.expire(key, ttlSec);
+      }
+
+      if (count > config.authRateLimitMax) {
+        const remainingMs = windowMs - (now % windowMs);
+        const retryAfterSec = Math.ceil(remainingMs / 1000);
+        res.setHeader('Retry-After', String(Math.max(retryAfterSec, 1)));
+        res.status(429).json({ message: 'Too many requests. Please try again later.' });
+        return;
+      }
+
+      next();
+    },
+    close: async () => {
+      if (client.isOpen) {
+        await client.quit();
+      }
+    },
+  };
+};
+
+const createUpstashAuthLimiter = async (config) => {
+  const baseUrl = config.upstashRedisRestUrl.replace(/\/+$/, '');
+  const token = config.upstashRedisRestToken;
+
+  const command = async (...parts) => {
+    const encodedParts = parts.map((part) => encodeURIComponent(String(part)));
+    const endpoint = `${baseUrl}/${encodedParts.join('/')}`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Upstash command failed (${response.status}): ${text}`);
+    }
+
+    const payload = await response.json();
+    if (payload.error) {
+      throw new Error(`Upstash error: ${payload.error}`);
+    }
+
+    return payload.result;
+  };
+
+  // Verify credentials early so startup fails fast when backend is forced to upstash.
+  await command('PING');
+
+  return {
+    mode: 'upstash',
+    middleware: async (req, res, next) => {
+      if (!req.path.startsWith('/api/auth/')) {
+        next();
+        return;
+      }
+
+      const now = Date.now();
+      const windowMs = config.authRateLimitWindowMs;
+      const windowId = Math.floor(now / windowMs);
+      const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+      const key = `rl:auth:${req.path}:${ip}:${windowId}`;
+      const ttlSec = Math.ceil(windowMs / 1000) + 1;
+
+      const count = Number(await command('INCR', key));
+      if (count === 1) {
+        await command('EXPIRE', key, ttlSec);
+      }
+
+      if (count > config.authRateLimitMax) {
+        const remainingMs = windowMs - (now % windowMs);
+        const retryAfterSec = Math.ceil(remainingMs / 1000);
+        res.setHeader('Retry-After', String(Math.max(retryAfterSec, 1)));
+        res.status(429).json({ message: 'Too many requests. Please try again later.' });
+        return;
+      }
+
+      next();
+    },
+    close: async () => {},
+  };
+};
+
+export const createAuthRateLimiter = async (config) => {
+  const backend = config.authRateLimitBackend;
+
+  if (backend === 'memory') {
+    return createMemoryAuthLimiter(config);
+  }
+
+  if (backend === 'redis' && !config.redisUrl) {
+    throw new Error('AUTH_RATE_LIMIT_BACKEND=redis requires REDIS_URL.');
+  }
+
+  if (backend === 'upstash' && (!config.upstashRedisRestUrl || !config.upstashRedisRestToken)) {
+    throw new Error('AUTH_RATE_LIMIT_BACKEND=upstash requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.');
+  }
+
+  if (backend === 'redis' || (backend === 'auto' && config.redisUrl)) {
+    try {
+      const limiter = await createRedisAuthLimiter(config);
+      console.log('Auth rate limiter backend: redis');
+      return limiter;
+    } catch (error) {
+      if (backend === 'redis') {
+        throw error;
+      }
+      console.warn('Redis limiter unavailable, falling back to memory:', error.message);
+    }
+  }
+
+  if (backend === 'upstash' || (backend === 'auto' && config.upstashRedisRestUrl && config.upstashRedisRestToken)) {
+    try {
+      const limiter = await createUpstashAuthLimiter(config);
+      console.log('Auth rate limiter backend: upstash');
+      return limiter;
+    } catch (error) {
+      if (backend === 'upstash') {
+        throw error;
+      }
+      console.warn('Upstash limiter unavailable, falling back to memory:', error.message);
+    }
+  }
+
+  console.log('Auth rate limiter backend: memory');
+  return createMemoryAuthLimiter(config);
+};
