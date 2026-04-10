@@ -19,19 +19,19 @@ const normalizeTableName = (table) => {
 
 const ensureMetaTable = async (queryInterface, Sequelize) => {
   const tables = await queryInterface.showAllTables();
-  const tableNames = new Set(tables.map(normalizeTableName));
+  const tableNames = new Set(tables.map(t => normalizeTableName(t).toLowerCase()));
 
-  if (tableNames.has(migrationTableName)) {
+  if (tableNames.has(migrationTableName.toLowerCase())) {
     return;
   }
 
-  await queryInterface.createTable(migrationTableName, {
-    name: {
-      type: Sequelize.STRING,
-      allowNull: false,
-      primaryKey: true,
-    },
-  });
+  // Create table with explicitly quoted name to preserve case
+  await queryInterface.sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "${migrationTableName}" (
+      name VARCHAR(255) NOT NULL PRIMARY KEY
+    )`,
+    { type: Sequelize.QueryTypes.RAW }
+  );
 };
 
 const listMigrationFiles = async () => {
@@ -61,7 +61,7 @@ export const runMigrations = async (sequelize) => {
   await ensureMetaTable(queryInterface, Sequelize);
 
   const appliedRows = await queryInterface.sequelize.query(
-    `SELECT name FROM ${migrationTableName}`,
+    `SELECT name FROM "${migrationTableName}"`,
     { type: Sequelize.QueryTypes.SELECT }
   );
   const applied = new Set(appliedRows.map((row) => row.name));
@@ -80,7 +80,10 @@ export const runMigrations = async (sequelize) => {
     }
 
     await migration.up({ queryInterface, Sequelize, dialect: sequelize.getDialect() });
-    await queryInterface.bulkInsert(migrationTableName, [{ name: migrationId }]);
+    await queryInterface.sequelize.query(
+      `INSERT INTO "${migrationTableName}" (name) VALUES (:name)`,
+      { replacements: { name: migrationId }, type: Sequelize.QueryTypes.INSERT }
+    );
     console.log(`Applied migration: ${migrationId}`);
   }
 };
