@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'file:///D:/Edutation(P)/SIH/smart-student-hub/backend/lib/nextResponse.js';
-import { initDB } from 'file:///D:/Edutation(P)/SIH/smart-student-hub/backend/lib/database.js';
-import { authenticateAndAuthorize } from 'file:///D:/Edutation(P)/SIH/smart-student-hub/backend/lib/auth.js';
+import { NextResponse } from 'next/server';
+import { initDB } from '@/lib/database';
+import { authenticateAndAuthorize } from '@/lib/auth';
 
 // PUT /api/faculty/activities/[activityId]
 export async function PUT(request, { params }) {

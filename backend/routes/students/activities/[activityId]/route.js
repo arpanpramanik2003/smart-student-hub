@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'file:///D:/Edutation(P)/SIH/smart-student-hub/backend/lib/nextResponse.js';
-import { initDB } from 'file:///D:/Edutation(P)/SIH/smart-student-hub/backend/lib/database.js';
-import { authenticateAndAuthorize } from 'file:///D:/Edutation(P)/SIH/smart-student-hub/backend/lib/auth.js';
-import { uploadFile, deleteFile } from 'file:///D:/Edutation(P)/SIH/smart-student-hub/backend/lib/cloudStorage.js';
+import { NextResponse } from 'next/server';
+import { initDB } from '@/lib/database';
+import { authenticateAndAuthorize } from '@/lib/auth';
+import { uploadFile, deleteFile } from '@/lib/cloudStorage';
 
 // PUT /api/students/activities/[activityId]
 export async function PUT(request, { params }) {
