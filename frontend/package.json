@@ -10,26 +10,15 @@
   },
   "dependencies": {
     "@vercel/analytics": "^1.6.1",
-    "axios": "^1.13.6",
-    "date-fns": "^2.30.0",
     "framer-motion": "^12.23.16",
-    "html2canvas": "^1.4.1",
-    "joi": "^18.0.2",
     "js-cookie": "^3.0.5",
     "jspdf": "^4.2.1",
-    "lucide-react": "^0.263.1",
     "next": "^15.5.14",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-hook-form": "^7.45.4",
-    "react-hot-toast": "^2.4.1",
-    "recharts": "^2.8.0",
-    "uuid": "^13.0.0"
+    "react-hot-toast": "^2.4.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
     "autoprefixer": "^10.4.21",
     "eslint": "^8",
     "eslint-config-next": "^15.5.14",
