@@ -13,17 +13,23 @@ const methodNames = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
 
 const toFileUrl = (filePath) => pathToFileURL(filePath).href;
 
-const replacementMap = new Map([
-  ['next/server', toFileUrl(path.join(localLibRoot, 'nextResponse.js'))],
-  ['@/lib/database', toFileUrl(path.join(localLibRoot, 'database.js'))],
-  ['@/lib/auth', toFileUrl(path.join(localLibRoot, 'auth.js'))],
-  ['@/lib/cloudStorage', toFileUrl(path.join(localLibRoot, 'cloudStorage.js'))],
-  ['@/lib/programsData', toFileUrl(path.join(localLibRoot, 'programsData.js'))],
-  ['@/lib/models/User.js', toFileUrl(path.join(localLibRoot, 'models', 'User.js'))],
-  ['@/lib/models/Activity.js', toFileUrl(path.join(localLibRoot, 'models', 'Activity.js'))],
-]);
+// Build replacement map with relative paths for cross-platform compatibility
+const buildReplacementMap = (generatedFilePath) => {
+  const relativePath = path.relative(path.dirname(generatedFilePath), localLibRoot).replace(/\\/g, '/');
+  const baseImport = relativePath ? `${relativePath}/` : './';
 
-const rewriteSource = (source) => {
+  return new Map([
+    ['next/server', `${baseImport}nextResponse.js`],
+    ['@/lib/database', `${baseImport}database.js`],
+    ['@/lib/auth', `${baseImport}auth.js`],
+    ['@/lib/cloudStorage', `${baseImport}cloudStorage.js`],
+    ['@/lib/programsData', `${baseImport}programsData.js`],
+    ['@/lib/models/User.js', `${baseImport}models/User.js`],
+    ['@/lib/models/Activity.js', `${baseImport}models/Activity.js`],
+  ]);
+};
+
+const rewriteSource = (source, replacementMap) => {
   return source.replace(/from\s+['"]([^'"]+)['"]/g, (match, specifier) => {
     const replacement = replacementMap.get(specifier);
     if (!replacement) {
@@ -69,8 +75,9 @@ const collectRouteFiles = async (directory) => {
 
 const importRouteModule = async (filePath) => {
   const source = await fs.readFile(filePath, 'utf8');
-  const rewrittenSource = rewriteSource(source);
   const generatedFilePath = path.join(generatedRoot, path.relative(apiRoot, filePath));
+  const replacementMap = buildReplacementMap(generatedFilePath);
+  const rewrittenSource = rewriteSource(source, replacementMap);
   await fs.mkdir(path.dirname(generatedFilePath), { recursive: true });
   await fs.writeFile(generatedFilePath, rewrittenSource, 'utf8');
   return import(pathToFileURL(generatedFilePath).href);
