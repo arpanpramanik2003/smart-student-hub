@@ -41,20 +41,20 @@ const apiRequest = async (endpoint, options = {}) => {
 
 // Auth API
 export const authAPI = {
-  login: (credentials) => apiRequest('/auth/login', {
+  login: (credentials) => apiRequest('/api/auth/login', {
     method: 'POST',
     body: credentials,
   }),
-  register: (userData) => apiRequest('/auth/register', {
+  register: (userData) => apiRequest('/api/auth/register', {
     method: 'POST',
     body: userData,
   }),
-  getProfile: () => apiRequest('/auth/profile'),
+  getProfile: () => apiRequest('/api/auth/profile'),
 };
 
 // Student API
 export const studentAPI = {
-  getProfile: () => apiRequest('/students/profile'),
+  getProfile: () => apiRequest('/api/students/profile'),
 
   updateProfile: (data) => {
     let body;
@@ -72,39 +72,39 @@ export const studentAPI = {
         }
       });
     }
-    return apiRequest('/students/profile', {
+    return apiRequest('/api/students/profile', {
       method: 'PUT',
       body: body,
     });
   },
 
-  getStats: () => apiRequest('/students/activities/stats'),
+  getStats: () => apiRequest('/api/students/activities/stats'),
 
   getActivities: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return apiRequest(`/students/activities${query ? `?${query}` : ''}`);
+    return apiRequest(`/api/students/activities${query ? `?${query}` : ''}`);
   },
 
-  submitActivity: (formData) => apiRequest('/students/activities', {
+  submitActivity: (formData) => apiRequest('/api/students/activities', {
     method: 'POST',
     body: formData,
   }),
 
-  updateActivity: (activityId, formData) => apiRequest(`/students/activities/${activityId}`, {
+  updateActivity: (activityId, formData) => apiRequest(`/api/students/activities/${activityId}`, {
     method: 'PUT',
     body: formData,
   }),
 
-  deleteActivity: (activityId) => apiRequest(`/students/activities/${activityId}`, {
+  deleteActivity: (activityId) => apiRequest(`/api/students/activities/${activityId}`, {
     method: 'DELETE',
   }),
 
   getAllStudents: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return apiRequest(`/students/browse${query ? `?${query}` : ''}`);
+    return apiRequest(`/api/students/browse${query ? `?${query}` : ''}`);
   },
 
-  uploadAvatar: (formData) => apiRequest('/students/upload-avatar', {
+  uploadAvatar: (formData) => apiRequest('/api/students/upload-avatar', {
     method: 'POST',
     body: formData,
   }),
@@ -112,48 +112,48 @@ export const studentAPI = {
 
 // Faculty API
 export const facultyAPI = {
-  getStats: () => apiRequest('/faculty/stats'),
+  getStats: () => apiRequest('/api/faculty/stats'),
   getPendingActivities: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return apiRequest(`/faculty/activities/pending${query ? `?${query}` : ''}`);
+    return apiRequest(`/api/faculty/activities/pending${query ? `?${query}` : ''}`);
   },
   getAllActivities: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return apiRequest(`/faculty/activities${query ? `?${query}` : ''}`);
+    return apiRequest(`/api/faculty/activities${query ? `?${query}` : ''}`);
   },
-  reviewActivity: (activityId, data) => apiRequest(`/faculty/activities/${activityId}`, {
+  reviewActivity: (activityId, data) => apiRequest(`/api/faculty/activities/${activityId}`, {
     method: 'PUT',
     body: data,
   }),
   getAllStudents: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return apiRequest(`/faculty/students${query ? `?${query}` : ''}`);
+    return apiRequest(`/api/faculty/students${query ? `?${query}` : ''}`);
   },
 };
 
 // Admin API
 export const adminAPI = {
-  getStats: () => apiRequest('/admin/stats'),
+  getStats: () => apiRequest('/api/admin/stats'),
   getUsers: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return apiRequest(`/admin/users${query ? `?${query}` : ''}`);
+    return apiRequest(`/api/admin/users${query ? `?${query}` : ''}`);
   },
-  createUser: (data) => apiRequest('/admin/users', {
+  createUser: (data) => apiRequest('/api/admin/users', {
     method: 'POST',
     body: data,
   }),
-  updateUser: (userId, data) => apiRequest(`/admin/users/${userId}`, {
+  updateUser: (userId, data) => apiRequest(`/api/admin/users/${userId}`, {
     method: 'PUT',
     body: data,
   }),
-  deleteUser: (userId) => apiRequest(`/admin/users/${userId}`, {
+  deleteUser: (userId) => apiRequest(`/api/admin/users/${userId}`, {
     method: 'DELETE',
   }),
-  toggleUserStatus: (userId) => apiRequest(`/admin/users/${userId}/toggle-status`, {
+  toggleUserStatus: (userId) => apiRequest(`/api/admin/users/${userId}/toggle-status`, {
     method: 'POST',
   }),
   getReports: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return apiRequest(`/admin/reports${query ? `?${query}` : ''}`);
+    return apiRequest(`/api/admin/reports${query ? `?${query}` : ''}`);
   },
 };
