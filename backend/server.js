@@ -119,7 +119,7 @@ app.get('/healthz/ready', async (req, res) => {
 });
 
 await initDB();
-await registerRoutes(app);
+await registerRoutes(app, logger);
 
 const server = app.listen(port, () => {
   logger.info({ port }, 'Express backend listening');

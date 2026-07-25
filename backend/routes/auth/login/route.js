@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { initDB } from '@/lib/database';
 import { generateToken } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 export async function POST(request) {
   try {
@@ -36,7 +37,7 @@ export async function POST(request) {
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error({ err: error }, 'Login error');
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

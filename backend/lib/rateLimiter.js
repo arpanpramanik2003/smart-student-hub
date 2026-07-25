@@ -1,4 +1,5 @@
 import { createClient } from 'redis';
+import { logger } from './observability/logger.js';
 
 const createMemoryAuthLimiter = (config) => {
   const store = new Map();
@@ -42,7 +43,7 @@ const createMemoryAuthLimiter = (config) => {
 const createRedisAuthLimiter = async (config) => {
   const client = createClient({ url: config.redisUrl });
   client.on('error', (error) => {
-    console.error('Redis client error:', error.message);
+    logger.error({ err: error }, 'Redis client error');
   });
 
   await client.connect();
@@ -168,29 +169,29 @@ export const createAuthRateLimiter = async (config) => {
   if (backend === 'redis' || (backend === 'auto' && config.redisUrl)) {
     try {
       const limiter = await createRedisAuthLimiter(config);
-      console.log('Auth rate limiter backend: redis');
+      logger.info({ mode: 'redis' }, 'Auth rate limiter initialized');
       return limiter;
     } catch (error) {
       if (backend === 'redis') {
         throw error;
       }
-      console.warn('Redis limiter unavailable, falling back to memory:', error.message);
+      logger.warn({ err: error.message }, 'Redis limiter unavailable, falling back to memory');
     }
   }
 
   if (backend === 'upstash' || (backend === 'auto' && config.upstashRedisRestUrl && config.upstashRedisRestToken)) {
     try {
       const limiter = await createUpstashAuthLimiter(config);
-      console.log('Auth rate limiter backend: upstash');
+      logger.info({ mode: 'upstash' }, 'Auth rate limiter initialized');
       return limiter;
     } catch (error) {
       if (backend === 'upstash') {
         throw error;
       }
-      console.warn('Upstash limiter unavailable, falling back to memory:', error.message);
+      logger.warn({ err: error.message }, 'Upstash limiter unavailable, falling back to memory');
     }
   }
 
-  console.log('Auth rate limiter backend: memory');
+  logger.info({ mode: 'memory' }, 'Auth rate limiter initialized');
   return createMemoryAuthLimiter(config);
 };

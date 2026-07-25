@@ -26,6 +26,7 @@ const buildReplacementMap = (generatedFilePath) => {
     ['@/lib/programsData', `${baseImport}programsData.js`],
     ['@/lib/models/User.js', `${baseImport}models/User.js`],
     ['@/lib/models/Activity.js', `${baseImport}models/Activity.js`],
+    ['@/lib/logger', `${baseImport}observability/logger.js`],
   ]);
 };
 
@@ -83,7 +84,7 @@ const importRouteModule = async (filePath) => {
   return import(pathToFileURL(generatedFilePath).href);
 };
 
-export const registerRoutes = async (app) => {
+export const registerRoutes = async (app, logger) => {
   const routeFiles = await collectRouteFiles(apiRoot);
 
   for (const filePath of routeFiles) {
@@ -103,7 +104,12 @@ export const registerRoutes = async (app) => {
           const response = await handler(request, { params: req.params });
           await sendWebResponse(res, response);
         } catch (error) {
-          console.error(`Route error for ${methodName} ${routePath}:`, error);
+          const activeLogger = req.log || logger;
+          if (activeLogger && activeLogger.error) {
+            activeLogger.error({ err: error, method: methodName, routePath }, `Route execution error for ${methodName} ${routePath}`);
+          } else {
+            console.error(`Route error for ${methodName} ${routePath}:`, error);
+          }
           const payload = { message: 'Internal server error' };
           if (process.env.NODE_ENV !== 'production') {
             payload.error = error.message;
@@ -114,5 +120,9 @@ export const registerRoutes = async (app) => {
     }
   }
 
-  console.log(`Registered ${routeFiles.length} API route modules from backend/routes`);
+  if (logger && logger.info) {
+    logger.info({ routeCount: routeFiles.length }, `Registered API route modules from backend/routes`);
+  } else {
+    console.log(`Registered ${routeFiles.length} API route modules from backend/routes`);
+  }
 };
