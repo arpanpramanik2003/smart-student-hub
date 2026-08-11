@@ -6,7 +6,16 @@ export function validateBody(schema, data) {
     const formattedErrors = result.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join(', ');
     return {
       success: false,
-      errorResponse: { message: 'Validation error', details: formattedErrors, issues: result.error.issues },
+      errorResponse: {
+        message: 'Validation error',
+        error: {
+          message: 'Validation error',
+          details: formattedErrors,
+          code: 'VALIDATION_ERROR',
+          issues: result.error.issues,
+        },
+        details: formattedErrors,
+      },
     };
   }
   return { success: true, data: result.data };

@@ -186,8 +186,12 @@ const UserManagement = ({ user, token, onNavigate }) => {
       const params = {
         page: pagination.page,
         limit: pagination.limit,
-        ...filters
       };
+      Object.keys(filters).forEach(key => {
+        if (filters[key] && filters[key] !== 'all') {
+          params[key] = filters[key];
+        }
+      });
       
       const data = await adminAPI.getUsers(params);
       setUsers(data.users || []);

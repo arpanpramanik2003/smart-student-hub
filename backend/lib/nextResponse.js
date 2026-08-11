@@ -14,4 +14,35 @@ export class NextResponse extends Response {
   static redirect(url, status = 307) {
     return Response.redirect(url, status);
   }
+
+  static error(message, status = 400, details = null, code = null) {
+    return NextResponse.json(
+      {
+        message,
+        error: {
+          message,
+          ...(details ? { details } : {}),
+          ...(code ? { code } : {}),
+        },
+      },
+      { status }
+    );
+  }
+}
+
+export function createPagination(total, page, limit) {
+  const safeTotal = Math.max(0, parseInt(total) || 0);
+  const safePage = Math.max(1, parseInt(page) || 1);
+  const safeLimit = Math.max(1, parseInt(limit) || 10);
+  const pages = Math.ceil(safeTotal / safeLimit) || 1;
+  const hasMore = safePage < pages;
+
+  return {
+    total: safeTotal,
+    page: safePage,
+    currentPage: safePage,
+    limit: safeLimit,
+    pages,
+    hasMore,
+  };
 }

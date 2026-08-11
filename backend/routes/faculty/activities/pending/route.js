@@ -1,11 +1,10 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
+import { NextResponse, createPagination } from 'next/server';
 import { initDB } from '@/lib/database';
 import { authenticateAndAuthorize } from '@/lib/auth';
 
-// Shared helper: get student IDs in faculty's program category
 async function getFacultyStudentIds(faculty, User) {
-  if (faculty.role !== 'faculty') return null; // admin sees all
+  if (faculty.role !== 'faculty') return null;
   const facultyData = await User.findByPk(faculty.id, { attributes: ['programCategory'] });
   if (!facultyData?.programCategory) return null;
 
@@ -14,7 +13,7 @@ async function getFacultyStudentIds(faculty, User) {
     attributes: ['id'],
   });
 
-  if (students.length === 0) return [-1]; // force empty result
+  if (students.length === 0) return [-1];
   return students.map((s) => s.id);
 }
 
@@ -47,10 +46,13 @@ export async function GET(request) {
 
     return NextResponse.json({
       activities: rows,
-      pagination: { total: count, page, pages: Math.ceil(count / limit), hasMore: offset + rows.length < count },
+      pagination: createPagination(count, page, limit),
     });
   } catch (error) {
     console.error('Get pending activities error:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({
+      message: 'Internal server error',
+      error: { message: 'Internal server error', details: error.message },
+    }, { status: 500 });
   }
 }

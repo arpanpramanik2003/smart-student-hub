@@ -1,0 +1,243 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Smart Student Hub API",
+    "description": "Standardized REST API contract specification for Smart Student Hub backend services.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "API Base Endpoint"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "Invalid email or password" },
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": { "type": "string", "example": "Invalid email or password" },
+              "details": { "type": "string", "nullable": true, "example": "email: Invalid email format" },
+              "code": { "type": "string", "nullable": true, "example": "VALIDATION_ERROR" }
+            },
+            "required": ["message"]
+          }
+        },
+        "required": ["message", "error"]
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "integer", "example": 100 },
+          "page": { "type": "integer", "example": 1 },
+          "currentPage": { "type": "integer", "example": 1 },
+          "limit": { "type": "integer", "example": 20 },
+          "pages": { "type": "integer", "example": 5 },
+          "hasMore": { "type": "boolean", "example": true }
+        },
+        "required": ["total", "page", "currentPage", "limit", "pages", "hasMore"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "format": "email", "example": "john@university.edu" },
+          "role": { "type": "string", "enum": ["student", "faculty", "admin"], "example": "student" },
+          "department": { "type": "string", "nullable": true },
+          "programCategory": { "type": "string", "nullable": true },
+          "program": { "type": "string", "nullable": true },
+          "specialization": { "type": "string", "nullable": true },
+          "year": { "type": "integer", "nullable": true },
+          "admissionYear": { "type": "integer", "nullable": true },
+          "studentId": { "type": "string", "nullable": true },
+          "profilePicture": { "type": "string", "nullable": true },
+          "isActive": { "type": "boolean", "example": true },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Activity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 10 },
+          "studentId": { "type": "integer", "example": 1 },
+          "title": { "type": "string", "example": "National Hackathon 2026" },
+          "type": {
+            "type": "string",
+            "enum": [
+              "conference", "workshop", "certification", "competition",
+              "internship", "leadership", "community_service", "club_activity", "online_course"
+            ]
+          },
+          "description": { "type": "string", "nullable": true },
+          "date": { "type": "string", "format": "date-time" },
+          "duration": { "type": "string", "nullable": true },
+          "organizer": { "type": "string", "nullable": true },
+          "filePath": { "type": "string", "nullable": true },
+          "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "example": "pending" },
+          "credits": { "type": "number", "example": 2.5 }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate user and issue JWT token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful with token and profile" },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } },
+          "401": { "description": "Invalid credentials", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErrorResponse" } } } }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Register a new student or user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password", "programCategory"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string", "minLength": 8 },
+                  "role": { "type": "string", "enum": ["student", "faculty", "admin"] },
+                  "programCategory": { "type": "string" },
+                  "program": { "type": "string" },
+                  "specialization": { "type": "string" },
+                  "year": { "type": "integer" },
+                  "admissionYear": { "type": "integer" },
+                  "studentId": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User created successfully" },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Email or Student ID already exists" }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "summary": "Get paginated user list with optional filters",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20 } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "role", "in": "query", "schema": { "type": "string" } },
+          { "name": "programCategory", "in": "query", "schema": { "type": "string" } },
+          { "name": "program", "in": "query", "schema": { "type": "string" } },
+          { "name": "specialization", "in": "query", "schema": { "type": "string" } },
+          { "name": "year", "in": "query", "schema": { "type": "integer" } },
+          { "name": "admissionYear", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": { "type": "array", "items": { "$ref": "#/components/schemas/User" } },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/students/activities": {
+      "get": {
+        "summary": "Get student's submitted activities",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "approved", "rejected"] } },
+          { "name": "type", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated activities list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "activities": { "type": "array", "items": { "$ref": "#/components/schemas/Activity" } },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Submit a new student activity",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "type", "date"],
+                "properties": {
+                  "title": { "type": "string" },
+                  "type": { "type": "string" },
+                  "description": { "type": "string" },
+                  "date": { "type": "string", "format": "date-time" },
+                  "duration": { "type": "string" },
+                  "organizer": { "type": "string" },
+                  "credits": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Activity submitted successfully" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    }
+  }
+}

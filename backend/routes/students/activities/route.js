@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
+import { NextResponse, createPagination } from 'next/server';
 import { initDB } from '@/lib/database';
 import { authenticateAndAuthorize } from '@/lib/auth';
 import { uploadFile } from '@/lib/cloudStorage';
@@ -21,8 +21,8 @@ export async function GET(request) {
     const { Activity, User } = await initDB();
 
     const where = { studentId: auth.user.id };
-    if (status) where.status = status;
-    if (type) where.type = type;
+    if (status && status !== 'all') where.status = status;
+    if (type && type !== 'all') where.type = type;
 
     const { count, rows } = await Activity.findAndCountAll({
       where,
@@ -34,10 +34,7 @@ export async function GET(request) {
 
     return NextResponse.json({
       activities: rows,
-      pagination: {
-        total: count, page, pages: Math.ceil(count / limit),
-        hasMore: offset + rows.length < count,
-      },
+      pagination: createPagination(count, page, limit),
     });
   } catch (error) {
     console.error('Get activities error:', error);

@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { NextResponse } from 'next/server';
+import { NextResponse, createPagination } from 'next/server';
 import { initDB } from '@/lib/database';
 import { authenticateAndAuthorize } from '@/lib/auth';
 import { Op } from 'sequelize';
@@ -67,10 +67,13 @@ export async function GET(request) {
 
     return NextResponse.json({
       students: studentsWithStats,
-      pagination: { total: count, page, pages: Math.ceil(count / limit), hasMore: offset + rows.length < count },
+      pagination: createPagination(count, page, limit),
     });
   } catch (error) {
     console.error('Get faculty students error:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({
+      message: 'Internal server error',
+      error: { message: 'Internal server error', details: error.message },
+    }, { status: 500 });
   }
 }
