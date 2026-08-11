@@ -20,6 +20,7 @@ const buildReplacementMap = (generatedFilePath) => {
 
   return new Map([
     ['next/server', `${baseImport}nextResponse.js`],
+    ['@/lib/config', `${baseImport}config.js`],
     ['@/lib/database', `${baseImport}database.js`],
     ['@/lib/auth', `${baseImport}auth.js`],
     ['@/lib/cloudStorage', `${baseImport}cloudStorage.js`],

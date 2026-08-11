@@ -1,9 +1,30 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { initDB } from '@/lib/database';
+import { loadConfig } from '@/lib/config';
+
+function timingSafeCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const bufA = Buffer.from(a, 'utf8');
+  const bufB = Buffer.from(b, 'utf8');
+
+  if (bufA.length !== bufB.length) {
+    crypto.timingSafeEqual(bufA, bufA);
+    return false;
+  }
+
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export async function POST(request) {
   try {
+    const config = loadConfig();
+
+    if (!config.enableAdminReset) {
+      return NextResponse.json({ message: 'Admin password reset endpoint is disabled' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { confirmCode, newUsername, newPassword } = body;
 
@@ -18,8 +39,8 @@ export async function POST(request) {
       return NextResponse.json({ message: 'Admin reset code not configured on server' }, { status: 500 });
     }
 
-    if (confirmCode !== ADMIN_RESET_CODE) {
-      console.warn(`⚠️ Failed admin reset attempt with code: ${confirmCode}`);
+    if (!timingSafeCompare(confirmCode, ADMIN_RESET_CODE)) {
+      console.warn('⚠️ Failed admin reset attempt due to invalid confirmation code');
       return NextResponse.json({ message: 'Invalid confirmation code' }, { status: 403 });
     }
 

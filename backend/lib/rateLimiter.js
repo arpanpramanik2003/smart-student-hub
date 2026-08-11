@@ -12,18 +12,22 @@ const createMemoryAuthLimiter = (config) => {
         return;
       }
 
+      const isAdminReset = req.path.endsWith('/admin-password-reset');
+      const maxLimit = isAdminReset ? config.adminResetRateLimitMax : config.authRateLimitMax;
+      const windowMs = isAdminReset ? config.adminResetRateLimitWindowMs : config.authRateLimitWindowMs;
+
       const now = Date.now();
       const ip = req.ip || req.socket?.remoteAddress || 'unknown';
       const key = `${ip}:${req.path}`;
       const current = store.get(key);
 
       if (!current || current.expiresAt <= now) {
-        store.set(key, { count: 1, expiresAt: now + config.authRateLimitWindowMs });
+        store.set(key, { count: 1, expiresAt: now + windowMs });
         next();
         return;
       }
 
-      if (current.count >= config.authRateLimitMax) {
+      if (current.count >= maxLimit) {
         const retryAfterSec = Math.ceil((current.expiresAt - now) / 1000);
         res.setHeader('Retry-After', String(Math.max(retryAfterSec, 1)));
         res.status(429).json({ message: 'Too many requests. Please try again later.' });
@@ -56,8 +60,11 @@ const createRedisAuthLimiter = async (config) => {
         return;
       }
 
+      const isAdminReset = req.path.endsWith('/admin-password-reset');
+      const maxLimit = isAdminReset ? config.adminResetRateLimitMax : config.authRateLimitMax;
+      const windowMs = isAdminReset ? config.adminResetRateLimitWindowMs : config.authRateLimitWindowMs;
+
       const now = Date.now();
-      const windowMs = config.authRateLimitWindowMs;
       const windowId = Math.floor(now / windowMs);
       const ip = req.ip || req.socket?.remoteAddress || 'unknown';
       const key = `rl:auth:${req.path}:${ip}:${windowId}`;
@@ -68,7 +75,7 @@ const createRedisAuthLimiter = async (config) => {
         await client.expire(key, ttlSec);
       }
 
-      if (count > config.authRateLimitMax) {
+      if (count > maxLimit) {
         const remainingMs = windowMs - (now % windowMs);
         const retryAfterSec = Math.ceil(remainingMs / 1000);
         res.setHeader('Retry-After', String(Math.max(retryAfterSec, 1)));
@@ -125,8 +132,11 @@ const createUpstashAuthLimiter = async (config) => {
         return;
       }
 
+      const isAdminReset = req.path.endsWith('/admin-password-reset');
+      const maxLimit = isAdminReset ? config.adminResetRateLimitMax : config.authRateLimitMax;
+      const windowMs = isAdminReset ? config.adminResetRateLimitWindowMs : config.authRateLimitWindowMs;
+
       const now = Date.now();
-      const windowMs = config.authRateLimitWindowMs;
       const windowId = Math.floor(now / windowMs);
       const ip = req.ip || req.socket?.remoteAddress || 'unknown';
       const key = `rl:auth:${req.path}:${ip}:${windowId}`;
@@ -137,7 +147,7 @@ const createUpstashAuthLimiter = async (config) => {
         await command('EXPIRE', key, ttlSec);
       }
 
-      if (count > config.authRateLimitMax) {
+      if (count > maxLimit) {
         const remainingMs = windowMs - (now % windowMs);
         const retryAfterSec = Math.ceil(remainingMs / 1000);
         res.setHeader('Retry-After', String(Math.max(retryAfterSec, 1)));

@@ -21,7 +21,15 @@ export async function GET(request) {
 
     // ── Local file (dev) ────────────────────────────────────
     if (url.startsWith('/uploads/')) {
-      const localPath = path.join(process.cwd(), 'public', url);
+      const uploadsDir = path.resolve(process.cwd(), 'public', 'uploads');
+      const sanitizedUrl = url.replace(/^\/+/, '');
+      const localPath = path.resolve(process.cwd(), 'public', sanitizedUrl);
+      const relative = path.relative(uploadsDir, localPath);
+      const isInsideUploads = relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+
+      if (!isInsideUploads) {
+        return NextResponse.json({ message: 'Invalid file path or access denied' }, { status: 403 });
+      }
       if (!fs.existsSync(localPath)) {
         return NextResponse.json({ message: 'File not found' }, { status: 404 });
       }

@@ -87,10 +87,9 @@ export const loadConfig = () => {
     throw new Error('Database is not configured. Set DATABASE_URL (Postgres) or DB_PATH/DB_NAME (SQLite).');
   }
 
-  if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'CHANGE_ME_IN_PRODUCTION') {
-    if (isProduction) {
-      throw new Error('JWT_SECRET must be configured with a strong value in production.');
-    }
+  const jwtSecret = process.env.JWT_SECRET ? process.env.JWT_SECRET.trim() : '';
+  if (!jwtSecret || jwtSecret === 'CHANGE_ME_IN_PRODUCTION' || jwtSecret === 'your-secret-key') {
+    throw new Error('JWT_SECRET must be configured with a strong value in environment variables.');
   }
 
   const requestBodyLimitMb = parseNumber(process.env.REQUEST_BODY_LIMIT_MB, 50, { min: 1 });
@@ -107,6 +106,9 @@ export const loadConfig = () => {
     requestTimeoutMs: parseNumber(process.env.REQUEST_TIMEOUT_MS, 30000, { min: 1000 }),
     shutdownTimeoutMs: parseNumber(process.env.SHUTDOWN_TIMEOUT_MS, 10000, { min: 1000 }),
     dbSyncStrategy: resolveDbSyncStrategy(process.env.DB_SYNC_STRATEGY, isProduction),
+    enableAdminReset: parseBoolean(process.env.ENABLE_ADMIN_RESET, false),
+    adminResetRateLimitWindowMs: parseNumber(process.env.ADMIN_RESET_RATE_LIMIT_WINDOW_MS, 3600000, { min: 1000 }),
+    adminResetRateLimitMax: parseNumber(process.env.ADMIN_RESET_RATE_LIMIT_MAX, 3, { min: 1 }),
     authRateLimitWindowMs: parseNumber(process.env.AUTH_RATE_LIMIT_WINDOW_MS, 60000, { min: 1000 }),
     authRateLimitMax: parseNumber(process.env.AUTH_RATE_LIMIT_MAX, 20, { min: 1 }),
     authRateLimitBackend: resolveRateLimitBackend(process.env.AUTH_RATE_LIMIT_BACKEND),
