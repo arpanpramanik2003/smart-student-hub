@@ -111,6 +111,8 @@ export const loadConfig = () => {
     adminResetRateLimitMax: parseNumber(process.env.ADMIN_RESET_RATE_LIMIT_MAX, 3, { min: 1 }),
     authRateLimitWindowMs: parseNumber(process.env.AUTH_RATE_LIMIT_WINDOW_MS, 60000, { min: 1000 }),
     authRateLimitMax: parseNumber(process.env.AUTH_RATE_LIMIT_MAX, 20, { min: 1 }),
+    apiWriteRateLimitMax: parseNumber(process.env.API_WRITE_RATE_LIMIT_MAX, 30, { min: 1 }),
+    apiReadRateLimitMax: parseNumber(process.env.API_READ_RATE_LIMIT_MAX, 120, { min: 1 }),
     authRateLimitBackend: resolveRateLimitBackend(process.env.AUTH_RATE_LIMIT_BACKEND),
     redisUrl: process.env.REDIS_URL || '',
     upstashRedisRestUrl: process.env.UPSTASH_REDIS_REST_URL || '',

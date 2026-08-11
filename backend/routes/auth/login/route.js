@@ -3,16 +3,18 @@ import { NextResponse } from 'next/server';
 import { initDB } from '@/lib/database';
 import { generateToken } from '@/lib/auth';
 import { logger } from '@/lib/logger';
+import { validateBody, loginSchema } from '@/lib/validation';
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const validation = validateBody(loginSchema, body);
 
-    if (!email || !password) {
-      return NextResponse.json({ message: 'Invalid input' }, { status: 400 });
+    if (!validation.success) {
+      return NextResponse.json(validation.errorResponse, { status: 400 });
     }
 
+    const { email, password } = validation.data;
     const { User } = await initDB();
 
     const user = await User.findOne({ where: { email } });

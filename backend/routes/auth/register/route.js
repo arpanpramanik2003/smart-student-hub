@@ -3,22 +3,21 @@ import { NextResponse } from 'next/server';
 import { initDB } from '@/lib/database';
 import { generateToken } from '@/lib/auth';
 import { getCategoryValue, validateProgramSelection } from '@/lib/programsData';
+import { validateBody, registerSchema } from '@/lib/validation';
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, email, password, role = 'student', programCategory, program, specialization,
-      department, year, admissionYear, studentId } = body;
+    const validation = validateBody(registerSchema, body);
 
-    // Basic validation
-    if (!name || !email || !password || !programCategory) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+    if (!validation.success) {
+      return NextResponse.json(validation.errorResponse, { status: 400 });
     }
-    if (password.length < 8) {
-      return NextResponse.json({
-        message: 'Password must be at least 8 characters with uppercase, lowercase, number and special character'
-      }, { status: 400 });
-    }
+
+    const {
+      name, email, password, role, programCategory, program, specialization,
+      department, year, admissionYear, studentId
+    } = validation.data;
 
     const programCategoryValue = getCategoryValue(programCategory);
     if (!programCategoryValue) {

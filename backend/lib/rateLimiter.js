@@ -1,24 +1,58 @@
 import { createClient } from 'redis';
 import { logger } from './observability/logger.js';
 
+const resolveRateLimitTier = (req, config) => {
+  const path = req.path || '';
+  const method = (req.method || 'GET').toUpperCase();
+
+  if (path.endsWith('/admin-password-reset')) {
+    return {
+      maxLimit: config.adminResetRateLimitMax,
+      windowMs: config.adminResetRateLimitWindowMs,
+    };
+  }
+
+  if (path.startsWith('/api/auth/') || path.startsWith('/api/admin/')) {
+    return {
+      maxLimit: config.authRateLimitMax,
+      windowMs: config.authRateLimitWindowMs,
+    };
+  }
+
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    return {
+      maxLimit: config.apiWriteRateLimitMax,
+      windowMs: config.authRateLimitWindowMs,
+    };
+  }
+
+  return {
+    maxLimit: config.apiReadRateLimitMax,
+    windowMs: config.authRateLimitWindowMs,
+  };
+};
+
 const createMemoryAuthLimiter = (config) => {
   const store = new Map();
+
+  if (config.isProduction || config.nodeEnv === 'production') {
+    logger.warn(
+      '⚠️ In-memory rate limiter active in production mode. Rate limits will not synchronize across clustered server instances.'
+    );
+  }
 
   return {
     mode: 'memory',
     middleware: (req, res, next) => {
-      if (!req.path.startsWith('/api/auth/')) {
+      if (!req.path.startsWith('/api/')) {
         next();
         return;
       }
 
-      const isAdminReset = req.path.endsWith('/admin-password-reset');
-      const maxLimit = isAdminReset ? config.adminResetRateLimitMax : config.authRateLimitMax;
-      const windowMs = isAdminReset ? config.adminResetRateLimitWindowMs : config.authRateLimitWindowMs;
-
+      const { maxLimit, windowMs } = resolveRateLimitTier(req, config);
       const now = Date.now();
       const ip = req.ip || req.socket?.remoteAddress || 'unknown';
-      const key = `${ip}:${req.path}`;
+      const key = `${ip}:${req.method}:${req.path}`;
       const current = store.get(key);
 
       if (!current || current.expiresAt <= now) {
@@ -55,19 +89,16 @@ const createRedisAuthLimiter = async (config) => {
   return {
     mode: 'redis',
     middleware: async (req, res, next) => {
-      if (!req.path.startsWith('/api/auth/')) {
+      if (!req.path.startsWith('/api/')) {
         next();
         return;
       }
 
-      const isAdminReset = req.path.endsWith('/admin-password-reset');
-      const maxLimit = isAdminReset ? config.adminResetRateLimitMax : config.authRateLimitMax;
-      const windowMs = isAdminReset ? config.adminResetRateLimitWindowMs : config.authRateLimitWindowMs;
-
+      const { maxLimit, windowMs } = resolveRateLimitTier(req, config);
       const now = Date.now();
       const windowId = Math.floor(now / windowMs);
       const ip = req.ip || req.socket?.remoteAddress || 'unknown';
-      const key = `rl:auth:${req.path}:${ip}:${windowId}`;
+      const key = `rl:${req.method}:${req.path}:${ip}:${windowId}`;
       const ttlSec = Math.ceil(windowMs / 1000) + 1;
 
       const count = await client.incr(key);
@@ -127,19 +158,16 @@ const createUpstashAuthLimiter = async (config) => {
   return {
     mode: 'upstash',
     middleware: async (req, res, next) => {
-      if (!req.path.startsWith('/api/auth/')) {
+      if (!req.path.startsWith('/api/')) {
         next();
         return;
       }
 
-      const isAdminReset = req.path.endsWith('/admin-password-reset');
-      const maxLimit = isAdminReset ? config.adminResetRateLimitMax : config.authRateLimitMax;
-      const windowMs = isAdminReset ? config.adminResetRateLimitWindowMs : config.authRateLimitWindowMs;
-
+      const { maxLimit, windowMs } = resolveRateLimitTier(req, config);
       const now = Date.now();
       const windowId = Math.floor(now / windowMs);
       const ip = req.ip || req.socket?.remoteAddress || 'unknown';
-      const key = `rl:auth:${req.path}:${ip}:${windowId}`;
+      const key = `rl:${req.method}:${req.path}:${ip}:${windowId}`;
       const ttlSec = Math.ceil(windowMs / 1000) + 1;
 
       const count = Number(await command('INCR', key));

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { initDB } from '@/lib/database';
 import { authenticateAndAuthorize } from '@/lib/auth';
 import { getCategoryValue, validateProgramSelection } from '@/lib/programsData';
+import { validateBody, adminCreateUserSchema } from '@/lib/validation';
 import { Op } from 'sequelize';
 
 // GET /api/admin/users
@@ -68,11 +69,13 @@ export async function POST(request) {
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const body = await request.json();
-    const { name, email, password, role, department, programCategory, program, specialization, year, admissionYear, studentId } = body;
+    const validation = validateBody(adminCreateUserSchema, body);
 
-    if (!name || !email || !password || !role || !programCategory) {
-      return NextResponse.json({ error: 'Name, email, password, role, and program category are required' }, { status: 400 });
+    if (!validation.success) {
+      return NextResponse.json(validation.errorResponse, { status: 400 });
     }
+
+    const { name, email, password, role, department, programCategory, program, specialization, year, admissionYear, studentId } = validation.data;
 
     const programCategoryValue = getCategoryValue(programCategory);
     if (!programCategoryValue) return NextResponse.json({ error: 'Invalid program category' }, { status: 400 });

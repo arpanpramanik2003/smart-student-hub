@@ -25,6 +25,7 @@ const buildReplacementMap = (generatedFilePath) => {
     ['@/lib/auth', `${baseImport}auth.js`],
     ['@/lib/cloudStorage', `${baseImport}cloudStorage.js`],
     ['@/lib/programsData', `${baseImport}programsData.js`],
+    ['@/lib/validation', `${baseImport}validation.js`],
     ['@/lib/models/User.js', `${baseImport}models/User.js`],
     ['@/lib/models/Activity.js', `${baseImport}models/Activity.js`],
     ['@/lib/logger', `${baseImport}observability/logger.js`],

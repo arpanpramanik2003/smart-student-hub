@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { initDB } from '@/lib/database';
 import { authenticateAndAuthorize } from '@/lib/auth';
 import { uploadFile } from '@/lib/cloudStorage';
+import { validateBody, activitySchema } from '@/lib/validation';
 
 // GET /api/students/activities
 export async function GET(request) {
@@ -51,32 +52,31 @@ export async function POST(request) {
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const contentType = request.headers.get('content-type') || '';
-    let title, type, description, date, duration, organizer, credits;
+    let rawFields = {};
     let certificateFile = null;
 
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
-      title = formData.get('title');
-      type = formData.get('type');
-      description = formData.get('description');
-      date = formData.get('date');
-      duration = formData.get('duration');
-      organizer = formData.get('organizer');
-      credits = formData.get('credits');
+      rawFields = {
+        title: formData.get('title'),
+        type: formData.get('type'),
+        description: formData.get('description'),
+        date: formData.get('date'),
+        duration: formData.get('duration'),
+        organizer: formData.get('organizer'),
+        credits: formData.get('credits'),
+      };
       certificateFile = formData.get('certificate');
     } else {
-      const body = await request.json();
-      ({ title, type, description, date, duration, organizer, credits } = body);
+      rawFields = await request.json();
     }
 
-    if (!title || !type || !date) {
-      return NextResponse.json({ message: 'Validation error', details: 'title, type, and date are required' }, { status: 400 });
+    const validation = validateBody(activitySchema, rawFields);
+    if (!validation.success) {
+      return NextResponse.json(validation.errorResponse, { status: 400 });
     }
 
-    const validTypes = ['conference', 'workshop', 'certification', 'competition', 'internship', 'leadership', 'community_service', 'club_activity', 'online_course'];
-    if (!validTypes.includes(type)) {
-      return NextResponse.json({ message: 'Validation error', details: 'Invalid activity type' }, { status: 400 });
-    }
+    const { title, type, description, date, duration, organizer, credits } = validation.data;
 
     let fileUrl = null;
     if (certificateFile && typeof certificateFile === 'object') {
@@ -92,7 +92,7 @@ export async function POST(request) {
       date: new Date(date),
       duration: duration || null,
       organizer: organizer || null,
-      credits: credits ? parseFloat(credits) : 0,
+      credits,
       studentId: auth.user.id,
       filePath: fileUrl,
     });
