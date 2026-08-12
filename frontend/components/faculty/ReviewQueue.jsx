@@ -183,52 +183,58 @@ const ReviewQueue = ({ user, token }) => {
               </div>
 
               {/* Certificate Attachment Box */}
-              {activity.filePath && (
-                <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                  <button
-                    type="button"
-                    onClick={() => toggleFileVisibility(activity.id)}
-                    className="px-3 py-1 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 transition-colors"
-                  >
-                    {visibleFiles[activity.id] ? '[Hide Certificate Evidence]' : '[View Certificate Evidence]'}
-                  </button>
+              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => toggleFileVisibility(activity.id)}
+                  className="px-3 py-1 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 transition-colors"
+                >
+                  {visibleFiles[activity.id] ? '[Hide Certificate Evidence]' : '[View Certificate Evidence]'}
+                </button>
 
-                  {visibleFiles[activity.id] && (
-                    <div className="mt-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded flex items-center justify-between">
-                      <span className="text-zinc-700 dark:text-zinc-300">Attached Certificate File</span>
-                      {(() => {
-                        const fileUrl = activity.filePath;
-                        const isPDF = fileUrl.toLowerCase().includes('.pdf');
-                        const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                        const proxyUrl = `${origin}/api/files/view?url=${encodeURIComponent(fileUrl)}`;
-                        const viewUrl = isPDF
-                          ? `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(proxyUrl)}`
-                          : fileUrl;
-                        const downloadUrl = `/api/files/download?url=${encodeURIComponent(fileUrl)}`;
+                {visibleFiles[activity.id] && (
+                  <div className="mt-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded">
+                    {!activity.filePath ? (
+                      <div className="text-rose-600 dark:text-rose-400 font-mono text-xs flex items-center space-x-1.5">
+                        <span>⚠️ Certificate file unavailable or unreadable</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <span className="text-zinc-700 dark:text-zinc-300">Attached Certificate File</span>
+                        {(() => {
+                          const fileUrl = activity.filePath;
+                          const isPDF = fileUrl.toLowerCase().includes('.pdf');
+                          const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                          const proxyUrl = `${origin}/api/files/view?url=${encodeURIComponent(fileUrl)}`;
+                          const viewUrl = isPDF
+                            ? `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(proxyUrl)}`
+                            : fileUrl;
+                          const downloadUrl = `/api/files/download?url=${encodeURIComponent(fileUrl)}`;
 
-                        return (
-                          <div className="flex items-center space-x-2">
-                            <a
-                              href={viewUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px]"
-                            >
-                              Open Preview
-                            </a>
-                            <a
-                              href={downloadUrl}
-                              className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 text-[11px]"
-                            >
-                              Download Copy
-                            </a>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  )}
-                </div>
-              )}
+                          return (
+                            <div className="flex items-center space-x-2">
+                              <a
+                                href={viewUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px]"
+                              >
+                                Open Preview
+                              </a>
+                              <a
+                                href={downloadUrl}
+                                className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 text-[11px]"
+                              >
+                                Download Copy
+                              </a>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Evaluation Action Box */}
               <div className="bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded p-4 space-y-3">

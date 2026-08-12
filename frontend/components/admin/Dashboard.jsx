@@ -3,6 +3,52 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminAPI } from '../../utils/api';
 import LoadingSpinner, { CardSkeleton } from '../shared/LoadingSpinner';
+const AdminStatCard = React.memo(({ label, value, subtitle, badge, isPending }) => {
+  return (
+    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center space-x-1.5">
+          {badge !== undefined && (
+            <span className={`w-2 h-2 rounded-full ${isPending ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+          )}
+          <span>{label}</span>
+        </span>
+        {badge && (
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+            {badge}
+          </span>
+        )}
+      </div>
+      <div className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-2">
+        {value}
+      </div>
+      <div className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
+        {subtitle}
+      </div>
+    </div>
+  );
+});
+
+AdminStatCard.displayName = 'AdminStatCard';
+
+const ParticipantRow = React.memo(({ student, index }) => {
+  return (
+    <tr className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors font-mono text-xs">
+      <td className="py-2.5 font-bold text-zinc-500">#{index + 1}</td>
+      <td className="py-2.5 font-semibold text-zinc-900 dark:text-zinc-100">{student.name}</td>
+      <td className="py-2.5 text-zinc-500">{student.studentId}</td>
+      <td className="py-2.5 text-zinc-600 dark:text-zinc-400 truncate max-w-[200px]">
+        {student.program || student.department || 'N/A'}
+      </td>
+      <td className="py-2.5 text-right text-zinc-700 dark:text-zinc-300">{student.activityCount}</td>
+      <td className="py-2.5 text-right font-bold text-emerald-600 dark:text-emerald-400">
+        {student.totalCredits}
+      </td>
+    </tr>
+  );
+});
+
+ParticipantRow.displayName = 'ParticipantRow';
 
 const AdminDashboard = ({ user, token, onNavigate }) => {
   const router = useRouter();
@@ -157,71 +203,28 @@ const AdminDashboard = ({ user, token, onNavigate }) => {
 
       {/* Flat Stat Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Students */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-              STUDENT ACCOUNTS
-            </span>
-          </div>
-          <div className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-2">
-            {formatNumber(stats?.userStats?.studentCount)}
-          </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-            {getPercentage(stats?.userStats?.studentCount, stats?.userStats?.totalUsers)}% of system accounts
-          </div>
-        </div>
-
-        {/* Card 2: Faculty */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-              FACULTY ACCOUNTS
-            </span>
-          </div>
-          <div className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-2">
-            {formatNumber(stats?.userStats?.facultyCount)}
-          </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-            {getPercentage(stats?.userStats?.facultyCount, stats?.userStats?.totalUsers)}% of system accounts
-          </div>
-        </div>
-
-        {/* Card 3: Total Activities */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-              SUBMITTED ACTIVITIES
-            </span>
-          </div>
-          <div className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-2">
-            {formatNumber(stats?.activityStats?.totalActivities)}
-          </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-            {approvalRate}% overall approval rate
-          </div>
-        </div>
-
-        {/* Card 4: Pending Reviews */}
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400 flex items-center space-x-1.5">
-              <span className={`w-2 h-2 rounded-full ${pendingCount > 0 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-              <span>PENDING REVIEWS</span>
-            </span>
-            {pendingCount > 0 && (
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-                Action Req.
-              </span>
-            )}
-          </div>
-          <div className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-2">
-            {formatNumber(pendingCount)}
-          </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-            {pendingCount > 0 ? 'Awaiting faculty evaluation' : 'Queue completely clear'}
-          </div>
-        </div>
+        <AdminStatCard
+          label="STUDENT ACCOUNTS"
+          value={formatNumber(stats?.userStats?.studentCount)}
+          subtitle={`${getPercentage(stats?.userStats?.studentCount, stats?.userStats?.totalUsers)}% of system accounts`}
+        />
+        <AdminStatCard
+          label="FACULTY ACCOUNTS"
+          value={formatNumber(stats?.userStats?.facultyCount)}
+          subtitle={`${getPercentage(stats?.userStats?.facultyCount, stats?.userStats?.totalUsers)}% of system accounts`}
+        />
+        <AdminStatCard
+          label="SUBMITTED ACTIVITIES"
+          value={formatNumber(stats?.activityStats?.totalActivities)}
+          subtitle={`${approvalRate}% overall approval rate`}
+        />
+        <AdminStatCard
+          label="PENDING REVIEWS"
+          value={formatNumber(pendingCount)}
+          subtitle={pendingCount > 0 ? 'Awaiting faculty evaluation' : 'Queue completely clear'}
+          badge={pendingCount > 0 ? 'Action Req.' : null}
+          isPending={pendingCount > 0}
+        />
       </div>
 
       {/* Breakdown Panels Grid */}
@@ -356,28 +359,17 @@ const AdminDashboard = ({ user, token, onNavigate }) => {
             <table className="w-full text-left text-xs font-mono">
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 uppercase tracking-wider text-[10px]">
-                  <th className="pb-2 font-medium">Rank</th>
-                  <th className="pb-2 font-medium">Student Name</th>
-                  <th className="pb-2 font-medium">Student ID</th>
-                  <th className="pb-2 font-medium">Program</th>
-                  <th className="pb-2 font-medium text-right">Activities</th>
-                  <th className="pb-2 font-medium text-right">Total Credits</th>
+                  <th scope="col" className="pb-2 font-medium">Rank</th>
+                  <th scope="col" className="pb-2 font-medium">Student Name</th>
+                  <th scope="col" className="pb-2 font-medium">Student ID</th>
+                  <th scope="col" className="pb-2 font-medium">Program</th>
+                  <th scope="col" className="pb-2 font-medium text-right">Activities</th>
+                  <th scope="col" className="pb-2 font-medium text-right">Total Credits</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
                 {stats.topStudents.slice(0, 5).map((student, index) => (
-                  <tr key={student.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
-                    <td className="py-2.5 font-bold text-zinc-500">#{index + 1}</td>
-                    <td className="py-2.5 font-semibold text-zinc-900 dark:text-zinc-100">{student.name}</td>
-                    <td className="py-2.5 text-zinc-500">{student.studentId}</td>
-                    <td className="py-2.5 text-zinc-600 dark:text-zinc-400 truncate max-w-[200px]">
-                      {student.program || student.department || 'N/A'}
-                    </td>
-                    <td className="py-2.5 text-right text-zinc-700 dark:text-zinc-300">{student.activityCount}</td>
-                    <td className="py-2.5 text-right font-bold text-emerald-600 dark:text-emerald-400">
-                      {student.totalCredits}
-                    </td>
-                  </tr>
+                  <ParticipantRow key={student.id} student={student} index={index} />
                 ))}
               </tbody>
             </table>

@@ -9,6 +9,88 @@ import Portfolio from './Portfolio';
 
 const backendBaseUrl = API_BASE_URL.replace('/api', '');
 
+const StudentCard = React.memo(({ student, getProfileImage, getInitials, formatNumber, onSelectStudent }) => {
+  const [imageError, setImageError] = useState(false);
+  const profileUrl = getProfileImage(student.profilePicture);
+
+  return (
+    <div 
+      onClick={() => onSelectStudent(student)}
+      className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 transition-all hover:border-indigo-600 dark:hover:border-indigo-500 cursor-pointer flex flex-col justify-between space-y-3 font-mono text-xs"
+    >
+      <div>
+        <div className="flex items-start space-x-3">
+          {imageError || !profileUrl ? (
+            <div className="w-12 h-12 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-sm flex-shrink-0">
+              {getInitials(student.name)}
+            </div>
+          ) : (
+            <Image
+              src={profileUrl}
+              alt={student.name}
+              width={48}
+              height={48}
+              className="w-12 h-12 rounded object-cover border border-zinc-200 dark:border-zinc-800 flex-shrink-0"
+              onError={() => setImageError(true)}
+              unoptimized
+            />
+          )}
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center space-x-1.5">
+              <span className="text-[10px] uppercase text-zinc-500 px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">
+                Year {student.year || 1}
+              </span>
+              {student.studentId && (
+                <span className="text-[10px] text-zinc-400">ID: {student.studentId}</span>
+              )}
+            </div>
+            <h3 className="font-bold text-sm text-zinc-950 dark:text-zinc-50 truncate mt-0.5 font-sans">
+              {student.name}
+            </h3>
+            <p className="text-[11px] text-zinc-500 truncate mt-0.5">
+              {student.program || student.department || 'N/A'}
+            </p>
+          </div>
+        </div>
+
+        {/* Social Links */}
+        {(student.linkedinUrl || student.githubUrl || student.portfolioUrl) && (
+          <div className="flex items-center space-x-2 pt-2.5 mt-2.5 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px]">
+            {student.linkedinUrl && <span className="text-indigo-600 dark:text-indigo-400">LinkedIn</span>}
+            {student.githubUrl && <span className="text-zinc-600 dark:text-zinc-400">GitHub</span>}
+            {student.portfolioUrl && <span className="text-emerald-600 dark:text-emerald-400">Portfolio</span>}
+          </div>
+        )}
+      </div>
+
+      {/* Stats Row & Action Button */}
+      <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+        <div className="grid grid-cols-2 gap-2 text-center bg-zinc-50 dark:bg-zinc-800/40 p-2 rounded border border-zinc-200/60 dark:border-zinc-800">
+          <div>
+            <span className="text-[10px] text-zinc-500 block">ACTIVITIES</span>
+            <span className="font-bold text-zinc-900 dark:text-zinc-100">
+              {formatNumber(student.stats?.totalApprovedActivities)}
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] text-zinc-500 block">CREDITS</span>
+            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+              {formatNumber(student.stats?.totalCredits)}
+            </span>
+          </div>
+        </div>
+
+        <button className="w-full py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition-colors flex items-center justify-center space-x-1">
+          <span>View Peer Portfolio →</span>
+        </button>
+      </div>
+    </div>
+  );
+});
+
+StudentCard.displayName = 'StudentCard';
+
 const BrowseStudents = ({ user, token }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -127,88 +209,6 @@ const BrowseStudents = ({ user, token }) => {
     return new Intl.NumberFormat().format(num || 0);
   }, []);
 
-  // Peer Card View
-  const StudentCard = ({ student }) => {
-    const [imageError, setImageError] = useState(false);
-    const profileUrl = getProfileImage(student.profilePicture);
-
-    return (
-      <div 
-        onClick={() => setSelectedStudent(student)}
-        className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 transition-all hover:border-indigo-600 dark:hover:border-indigo-500 cursor-pointer flex flex-col justify-between space-y-3 font-mono text-xs"
-      >
-        <div>
-          <div className="flex items-start space-x-3">
-            {imageError || !profileUrl ? (
-              <div className="w-12 h-12 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-sm flex-shrink-0">
-                {getInitials(student.name)}
-              </div>
-            ) : (
-              <Image
-                src={profileUrl}
-                alt={student.name}
-                width={48}
-                height={48}
-                className="w-12 h-12 rounded object-cover border border-zinc-200 dark:border-zinc-800 flex-shrink-0"
-                onError={() => setImageError(true)}
-                unoptimized
-              />
-            )}
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center space-x-1.5">
-                <span className="text-[10px] uppercase text-zinc-500 px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">
-                  Year {student.year || 1}
-                </span>
-                {student.studentId && (
-                  <span className="text-[10px] text-zinc-400">ID: {student.studentId}</span>
-                )}
-              </div>
-              <h3 className="font-bold text-sm text-zinc-950 dark:text-zinc-50 truncate mt-0.5 font-sans">
-                {student.name}
-              </h3>
-              <p className="text-[11px] text-zinc-500 truncate mt-0.5">
-                {student.program || student.department || 'N/A'}
-              </p>
-            </div>
-          </div>
-
-          {/* Social Icons */}
-          {(student.linkedinUrl || student.githubUrl || student.portfolioUrl) && (
-            <div className="flex items-center space-x-2 pt-2.5 mt-2.5 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px]">
-              {student.linkedinUrl && <span className="text-indigo-600 dark:text-indigo-400">LinkedIn</span>}
-              {student.githubUrl && <span className="text-zinc-600 dark:text-zinc-400">GitHub</span>}
-              {student.portfolioUrl && <span className="text-emerald-600 dark:text-emerald-400">Portfolio</span>}
-            </div>
-          )}
-        </div>
-
-        {/* Stats Row & Action Button */}
-        <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
-          <div className="grid grid-cols-2 gap-2 text-center bg-zinc-50 dark:bg-zinc-800/40 p-2 rounded border border-zinc-200/60 dark:border-zinc-800">
-            <div>
-              <span className="text-[10px] text-zinc-500 block">ACTIVITIES</span>
-              <span className="font-bold text-zinc-900 dark:text-zinc-100">
-                {formatNumber(student.stats?.totalApprovedActivities)}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] text-zinc-500 block">CREDITS</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                {formatNumber(student.stats?.totalCredits)}
-              </span>
-            </div>
-          </div>
-
-          <button className="w-full py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition-colors flex items-center justify-center space-x-1">
-            <span>View Peer Portfolio →</span>
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // If a student is selected, render their full read-only Portfolio!
   if (selectedStudent) {
     return (
       <div className="space-y-4 text-zinc-900 dark:text-zinc-100 font-sans">
@@ -230,7 +230,6 @@ const BrowseStudents = ({ user, token }) => {
           </span>
         </div>
 
-        {/* Re-use Portfolio Component in Read-Only mode */}
         <Portfolio user={selectedStudent} token={token} isReadOnly={true} />
       </div>
     );
@@ -249,35 +248,33 @@ const BrowseStudents = ({ user, token }) => {
 
   return (
     <div className="space-y-6 text-zinc-900 dark:text-zinc-100 font-sans">
-      {/* Header Strip */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                Peer Network
+            <div className="flex items-center space-x-2 font-mono">
+              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                Peer Discovery
               </span>
-              <span className="text-xs font-mono text-zinc-400">•</span>
-              <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
-                {pagination.total || 0} Registered Students
+              <span className="text-xs text-zinc-400">•</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 font-bold">
+                {pagination.total || 0} Peer Profiles
               </span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 mt-1">
-              Browse Peer Directory
+              Browse Peers & Digital Portfolios
             </h1>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Explore student accomplishments, academic domains, and verified portfolio credentials
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-mono">
+              Explore student achievement showcases across degree programs, academic years, and specializations
             </p>
           </div>
         </div>
 
-        {/* Filter Controls Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-4 mt-4 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs">
           <div>
-            <label className="block mb-1 text-zinc-500">Search Students</label>
+            <label className="block mb-1 text-zinc-500">Search Peers</label>
             <input
               type="text"
-              placeholder="Search name, ID, program..."
+              placeholder="Search name, email, program..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
@@ -296,8 +293,8 @@ const BrowseStudents = ({ user, token }) => {
               className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
             >
               <option value="all">All Categories</option>
-              {Object.values(PROGRAM_CATEGORIES).map((category) => (
-                <option key={category} value={category}>{category}</option>
+              {Object.values(PROGRAM_CATEGORIES).map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
           </div>
@@ -313,7 +310,7 @@ const BrowseStudents = ({ user, token }) => {
               className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
             >
               <option value="all">All Programs</option>
-              {filteredPrograms.map((prog) => (
+              {filteredPrograms.map(prog => (
                 <option key={prog} value={prog}>{prog}</option>
               ))}
             </select>
@@ -327,7 +324,7 @@ const BrowseStudents = ({ user, token }) => {
               className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
             >
               <option value="all">All Specializations</option>
-              {filteredSpecializations.map((spec) => (
+              {filteredSpecializations.map(spec => (
                 <option key={spec} value={spec}>{spec}</option>
               ))}
             </select>
@@ -361,66 +358,47 @@ const BrowseStudents = ({ user, token }) => {
         </div>
       </div>
 
-      {/* Peer Cards Grid */}
-      {students.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {students.map((student) => (
-              <StudentCard key={student.id} student={student} />
-            ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {students.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-zinc-400 font-mono text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
+            No peer portfolios found matching selected criteria.
           </div>
+        ) : (
+          students.map((student) => (
+            <StudentCard
+              key={student.id}
+              student={student}
+              getProfileImage={getProfileImage}
+              getInitials={getInitials}
+              formatNumber={formatNumber}
+              onSelectStudent={setSelectedStudent}
+            />
+          ))
+        )}
+      </div>
 
-          {/* Pagination Controls */}
-          {pagination.pages > 1 && (
-            <div className="flex justify-center items-center gap-1.5 font-mono text-xs pt-4">
-              <button
-                onClick={() => handlePageChange(1)}
-                disabled={currentPage === 1}
-                className="px-2.5 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 disabled:opacity-40 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-              >
-                First
-              </button>
+      {pagination.pages > 1 && (
+        <div className="p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg flex items-center justify-between font-mono text-xs">
+          <span className="text-zinc-500">
+            Page <strong className="text-zinc-800 dark:text-zinc-200">{pagination.page}</strong> of <strong className="text-zinc-800 dark:text-zinc-200">{pagination.pages}</strong>
+          </span>
 
-              {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                let page;
-                if (pagination.pages <= 5) {
-                  page = i + 1;
-                } else if (currentPage <= 3) {
-                  page = i + 1;
-                } else if (currentPage >= pagination.pages - 2) {
-                  page = pagination.pages - 4 + i;
-                } else {
-                  page = currentPage - 2 + i;
-                }
-                return page;
-              }).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1.5 rounded transition-colors ${
-                    currentPage === page
-                      ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold'
-                      : 'border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <button
-                onClick={() => handlePageChange(pagination.pages)}
-                disabled={currentPage === pagination.pages}
-                className="px-2.5 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 disabled:opacity-40 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-              >
-                Last
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-8 text-center font-mono text-xs text-zinc-500 space-y-2">
-          <p className="font-bold text-zinc-800 dark:text-zinc-200">No Student Records Found</p>
-          <p className="text-[11px] text-zinc-400">Try adjusting your search criteria or program filters.</p>
+          <div className="flex items-center space-x-1.5">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 disabled:opacity-40 hover:bg-zinc-100 transition-colors"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={!pagination.hasMore}
+              className="px-2.5 py-1 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 disabled:opacity-40 hover:bg-zinc-100 transition-colors"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

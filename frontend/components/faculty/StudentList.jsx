@@ -9,6 +9,77 @@ import Portfolio from '../student/Portfolio';
 
 const backendBaseUrl = API_BASE_URL.replace('/api', '');
 
+const StudentRow = React.memo(({ student, getProfileImageUrl, getInitials, formatNumber, onSelectStudent }) => {
+  const avatarUrl = getProfileImageUrl(student.profilePicture);
+  return (
+    <tr className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+      <td className="py-3 px-4">
+        <div className="flex items-center space-x-3">
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt={student.name}
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded object-cover border border-zinc-200 dark:border-zinc-800 flex-shrink-0"
+              unoptimized
+            />
+          ) : (
+            <div className="w-8 h-8 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-xs flex-shrink-0">
+              {getInitials(student.name)}
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="font-bold text-zinc-950 dark:text-zinc-50 font-sans text-xs truncate">
+              {student.name}
+            </p>
+            <p className="text-[11px] text-zinc-400 truncate">{student.email}</p>
+          </div>
+        </div>
+      </td>
+
+      <td className="py-3 px-4 text-zinc-800 dark:text-zinc-200 font-bold">
+        {student.studentId || 'N/A'}
+      </td>
+
+      <td className="py-3 px-4">
+        <p className="text-zinc-800 dark:text-zinc-200 truncate">{student.program || student.department || 'N/A'}</p>
+        {student.specialization && (
+          <p className="text-[10px] text-zinc-400 truncate">{student.specialization}</p>
+        )}
+      </td>
+
+      <td className="py-3 px-4 text-zinc-600 dark:text-zinc-400">
+        Year {student.year || 1}
+      </td>
+
+      <td className="py-3 px-4">
+        <span className="text-zinc-900 dark:text-zinc-100 font-bold">{student.stats?.totalActivities || 0} Total</span>
+        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block font-normal">
+          {student.stats?.approvedActivities || 0} Approved
+        </span>
+      </td>
+
+      <td className="py-3 px-4">
+        <span className="font-bold text-emerald-600 dark:text-emerald-400">
+          +{formatNumber(student.stats?.totalCredits)} Credits
+        </span>
+      </td>
+
+      <td className="py-3 px-4 text-right">
+        <button
+          onClick={() => onSelectStudent(student)}
+          className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] transition-colors"
+        >
+          View Portfolio →
+        </button>
+      </td>
+    </tr>
+  );
+});
+
+StudentRow.displayName = 'StudentRow';
+
 const StudentList = ({ user, token }) => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -130,7 +201,6 @@ const StudentList = ({ user, token }) => {
     return new Intl.NumberFormat().format(num || 0);
   }, []);
 
-  // If a student is selected, render their full read-only Portfolio!
   if (selectedStudent) {
     return (
       <div className="space-y-4 text-zinc-900 dark:text-zinc-100 font-sans">
@@ -152,7 +222,6 @@ const StudentList = ({ user, token }) => {
           </span>
         </div>
 
-        {/* Re-use Portfolio Component in Read-Only mode */}
         <Portfolio user={selectedStudent} token={token} isReadOnly={true} />
       </div>
     );
@@ -171,7 +240,6 @@ const StudentList = ({ user, token }) => {
 
   return (
     <div className="space-y-6 text-zinc-900 dark:text-zinc-100 font-sans">
-      {/* Header Strip */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -193,7 +261,6 @@ const StudentList = ({ user, token }) => {
           </div>
         </div>
 
-        {/* Filter Controls Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-4 mt-4 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs">
           <div>
             <label className="block mb-1 text-zinc-500">Search Students</label>
@@ -283,19 +350,18 @@ const StudentList = ({ user, token }) => {
         </div>
       </div>
 
-      {/* Structured Student Roster Table */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden font-mono text-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 text-[10px] uppercase text-zinc-500">
-                <th className="py-3 px-4 font-semibold">Student Name</th>
-                <th className="py-3 px-4 font-semibold">Student ID</th>
-                <th className="py-3 px-4 font-semibold">Program / Department</th>
-                <th className="py-3 px-4 font-semibold">Year</th>
-                <th className="py-3 px-4 font-semibold">Submissions</th>
-                <th className="py-3 px-4 font-semibold">Earned Credits</th>
-                <th className="py-3 px-4 font-semibold text-right">Action</th>
+                <th scope="col" className="py-3 px-4 font-semibold">Student Name</th>
+                <th scope="col" className="py-3 px-4 font-semibold">Student ID</th>
+                <th scope="col" className="py-3 px-4 font-semibold">Program / Department</th>
+                <th scope="col" className="py-3 px-4 font-semibold">Year</th>
+                <th scope="col" className="py-3 px-4 font-semibold">Submissions</th>
+                <th scope="col" className="py-3 px-4 font-semibold">Earned Credits</th>
+                <th scope="col" className="py-3 px-4 font-semibold text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
@@ -306,80 +372,21 @@ const StudentList = ({ user, token }) => {
                   </td>
                 </tr>
               ) : (
-                students.map((student) => {
-                  const avatarUrl = getProfileImageUrl(student.profilePicture);
-                  return (
-                    <tr key={student.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
-                      <td className="py-3 px-4">
-                        <div className="flex items-center space-x-3">
-                          {avatarUrl ? (
-                            <Image
-                              src={avatarUrl}
-                              alt={student.name}
-                              width={32}
-                              height={32}
-                              className="w-8 h-8 rounded object-cover border border-zinc-200 dark:border-zinc-800 flex-shrink-0"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="w-8 h-8 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-xs flex-shrink-0">
-                              {getInitials(student.name)}
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <p className="font-bold text-zinc-950 dark:text-zinc-50 font-sans text-xs truncate">
-                              {student.name}
-                            </p>
-                            <p className="text-[11px] text-zinc-400 truncate">{student.email}</p>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="py-3 px-4 text-zinc-800 dark:text-zinc-200 font-bold">
-                        {student.studentId || 'N/A'}
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <p className="text-zinc-800 dark:text-zinc-200 truncate">{student.program || student.department || 'N/A'}</p>
-                        {student.specialization && (
-                          <p className="text-[10px] text-zinc-400 truncate">{student.specialization}</p>
-                        )}
-                      </td>
-
-                      <td className="py-3 px-4 text-zinc-600 dark:text-zinc-400">
-                        Year {student.year || 1}
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <span className="text-zinc-900 dark:text-zinc-100 font-bold">{student.stats?.totalActivities || 0} Total</span>
-                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block font-normal">
-                          {student.stats?.approvedActivities || 0} Approved
-                        </span>
-                      </td>
-
-                      <td className="py-3 px-4">
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                          +{formatNumber(student.stats?.totalCredits)} Credits
-                        </span>
-                      </td>
-
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedStudent(student)}
-                          className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] transition-colors"
-                        >
-                          View Portfolio →
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
+                students.map((student) => (
+                  <StudentRow
+                    key={student.id}
+                    student={student}
+                    getProfileImageUrl={getProfileImageUrl}
+                    getInitials={getInitials}
+                    formatNumber={formatNumber}
+                    onSelectStudent={setSelectedStudent}
+                  />
+                ))
               )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination Controls */}
         {pagination.pages > 1 && (
           <div className="p-3 bg-zinc-50 dark:bg-zinc-900/60 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-[11px]">
             <span className="text-zinc-500">

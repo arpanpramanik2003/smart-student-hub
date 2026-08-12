@@ -107,12 +107,109 @@ const Modal = ({ isOpen, onClose, title, children, modalRef }) => {
               </svg>
             </button>
           </div>
-          {children}
         </div>
       </div>
     </div>
   );
 };
+
+const UserTableRow = React.memo(({ userData, currentUser, getProfileImageUrl, formatProgramDisplay, actionLoading, onViewDetails, onEditUser, onToggleUserStatus, onDeleteUser }) => {
+  const avatarUrl = userData.profilePicture ? getProfileImageUrl(userData.profilePicture) : null;
+  return (
+    <tr className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+      <td className="px-4 py-3">
+        <div className="flex items-center space-x-3">
+          {avatarUrl ? (
+            <Image 
+              src={avatarUrl} 
+              alt={userData.name}
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded object-cover flex-shrink-0 border border-zinc-200 dark:border-zinc-700"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextElementSibling.style.display = 'flex';
+              }}
+              unoptimized
+            />
+          ) : null}
+          <div 
+            className={`${avatarUrl ? 'hidden' : 'flex'} w-8 h-8 rounded bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs items-center justify-center flex-shrink-0`}
+          >
+            {userData.name?.charAt(0)?.toUpperCase() || '?'}
+          </div>
+          <div className="min-w-0">
+            <p className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">{userData.name}</p>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">{userData.email}</p>
+            {userData.studentId && (
+              <p className="text-[10px] text-indigo-600 dark:text-indigo-400">ID: {userData.studentId}</p>
+            )}
+          </div>
+        </div>
+      </td>
+
+      <td className="px-4 py-3">
+        <span className="px-2 py-0.5 text-[10px] font-mono uppercase rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+          {userData.role}
+        </span>
+      </td>
+
+      <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300 truncate max-w-[220px]">
+        <p className="truncate">{formatProgramDisplay(userData)}</p>
+        {userData.year && <p className="text-[10px] text-zinc-500">Year {userData.year}</p>}
+      </td>
+
+      <td className="px-4 py-3">
+        <span className="flex items-center space-x-1.5">
+          <span className={`w-1.5 h-1.5 rounded-full ${userData.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
+          <span className={userData.isActive ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-zinc-500'}>
+            {userData.isActive ? 'Active' : 'Inactive'}
+          </span>
+        </span>
+      </td>
+
+      <td className="px-4 py-3 text-zinc-500 text-[11px]">
+        {new Date(userData.createdAt).toLocaleDateString()}
+      </td>
+
+      <td className="px-4 py-3 text-right">
+        <div className="flex items-center justify-end space-x-2">
+          <button
+            onClick={() => onViewDetails(userData)}
+            className="text-[11px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:underline"
+          >
+            View
+          </button>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <button
+            onClick={() => onEditUser(userData)}
+            className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
+            Edit
+          </button>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <button
+            onClick={() => onToggleUserStatus(userData.id)}
+            disabled={actionLoading === userData.id || userData.role === USER_ROLES.ADMIN}
+            className="text-[11px] text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-40"
+          >
+            {userData.isActive ? 'Deactivate' : 'Activate'}
+          </button>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <button
+            onClick={() => onDeleteUser(userData.id)}
+            disabled={actionLoading === userData.id || userData.role === USER_ROLES.ADMIN || userData.id === currentUser?.id}
+            className="text-[11px] text-rose-600 dark:text-rose-400 hover:underline disabled:opacity-40"
+          >
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+});
+
+UserTableRow.displayName = 'UserTableRow';
 
 const UserManagement = ({ user, token, onNavigate }) => {
   const backendBaseUrl = API_BASE_URL.replace('/api', '');
@@ -629,116 +726,29 @@ const UserManagement = ({ user, token, onNavigate }) => {
               <table className="w-full text-left text-xs font-mono">
                 <thead>
                   <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30 text-zinc-500 uppercase tracking-wider text-[10px]">
-                    <th className="px-4 py-2.5 font-medium">User Profile</th>
-                    <th className="px-4 py-2.5 font-medium">Role</th>
-                    <th className="px-4 py-2.5 font-medium">Academic Domain / Program</th>
-                    <th className="px-4 py-2.5 font-medium">Status</th>
-                    <th className="px-4 py-2.5 font-medium">Created</th>
-                    <th className="px-4 py-2.5 font-medium text-right">Actions</th>
+                    <th scope="col" className="px-4 py-2.5 font-medium">User Profile</th>
+                    <th scope="col" className="px-4 py-2.5 font-medium">Role</th>
+                    <th scope="col" className="px-4 py-2.5 font-medium">Academic Domain / Program</th>
+                    <th scope="col" className="px-4 py-2.5 font-medium">Status</th>
+                    <th scope="col" className="px-4 py-2.5 font-medium">Created</th>
+                    <th scope="col" className="px-4 py-2.5 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
-                  {users.map((userData) => {
-                    const avatarUrl = userData.profilePicture ? getProfileImageUrl(userData.profilePicture) : null;
-                    return (
-                      <tr key={userData.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
-                        {/* User Profile */}
-                        <td className="px-4 py-3">
-                          <div className="flex items-center space-x-3">
-                            {avatarUrl ? (
-                              <Image 
-                                src={avatarUrl} 
-                                alt={userData.name}
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 rounded object-cover flex-shrink-0 border border-zinc-200 dark:border-zinc-700"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.nextElementSibling.style.display = 'flex';
-                                }}
-                                unoptimized
-                              />
-                            ) : null}
-                            <div 
-                              className={`${avatarUrl ? 'hidden' : 'flex'} w-8 h-8 rounded bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs items-center justify-center flex-shrink-0`}
-                            >
-                              {userData.name?.charAt(0)?.toUpperCase() || '?'}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">{userData.name}</p>
-                              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">{userData.email}</p>
-                              {userData.studentId && (
-                                <p className="text-[10px] text-indigo-600 dark:text-indigo-400">ID: {userData.studentId}</p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Role */}
-                        <td className="px-4 py-3">
-                          <span className="px-2 py-0.5 text-[10px] font-mono uppercase rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
-                            {userData.role}
-                          </span>
-                        </td>
-
-                        {/* Program */}
-                        <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300 truncate max-w-[220px]">
-                          <p className="truncate">{formatProgramDisplay(userData)}</p>
-                          {userData.year && <p className="text-[10px] text-zinc-500">Year {userData.year}</p>}
-                        </td>
-
-                        {/* Status */}
-                        <td className="px-4 py-3">
-                          <span className="flex items-center space-x-1.5">
-                            <span className={`w-1.5 h-1.5 rounded-full ${userData.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} />
-                            <span className={userData.isActive ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-zinc-500'}>
-                              {userData.isActive ? 'Active' : 'Inactive'}
-                            </span>
-                          </span>
-                        </td>
-
-                        {/* Date */}
-                        <td className="px-4 py-3 text-zinc-500 text-[11px]">
-                          {new Date(userData.createdAt).toLocaleDateString()}
-                        </td>
-
-                        {/* Actions */}
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button
-                              onClick={() => handleViewDetails(userData)}
-                              className="text-[11px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:underline"
-                            >
-                              View
-                            </button>
-                            <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                            <button
-                              onClick={() => handleEditUser(userData)}
-                              className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline"
-                            >
-                              Edit
-                            </button>
-                            <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                            <button
-                              onClick={() => handleToggleUserStatus(userData.id)}
-                              disabled={actionLoading === userData.id || userData.role === USER_ROLES.ADMIN}
-                              className="text-[11px] text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-40"
-                            >
-                              {userData.isActive ? 'Deactivate' : 'Activate'}
-                            </button>
-                            <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                            <button
-                              onClick={() => handleDeleteUser(userData.id)}
-                              disabled={actionLoading === userData.id || userData.role === USER_ROLES.ADMIN || userData.id === user.id}
-                              className="text-[11px] text-rose-600 dark:text-rose-400 hover:underline disabled:opacity-40"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {users.map((userData) => (
+                    <UserTableRow
+                      key={userData.id}
+                      userData={userData}
+                      currentUser={user}
+                      getProfileImageUrl={getProfileImageUrl}
+                      formatProgramDisplay={formatProgramDisplay}
+                      actionLoading={actionLoading}
+                      onViewDetails={handleViewDetails}
+                      onEditUser={handleEditUser}
+                      onToggleUserStatus={handleToggleUserStatus}
+                      onDeleteUser={handleDeleteUser}
+                    />
+                  ))}
                 </tbody>
               </table>
             </div>

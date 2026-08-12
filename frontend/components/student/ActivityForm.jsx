@@ -283,7 +283,16 @@ const ActivityForm = ({ user, token, onSuccess }) => {
             <label htmlFor="file-upload" className="block mb-1 text-zinc-500">
               Certificate / Evidence Attachment (PDF, PNG, JPG up to 5MB)
             </label>
-            <div className="border border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 rounded-lg p-5 text-center transition-colors hover:border-indigo-600">
+            <div 
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  document.getElementById('file-upload')?.click();
+                }
+              }}
+              className="border border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 rounded-lg p-5 text-center transition-colors hover:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 cursor-pointer"
+            >
               <input
                 id="file-upload"
                 type="file"
@@ -298,7 +307,7 @@ const ActivityForm = ({ user, token, onSuccess }) => {
                 <span className="text-zinc-500"> or drag file here</span>
               </label>
               <span className="text-[10px] text-zinc-400 block mt-1">
-                Accepted formats: PDF, DOC, DOCX, PNG, JPG (Max 5MB)
+                Accepted: PDF, PNG, JPG, DOC (Max size: 5MB)
               </span>
 
               {file && (

@@ -3,6 +3,50 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { adminAPI } from '../../utils/api';
 import { API_BASE_URL } from '../../utils/constants';
 import LoadingSpinner, { CardSkeleton } from '../shared/LoadingSpinner';
+const AnalyticsStatCard = React.memo(({ label, value, subtitle, showStatusDot, isPending }) => {
+  return (
+    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
+      <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 flex items-center space-x-1.5">
+        {showStatusDot && (
+          <span className={`w-2 h-2 rounded-full ${isPending ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+        )}
+        <span>{label}</span>
+      </span>
+      <p className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-1">
+        {value}
+      </p>
+      <p className="text-xs font-mono text-zinc-500">
+        {subtitle}
+      </p>
+    </div>
+  );
+});
+
+AnalyticsStatCard.displayName = 'AnalyticsStatCard';
+
+const CategoryRow = React.memo(({ category, index, percentage, formatNumber }) => {
+  return (
+    <div className="space-y-1 font-mono text-xs">
+      <div className="flex items-center justify-between">
+        <span className="truncate max-w-[240px] text-zinc-800 dark:text-zinc-200" title={category.programCategory}>
+          #{index + 1} {category.programCategory}
+        </span>
+        <div className="flex items-center space-x-2">
+          <span className="font-bold text-zinc-950 dark:text-zinc-50">{formatNumber(category.count)}</span>
+          <span className="text-[10px] text-zinc-400">({percentage}%)</span>
+        </div>
+      </div>
+      <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+        <div 
+          className="bg-indigo-600 h-full rounded-full transition-all"
+          style={{ width: `${Math.min(100, Math.max(5, parseFloat(percentage)))}%` }}
+        />
+      </div>
+    </div>
+  );
+});
+
+CategoryRow.displayName = 'CategoryRow';
 
 const Analytics = ({ user, token, onNavigate }) => {
   const [stats, setStats] = useState(null);
@@ -374,46 +418,31 @@ const Analytics = ({ user, token, onNavigate }) => {
         <>
           {/* Key Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">SYSTEM ACCOUNTS</span>
-              <p className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-1">
-                {formatNumber(stats?.userStats?.totalUsers)}
-              </p>
-              <p className="text-xs font-mono text-zinc-500">
-                {formatNumber((stats?.userStats?.studentCount || 0) + (stats?.userStats?.facultyCount || 0))} active accounts
-              </p>
-            </div>
+            <AnalyticsStatCard
+              label="SYSTEM ACCOUNTS"
+              value={formatNumber(stats?.userStats?.totalUsers)}
+              subtitle={`${formatNumber((stats?.userStats?.studentCount || 0) + (stats?.userStats?.facultyCount || 0))} active accounts`}
+            />
 
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">SUBMITTED ACTIVITIES</span>
-              <p className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-1">
-                {formatNumber(stats?.activityStats?.totalActivities)}
-              </p>
-              <p className="text-xs font-mono text-zinc-500">
-                {getGrowthPercentage(stats?.activityStats?.approvedActivities, stats?.activityStats?.totalActivities)}% approval rate
-              </p>
-            </div>
+            <AnalyticsStatCard
+              label="SUBMITTED ACTIVITIES"
+              value={formatNumber(stats?.activityStats?.totalActivities)}
+              subtitle={`${getGrowthPercentage(stats?.activityStats?.approvedActivities, stats?.activityStats?.totalActivities)}% approval rate`}
+            />
 
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 flex items-center space-x-1.5">
-                <span className={`w-2 h-2 rounded-full ${stats?.activityStats?.pendingActivities > 0 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                <span>PENDING EVALUATION</span>
-              </span>
-              <p className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-1">
-                {formatNumber(stats?.activityStats?.pendingActivities)}
-              </p>
-              <p className="text-xs font-mono text-zinc-500">
-                {stats?.activityStats?.pendingActivities > 0 ? 'Awaiting faculty action' : 'Queue clear'}
-              </p>
-            </div>
+            <AnalyticsStatCard
+              label="PENDING EVALUATION"
+              value={formatNumber(stats?.activityStats?.pendingActivities)}
+              subtitle={stats?.activityStats?.pendingActivities > 0 ? 'Awaiting faculty action' : 'Queue clear'}
+              showStatusDot={true}
+              isPending={stats?.activityStats?.pendingActivities > 0}
+            />
 
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">DOMAINS</span>
-              <p className="text-3xl font-bold font-mono text-zinc-950 dark:text-zinc-50 tracking-tight my-1">
-                {formatNumber(stats?.programCategoryStats?.length)}
-              </p>
-              <p className="text-xs font-mono text-zinc-500">Academic categories</p>
-            </div>
+            <AnalyticsStatCard
+              label="DOMAINS"
+              value={formatNumber(stats?.programCategoryStats?.length)}
+              subtitle="Academic categories"
+            />
           </div>
 
           {/* Performance & Status Grid */}
@@ -438,23 +467,13 @@ const Analytics = ({ user, token, onNavigate }) => {
                 {stats?.programCategoryStats?.slice(0, 6).map((category, index) => {
                   const percentage = getGrowthPercentage(category.count, stats.userStats.totalUsers);
                   return (
-                    <div key={category.programCategory} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="truncate max-w-[240px] text-zinc-800 dark:text-zinc-200" title={category.programCategory}>
-                          #{index + 1} {category.programCategory}
-                        </span>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-bold text-zinc-950 dark:text-zinc-50">{formatNumber(category.count)}</span>
-                          <span className="text-[10px] text-zinc-400">({percentage}%)</span>
-                        </div>
-                      </div>
-                      <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-[3px] rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-indigo-600 dark:bg-indigo-400 transition-all duration-300"
-                          style={{ width: `${Math.max(4, percentage)}%` }}
-                        />
-                      </div>
-                    </div>
+                    <CategoryRow
+                      key={category.programCategory}
+                      category={category}
+                      index={index}
+                      percentage={percentage}
+                      formatNumber={formatNumber}
+                    />
                   );
                 })}
               </div>
