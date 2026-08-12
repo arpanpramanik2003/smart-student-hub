@@ -197,7 +197,7 @@ const Analytics = ({ user, token, onNavigate }) => {
         format: 'csv'
       });
       
-      const url = `${API_BASE_URL}/admin/reports?${params.toString()}`;
+      const url = `${API_BASE_URL}/api/admin/reports?${params.toString()}`;
       const response = await fetch(url, {
         method: 'GET',
         headers: {

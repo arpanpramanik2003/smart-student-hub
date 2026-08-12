@@ -73,7 +73,7 @@ const Dashboard = ({ user, token, updateUser }) => {
     formData.append('avatar', file);
     
     try {
-      const res = await fetch(`${API_BASE_URL}/students/upload-avatar`, {
+      const res = await fetch(`${API_BASE_URL}/api/students/upload-avatar`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

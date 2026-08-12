@@ -90,7 +90,7 @@ const Reports = ({ user, token, onNavigate }) => {
       if (filters.status !== 'all') paramsObj.status = filters.status;
       
       const params = new URLSearchParams(paramsObj);
-      const url = `${API_BASE_URL}/admin/reports?${params.toString()}`;
+      const url = `${API_BASE_URL}/api/admin/reports?${params.toString()}`;
       
       const response = await fetch(url, {
         method: 'GET',
