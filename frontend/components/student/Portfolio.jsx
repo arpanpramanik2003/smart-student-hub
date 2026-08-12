@@ -13,9 +13,12 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
   const [shareMessage, setShareMessage] = useState({ type: '', text: '', show: false });
   const [profile, setProfile] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [qrModalActivity, setQrModalActivity] = useState(null);
+  const [qrDataUrl, setQrDataUrl] = useState('');
 
   const showToast = useCallback((type, text) => {
-    setShareMessage({ type, text, show: true });
+    setShareMessage({ type, text, show: false });
+    setTimeout(() => setShareMessage({ type, text, show: true }), 10);
     setTimeout(() => setShareMessage(prev => ({ ...prev, show: false })), 4000);
   }, []);
 
@@ -79,12 +82,29 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
     return new Intl.NumberFormat().format(num || 0);
   }, []);
 
-  // Professional ATS-friendly PDF Generation
+  const openQRModal = useCallback(async (activity) => {
+    setQrModalActivity(activity);
+    setQrDataUrl('');
+    if (activity.verificationId) {
+      try {
+        const QRCode = await import('qrcode');
+        const verifyUrl = `${window.location.origin}/verify/${activity.verificationId}`;
+        const url = await QRCode.toDataURL(verifyUrl, { width: 220, margin: 1 });
+        setQrDataUrl(url);
+      } catch (err) {
+        console.error('QR generation error:', err);
+      }
+    }
+  }, []);
+
+  // Professional ATS-friendly PDF Generation with Verifiable QR Codes
   const generateEnhancedPDF = useCallback(async () => {
     setIsGenerating(true);
     
     try {
       const { default: jsPDF } = await import('jspdf');
+      const QRCode = await import('qrcode');
+
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.width;
       const pageHeight = doc.internal.pageSize.height;
@@ -201,15 +221,15 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
         y += skillsLines.length * 4.5 + 6;
       }
 
-      // Verified Activities
+      // Verified Activities with QR Proofs
       if (activities.length > 0) {
-        y = addSection('Verified Co-Curricular Activities');
+        y = addSection('Verified Co-Curricular Activities & Digital Proofs');
         doc.setFontSize(9);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(60, 60, 60);
 
-        Object.entries(activityGroups).forEach(([type, typeActivities]) => {
-          if (y > pageHeight - 35) {
+        for (const [type, typeActivities] of Object.entries(activityGroups)) {
+          if (y > pageHeight - 40) {
             doc.addPage();
             y = 20;
           }
@@ -219,8 +239,8 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
           doc.text(getTypeLabel(type), margin + 3, y);
           y += 5;
 
-          typeActivities.forEach((activity) => {
-            if (y > pageHeight - 20) {
+          for (const activity of typeActivities) {
+            if (y > pageHeight - 30) {
               doc.addPage();
               y = 20;
             }
@@ -238,14 +258,31 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
               y += 4;
               doc.setTextColor(60, 60, 60);
             }
-          });
+
+            // Embed Verification QR Code if token exists
+            if (activity.verificationId) {
+              try {
+                const verifyUrl = `${window.location.origin}/verify/${activity.verificationId}`;
+                const qrImage = await QRCode.toDataURL(verifyUrl, { width: 80, margin: 1 });
+                doc.addImage(qrImage, 'PNG', pageWidth - margin - 22, y - 8, 20, 20);
+                doc.setFontSize(7);
+                doc.setTextColor(79, 70, 229);
+                doc.text(`Token: ${activity.verificationId.slice(0, 14)}...`, margin + 8, y);
+                y += 4;
+                doc.setTextColor(60, 60, 60);
+              } catch (e) {
+                // Ignore QR failure if offline
+              }
+            }
+            y += 2;
+          }
           y += 3;
-        });
+        }
       }
 
       // Save PDF
       doc.save(`${user.name.replace(/\s+/g, '_')}_Portfolio.pdf`);
-      showToast('success', 'PDF Portfolio generated successfully!');
+      showToast('success', 'PDF Portfolio with Digital Verification QR Codes generated successfully!');
     } catch (err) {
       console.error('PDF error:', err);
       showToast('error', 'Failed to generate PDF file.');
@@ -256,7 +293,7 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
 
   const handleSharePortfolio = useCallback(async (type = 'link') => {
     try {
-      const shareUrl = `${window.location.origin}/public/portfolio/${user.id}`;
+      const shareUrl = `${window.location.origin}/student/portfolio`;
       if (type === 'link') {
         await navigator.clipboard.writeText(shareUrl);
         showToast('success', 'Portfolio share link copied to clipboard!');
@@ -268,7 +305,7 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
     } catch (error) {
       showToast('error', 'Failed to copy share link.');
     }
-  }, [user.id, user.name, showToast]);
+  }, [user.name, showToast]);
 
   if (loading) {
     return (
@@ -327,7 +364,7 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
               )}
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 mt-1">
-              Digital Portfolio & Credentials
+              Digital Portfolio & Verifiable Credentials
             </h1>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-mono">
               {user.name} • {academicDisplay} • Year {user.year || 1} • ID: {user.studentId || 'N/A'}
@@ -353,13 +390,6 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
                 className="px-3.5 py-2 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 transition-colors"
               >
                 Copy Share Link
-              </button>
-
-              <button
-                onClick={() => handleSharePortfolio('email')}
-                className="px-3 py-2 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium hover:bg-zinc-800 transition-colors"
-              >
-                Email CV
               </button>
             </div>
           )}
@@ -431,7 +461,7 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
                 {typeActivities.map((activity) => (
                   <div
                     key={activity.id}
-                    className="p-4 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded space-y-2"
+                    className="p-4 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded space-y-3"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <h3 className="font-bold text-sm text-zinc-950 dark:text-zinc-50 font-sans">
@@ -448,12 +478,34 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
                       </p>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 border-t border-zinc-200 dark:border-zinc-700/60 text-zinc-500 text-[11px]">
-                      <span>Date: <strong className="text-zinc-800 dark:text-zinc-200 font-normal">{formatDate(activity.date)}</strong></span>
-                      {activity.organizer && (
-                        <span>Organizer: <strong className="text-zinc-800 dark:text-zinc-200 font-normal">{activity.organizer}</strong></span>
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-200 dark:border-zinc-700/60 text-zinc-500 text-[11px]">
+                      <div className="flex items-center space-x-3 flex-wrap gap-y-1">
+                        <span>Date: <strong className="text-zinc-800 dark:text-zinc-200 font-normal">{formatDate(activity.date)}</strong></span>
+                        {activity.organizer && (
+                          <span>Organizer: <strong className="text-zinc-800 dark:text-zinc-200 font-normal">{activity.organizer}</strong></span>
+                        )}
+                        <span className="text-emerald-600 dark:text-emerald-400 font-medium">✓ Verified Credential</span>
+                      </div>
+
+                      {/* Verifiable Record Actions */}
+                      {activity.verificationId && (
+                        <div className="flex items-center space-x-2">
+                          <a
+                            href={`/verify/${activity.verificationId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2 py-1 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 font-semibold"
+                          >
+                            [Verify Credential ↗]
+                          </a>
+                          <button
+                            onClick={() => openQRModal(activity)}
+                            className="px-2 py-1 rounded border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                          >
+                            [QR Code]
+                          </button>
+                        </div>
                       )}
-                      <span className="text-emerald-600 dark:text-emerald-400 font-medium">✓ Faculty Verified</span>
                     </div>
                   </div>
                 ))}
@@ -467,6 +519,41 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
           <p className="text-[11px] text-zinc-400">
             Verified extra-curricular activities will automatically appear in your digital portfolio once approved by faculty evaluators.
           </p>
+        </div>
+      )}
+
+      {/* QR Code Inspection Modal */}
+      {qrModalActivity && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 max-w-sm w-full space-y-4 font-mono text-xs text-center shadow-2xl">
+            <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
+              Verifiable Credential Proof
+            </h3>
+            <p className="text-[11px] text-zinc-500 truncate" title={qrModalActivity.title}>
+              {qrModalActivity.title}
+            </p>
+
+            <div className="p-4 bg-white rounded-lg border border-zinc-200 flex justify-center">
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="Credential Verification QR Code" className="w-48 h-48" />
+              ) : (
+                <div className="w-48 h-48 flex items-center justify-center text-zinc-400 text-xs">
+                  Generating QR...
+                </div>
+              )}
+            </div>
+
+            <div className="p-2 bg-zinc-100 dark:bg-zinc-800/80 rounded text-[10px] text-zinc-600 dark:text-zinc-300 break-all select-all">
+              {`${typeof window !== 'undefined' ? window.location.origin : ''}/verify/${qrModalActivity.verificationId}`}
+            </div>
+
+            <button
+              onClick={() => setQrModalActivity(null)}
+              className="w-full py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded font-semibold"
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -81,6 +81,28 @@ export default function ActivityModel(sequelize) {
       },
       remarks: { type: DataTypes.TEXT, allowNull: true },
       credits: { type: DataTypes.DECIMAL(3, 1), defaultValue: 0 },
+      verificationId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+      isRevoked: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      revokedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      revokedBy: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: { model: 'users', key: 'id' },
+      },
+      revocationReason: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
     },
     {
       timestamps: true,

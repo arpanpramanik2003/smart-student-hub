@@ -220,4 +220,8 @@ export const notificationAPI = {
 // Credit Policy Lookup (Authenticated & Shared)
 export const getActiveCreditPolicies = () => apiRequest('/api/credit-policies/active');
 
+// Public Verification API (No Auth Required)
+export const publicAPI = {
+  verifyCredential: (verificationId) => apiRequest(`/api/verify/${verificationId}`),
+};
 
