@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { studentAPI } from '../../utils/api';
 import LoadingSpinner, { SectionSkeleton } from '../shared/LoadingSpinner';
-import jsPDF from 'jspdf';
 import StudentCVForm from './StudentCVForm';
 import { getStudentProgramDisplay } from '../../utils/userDisplay';
 
@@ -81,10 +80,11 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
   }, []);
 
   // Professional ATS-friendly PDF Generation
-  const generateEnhancedPDF = useCallback(() => {
+  const generateEnhancedPDF = useCallback(async () => {
     setIsGenerating(true);
     
     try {
+      const { default: jsPDF } = await import('jspdf');
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.width;
       const pageHeight = doc.internal.pageSize.height;

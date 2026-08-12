@@ -8,18 +8,69 @@ import LoadingSpinner, { TableSkeleton } from '../shared/LoadingSpinner';
 
 // Extracted as a proper component to avoid hooks-in-callback violation
 const Modal = ({ isOpen, onClose, title, children, modalRef }) => {
+  const containerRef = useRef(null);
+  const previousActiveElementRef = useRef(null);
+
   useEffect(() => {
-    const handleEscape = (e) => {
+    if (!isOpen) return;
+
+    previousActiveElementRef.current = document.activeElement;
+
+    const modalElement = modalRef?.current || containerRef.current;
+    if (!modalElement) return;
+
+    const getFocusableElements = () => {
+      return Array.from(
+        modalElement.querySelectorAll(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+    };
+
+    const focusables = getFocusableElements();
+    if (focusables.length > 0) {
+      focusables[0].focus();
+    } else {
+      modalElement.focus();
+    }
+
+    const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
+        e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const currentFocusables = getFocusableElements();
+        if (currentFocusables.length === 0) return;
+
+        const firstElement = currentFocusables[0];
+        const lastElement = currentFocusables[currentFocusables.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [isOpen, onClose]);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (previousActiveElementRef.current && typeof previousActiveElementRef.current.focus === 'function') {
+        previousActiveElementRef.current.focus();
+      }
+    };
+  }, [isOpen, onClose, modalRef]);
 
   if (!isOpen) return null;
 
@@ -33,8 +84,13 @@ const Modal = ({ isOpen, onClose, title, children, modalRef }) => {
       }}
     >
       <div 
-        ref={modalRef}
-        className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        ref={(node) => {
+          containerRef.current = node;
+          if (typeof modalRef === 'function') modalRef(node);
+          else if (modalRef) modalRef.current = node;
+        }}
+        tabIndex={-1}
+        className="relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5">
@@ -44,6 +100,7 @@ const Modal = ({ isOpen, onClose, title, children, modalRef }) => {
               onClick={onClose}
               className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               type="button"
+              aria-label="Close dialog"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
