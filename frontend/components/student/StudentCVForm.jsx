@@ -69,8 +69,23 @@ const StudentCVForm = ({ user, isReadOnly = false }) => {
   }, [showToast]);
 
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+    if (isReadOnly && user) {
+      const profileData = { ...defaultDetails, ...user };
+      setProfile(profileData);
+      setFormData(profileData);
+      if (profileData.profilePicture) {
+        if (profileData.profilePicture.startsWith('http')) {
+          setProfilePicturePreview(profileData.profilePicture);
+        } else {
+          const backendBaseUrl = API_BASE_URL.replace('/api', '');
+          setProfilePicturePreview(`${backendBaseUrl}${profileData.profilePicture}`);
+        }
+      }
+      setLoading(false);
+    } else {
+      fetchProfile();
+    }
+  }, [isReadOnly, user, fetchProfile]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;

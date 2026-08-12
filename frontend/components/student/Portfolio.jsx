@@ -38,8 +38,18 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
   }, []);
 
   useEffect(() => {
-    fetchPortfolioData();
-  }, [fetchPortfolioData]);
+    if (isReadOnly && user) {
+      setActivities(user.activities || []);
+      setStats(user.stats || {
+        byStatus: { approved: user.activities?.length || 0 },
+        totalCredits: user.stats?.totalCredits || 0
+      });
+      setProfile(user);
+      setLoading(false);
+    } else {
+      fetchPortfolioData();
+    }
+  }, [isReadOnly, user, fetchPortfolioData]);
 
   const activityGroups = useMemo(() => {
     return activities.reduce((groups, activity) => {

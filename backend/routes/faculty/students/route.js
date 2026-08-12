@@ -56,12 +56,17 @@ export async function GET(request) {
 
     const studentsWithStats = await Promise.all(
       rows.map(async (student) => {
-        const [totalActivities, approvedActivities, totalCredits] = await Promise.all([
+        const [totalActivities, approvedActivities, totalCredits, activityList] = await Promise.all([
           Activity.count({ where: { studentId: student.id } }),
           Activity.count({ where: { studentId: student.id, status: 'approved' } }),
           Activity.sum('credits', { where: { studentId: student.id, status: 'approved' } }),
+          Activity.findAll({ where: { studentId: student.id, status: 'approved' }, order: [['date', 'DESC']] }),
         ]);
-        return { ...student.toJSON(), stats: { totalActivities, approvedActivities, totalCredits: totalCredits || 0 } };
+        return { 
+          ...student.toJSON(), 
+          activities: activityList.map(a => a.toJSON()),
+          stats: { totalActivities, approvedActivities, totalCredits: totalCredits || 0 } 
+        };
       })
     );
 
