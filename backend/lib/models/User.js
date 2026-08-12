@@ -50,6 +50,10 @@ export default function UserModel(sequelize) {
         allowNull: true,
         references: { model: 'users', key: 'id' },
       },
+      mustChangePassword: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
     },
     {
       timestamps: true,

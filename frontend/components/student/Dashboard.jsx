@@ -42,14 +42,18 @@ const Dashboard = ({ user, token, updateUser }) => {
     setTimeout(() => setMessage(prev => ({ ...prev, show: false })), 4000);
   }, []);
 
+  const [progressData, setProgressData] = useState(null);
+
   const fetchData = useCallback(async () => {
     try {
-      const [statsData, activitiesData] = await Promise.all([
+      const [statsData, activitiesData, progressRes] = await Promise.all([
         studentAPI.getStats(),
-        studentAPI.getActivities({ limit: 5 })
+        studentAPI.getActivities({ limit: 5 }),
+        studentAPI.getCreditProgress().catch(() => null),
       ]);
       setStats(statsData);
       setRecentActivities(activitiesData.activities || []);
+      if (progressRes) setProgressData(progressRes);
     } catch (error) {
       console.error('Dashboard fetch error:', error);
     } finally {
@@ -228,37 +232,66 @@ const Dashboard = ({ user, token, updateUser }) => {
         </div>
       </div>
 
-      {/* Student Milestone Progress Banner */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-        <div className="flex items-center justify-between font-mono text-xs mb-2">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider text-[10px]">
-              Degree Activity Credit Target
-            </span>
+      {/* Academic-Year & Lifetime Credit Progress Tracking */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 space-y-4 font-mono text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-zinc-200 dark:border-zinc-800">
+          <div>
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider text-[10px]">
+                {progressData?.academicYear?.label || 'Current Academic Year'} Credit Progress
+              </span>
+            </div>
+            <p className="text-[11px] text-zinc-500 mt-0.5 font-sans">
+              Annual Institutional Co-Curricular Target: <strong>20.0 Credits</strong> (July 1 – June 30)
+            </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <span className="font-bold text-zinc-950 dark:text-zinc-50">{earnedCredits} / {CREDIT_TARGET} Credits</span>
-            <span className="px-1.5 py-0.5 text-[10px] rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900">
-              {creditProgress}% Completed
-            </span>
+
+          <div className="flex items-center space-x-3 self-start sm:self-auto">
+            <div className="text-right">
+              <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                {progressData?.academicYear?.creditsEarned || earnedCredits} / 20.0 Credits
+              </span>
+              <span className="block text-[10px] text-zinc-400">
+                {progressData?.academicYear?.progressPercentage || creditProgress}% Annual Target Met
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Slim 3px Progress Track */}
-        <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-[3px] rounded-full overflow-hidden mt-2">
+        {/* Slim Progress Track */}
+        <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-2 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-emerald-500 transition-all duration-500" 
-            style={{ width: `${creditProgress}%` }}
+            className="h-full bg-emerald-500 transition-all duration-500 rounded-full" 
+            style={{ width: `${progressData?.academicYear?.progressPercentage || creditProgress}%` }}
           />
         </div>
 
-        <p className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 mt-2">
-          {earnedCredits >= CREDIT_TARGET 
-            ? '✓ Milestone Reached: Minimum credit requirement fully satisfied.' 
-            : `Keep submitting verified extra-curricular activities to earn ${CREDIT_TARGET - earnedCredits} remaining credits.`
-          }
-        </p>
+        {/* NAAC Criterion Breakdown Chips */}
+        {progressData?.academicYear?.criterionBreakdown && progressData.academicYear.criterionBreakdown.length > 0 && (
+          <div className="space-y-2 pt-1">
+            <span className="text-[10px] uppercase text-zinc-500 block">Current Academic Year NAAC Criterion Breakdown:</span>
+            <div className="flex flex-wrap gap-2">
+              {progressData.academicYear.criterionBreakdown.map((item) => (
+                <div key={item.criterion} className="px-2.5 py-1 rounded bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-800 text-[11px]">
+                  <span className="text-zinc-500 mr-1">{item.criterion}:</span>
+                  <strong className="text-indigo-600 dark:text-indigo-400">{item.credits} pts</strong>
+                  <span className="text-[10px] text-zinc-400 ml-1">({item.activityCount} act)</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Lifetime vs Current Standing Summary */}
+        <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-500 flex-wrap gap-2">
+          <span>
+            • <strong>Lifetime Record:</strong> {progressData?.lifetime?.totalCredits || earnedCredits} total credits across {progressData?.lifetime?.totalApprovedActivities || approvedCount} verified activities.
+          </span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+            ✓ Synchronized with Institutional Ledger
+          </span>
+        </div>
       </div>
 
       {/* Flat Stat Cards Grid */}

@@ -41,7 +41,8 @@ export const initDB = async () => {
     g.__db_CreditPolicy &&
     g.__db_Notification &&
     g.__db_ActivityAudit &&
-    g.__db_ActivityGrievance
+    g.__db_ActivityGrievance &&
+    g.__db_UserImport
   ) {
     return {
       sequelize: g.__db_sequelize,
@@ -51,6 +52,7 @@ export const initDB = async () => {
       Notification: g.__db_Notification,
       ActivityAudit: g.__db_ActivityAudit,
       ActivityGrievance: g.__db_ActivityGrievance,
+      UserImport: g.__db_UserImport,
     };
   }
 
@@ -68,6 +70,7 @@ export const initDB = async () => {
   const { default: NotificationModel } = await import('./models/Notification.js');
   const { default: ActivityAuditModel } = await import('./models/ActivityAudit.js');
   const { default: ActivityGrievanceModel } = await import('./models/ActivityGrievance.js');
+  const { default: UserImportModel } = await import('./models/UserImport.js');
 
   g.__db_User = g.__db_User || UserModel(sq);
   g.__db_Activity = g.__db_Activity || ActivityModel(sq);
@@ -75,6 +78,7 @@ export const initDB = async () => {
   g.__db_Notification = g.__db_Notification || NotificationModel(sq);
   g.__db_ActivityAudit = g.__db_ActivityAudit || ActivityAuditModel(sq);
   g.__db_ActivityGrievance = g.__db_ActivityGrievance || ActivityGrievanceModel(sq);
+  g.__db_UserImport = g.__db_UserImport || UserImportModel(sq);
 
   const User = g.__db_User;
   const Activity = g.__db_Activity;
@@ -82,6 +86,7 @@ export const initDB = async () => {
   const Notification = g.__db_Notification;
   const ActivityAudit = g.__db_ActivityAudit;
   const ActivityGrievance = g.__db_ActivityGrievance;
+  const UserImport = g.__db_UserImport;
 
   if (!g.__db_associations_set) {
     User.hasMany(Activity, { foreignKey: 'studentId', as: 'activities' });

@@ -51,6 +51,10 @@ export const authAPI = {
     body: userData,
   }),
   getProfile: () => apiRequest('/api/auth/profile'),
+  changePassword: (data) => apiRequest('/api/auth/change-password', {
+    method: 'POST',
+    body: data,
+  }),
 };
 
 // Student API
@@ -121,6 +125,7 @@ export const studentAPI = {
   }),
 
   getActivityAudits: (activityId) => apiRequest(`/api/activities/${activityId}/audits`),
+  getCreditProgress: () => apiRequest('/api/students/activities/progress'),
 };
 
 // Faculty API
@@ -206,6 +211,10 @@ export const adminAPI = {
     const query = new URLSearchParams({ type: 'naac', ...params }).toString();
     return apiRequest(`/api/admin/reports${query ? `?${query}` : ''}`);
   },
+  bulkImportUsers: (data) => apiRequest('/api/admin/users/bulk-import', {
+    method: 'POST',
+    body: data,
+  }),
 };
 
 // Notification API
