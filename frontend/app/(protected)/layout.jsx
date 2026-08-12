@@ -25,7 +25,7 @@ export default function ProtectedLayout({ children }) {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-300">
       <Sidebar
         user={user}
         onCollapsedChange={setIsSidebarCollapsed}
