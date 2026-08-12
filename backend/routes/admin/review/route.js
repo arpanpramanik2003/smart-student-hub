@@ -3,40 +3,38 @@ import { NextResponse, createPagination } from 'next/server';
 import { initDB } from '@/lib/database';
 import { authenticateAndAuthorize } from '@/lib/auth';
 
+// GET /api/admin/review - List activities awaiting Stage 2 final approval (mentor_approved)
 export async function GET(request) {
   try {
-    const auth = await authenticateAndAuthorize(request, ['faculty', 'admin']);
+    const auth = await authenticateAndAuthorize(request, ['admin']);
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
-    const menteesOnly = searchParams.get('menteesOnly') === 'true';
     const offset = (page - 1) * limit;
 
     const { Activity, User, CreditPolicy } = await initDB();
 
-    const studentWhere = { role: 'student' };
-    if (menteesOnly || auth.user.role === 'faculty') {
-      studentWhere.mentorId = auth.user.id;
-    }
-
     const { count, rows } = await Activity.findAndCountAll({
-      where: { status: 'pending_mentor' },
+      where: { status: 'mentor_approved' },
       include: [
         {
           model: User,
           as: 'student',
-          where: menteesOnly ? { mentorId: auth.user.id } : undefined,
-          attributes: ['id', 'name', 'email', 'studentId', 'department', 'programCategory', 'program', 'specialization', 'year', 'mentorId'],
+          attributes: ['id', 'name', 'email', 'studentId', 'department', 'programCategory', 'program', 'specialization', 'year'],
+        },
+        {
+          model: User,
+          as: 'mentorReviewer',
+          attributes: ['id', 'name', 'email'],
         },
         {
           model: CreditPolicy,
           as: 'policy',
-          required: false,
         }
       ],
-      order: [['createdAt', 'DESC']],
+      order: [['mentorReviewedAt', 'ASC']],
       limit,
       offset,
     });
@@ -46,10 +44,7 @@ export async function GET(request) {
       pagination: createPagination(count, page, limit),
     });
   } catch (error) {
-    console.error('Get pending activities error:', error);
-    return NextResponse.json({
-      message: 'Internal server error',
-      error: { message: 'Internal server error', details: error.message },
-    }, { status: 500 });
+    console.error('Get admin review queue error:', error);
+    return NextResponse.json({ error: 'Failed to fetch final review queue' }, { status: 500 });
   }
 }

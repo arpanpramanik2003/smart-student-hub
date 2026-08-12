@@ -18,6 +18,25 @@ export const ACTIVITY_TYPES = [
   { value: 'online_course', label: 'Online Course' }
 ];
 
+// Achievement Levels
+export const ACHIEVEMENT_LEVELS = [
+  { value: 'college', label: 'College / Institutional Level' },
+  { value: 'state', label: 'State / Zonal Level' },
+  { value: 'national', label: 'National Level' },
+  { value: 'international', label: 'International Level' }
+];
+
+// NAAC Standard Criteria
+export const NAAC_CRITERIA = [
+  { id: 'Criterion 1', title: 'Criterion 1: Curricular Aspects' },
+  { id: 'Criterion 2', title: 'Criterion 2: Teaching-Learning and Evaluation' },
+  { id: 'Criterion 3', title: 'Criterion 3: Research, Innovations and Extension' },
+  { id: 'Criterion 4', title: 'Criterion 4: Infrastructure and Learning Resources' },
+  { id: 'Criterion 5', title: 'Criterion 5: Student Support and Progression' },
+  { id: 'Criterion 6', title: 'Criterion 6: Governance, Leadership and Management' },
+  { id: 'Criterion 7', title: 'Criterion 7: Institutional Values and Best Practices' }
+];
+
 // User Roles
 export const USER_ROLES = {
   STUDENT: 'student',
@@ -27,14 +46,27 @@ export const USER_ROLES = {
 
 // Activity Status
 export const ACTIVITY_STATUS = {
-  PENDING: 'pending',
+  PENDING_MENTOR: 'pending_mentor',
+  MENTOR_APPROVED: 'mentor_approved',
   APPROVED: 'approved',
-  REJECTED: 'rejected'
+  REJECTED: 'rejected',
+  PENDING: 'pending_mentor' // legacy mapping fallback
 };
 
-// Status Colors
+// Status Display Labels
+export const STATUS_LABELS = {
+  pending_mentor: 'Stage 1: Pending Mentor Review',
+  mentor_approved: 'Stage 2: Pending Admin Sign-Off',
+  approved: 'Approved & Granted',
+  rejected: 'Rejected',
+  pending: 'Pending Review'
+};
+
+// Status Badges Styling
 export const STATUS_COLORS = {
-  approved: 'text-green-600 bg-green-100',
-  pending: 'text-yellow-600 bg-yellow-100',
-  rejected: 'text-red-600 bg-red-100'
+  pending_mentor: 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900',
+  mentor_approved: 'text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/40 border-sky-200 dark:border-sky-900',
+  approved: 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900',
+  rejected: 'text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900',
+  pending: 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900'
 };

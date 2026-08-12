@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { studentAPI } from '../../utils/api';
-import { ACTIVITY_STATUS } from '../../utils/constants';
+import { ACTIVITY_STATUS, STATUS_LABELS, STATUS_COLORS } from '../../utils/constants';
 import LoadingSpinner, { CardSkeleton } from '../shared/LoadingSpinner';
 
 const StudentActivityCard = React.memo(({ 
@@ -14,22 +14,27 @@ const StudentActivityCard = React.memo(({
   handleDelete, 
   deletingId 
 }) => {
+  const statusColorClass = STATUS_COLORS[activity.status] || STATUS_COLORS.pending_mentor;
+  const statusLabel = STATUS_LABELS[activity.status] || activity.status;
+
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 space-y-4 font-mono text-xs">
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div className="space-y-1 flex-1 min-w-0">
-          <div className="flex items-center space-x-2 flex-wrap mb-1">
-            <span className={`px-2 py-0.5 text-[10px] uppercase font-bold rounded ${
-              activity.status === 'approved' ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' :
-              activity.status === 'pending' ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800' :
-              'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
-            }`}>
-              ● {activity.status}
+          <div className="flex items-center space-x-2 flex-wrap mb-1 gap-y-1">
+            <span className={`px-2.5 py-0.5 text-[10px] uppercase font-bold rounded border ${statusColorClass}`}>
+              ● {statusLabel}
             </span>
 
+            {activity.naacCriterion && (
+              <span className="px-2 py-0.5 text-[10px] font-semibold rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                {activity.naacCriterion}
+              </span>
+            )}
+
             <span className="text-xs text-zinc-400">•</span>
-            <span className="text-xs uppercase text-zinc-500">
-              {activity.type.replace('_', ' ')}
+            <span className="text-xs uppercase text-zinc-500 font-medium">
+              {activity.type.replace('_', ' ')} ({activity.achievementLevel || 'college'})
             </span>
           </div>
 

@@ -18,11 +18,16 @@ export async function GET(request) {
     const program = searchParams.get('program');
     const specialization = searchParams.get('specialization');
     const admissionYear = searchParams.get('admissionYear');
+    const menteesOnly = searchParams.get('menteesOnly') === 'true' || searchParams.get('filterMode') === 'mentees';
     const offset = (page - 1) * limit;
 
     const { User, Activity } = await initDB();
 
     const where = { role: 'student' };
+
+    if (menteesOnly) {
+      where.mentorId = auth.user.id;
+    }
 
     if (search) {
       where[Op.or] = [
@@ -47,8 +52,9 @@ export async function GET(request) {
         'phone', 'dateOfBirth', 'gender', 'category', 'address',
         'tenthResult', 'twelfthResult', 'skills', 'languages', 'hobbies', 'achievements',
         'projects', 'certifications', 'linkedinUrl', 'githubUrl', 'portfolioUrl',
-        'profilePicture', 'otherDetails', 'isActive', 'createdAt',
+        'profilePicture', 'otherDetails', 'isActive', 'createdAt', 'mentorId',
       ],
+      include: [{ model: User, as: 'mentor', attributes: ['id', 'name', 'email'] }],
       order: [['name', 'ASC']],
       limit,
       offset,
@@ -60,12 +66,21 @@ export async function GET(request) {
           Activity.count({ where: { studentId: student.id } }),
           Activity.count({ where: { studentId: student.id, status: 'approved' } }),
           Activity.sum('credits', { where: { studentId: student.id, status: 'approved' } }),
-          Activity.findAll({ where: { studentId: student.id, status: 'approved' }, order: [['date', 'DESC']] }),
+          Activity.findAll({
+            where: { studentId: student.id },
+            order: [['date', 'DESC']],
+            limit: 5,
+          }),
         ]);
-        return { 
-          ...student.toJSON(), 
-          activities: activityList.map(a => a.toJSON()),
-          stats: { totalActivities, approvedActivities, totalCredits: totalCredits || 0 } 
+
+        return {
+          ...student.toJSON(),
+          stats: {
+            totalActivities: totalActivities || 0,
+            approvedActivities: approvedActivities || 0,
+            totalCredits: totalCredits || 0,
+          },
+          recentActivities: activityList || [],
         };
       })
     );
@@ -75,7 +90,7 @@ export async function GET(request) {
       pagination: createPagination(count, page, limit),
     });
   } catch (error) {
-    console.error('Get faculty students error:', error);
+    console.error('Get students error:', error);
     return NextResponse.json({
       message: 'Internal server error',
       error: { message: 'Internal server error', details: error.message },

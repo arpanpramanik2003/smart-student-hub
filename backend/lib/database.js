@@ -34,8 +34,13 @@ const createSequelize = () => {
 };
 
 export const initDB = async () => {
-  if (g.__db_initialized && g.__db_User && g.__db_Activity) {
-    return { sequelize: g.__db_sequelize, User: g.__db_User, Activity: g.__db_Activity };
+  if (g.__db_initialized && g.__db_User && g.__db_Activity && g.__db_CreditPolicy) {
+    return {
+      sequelize: g.__db_sequelize,
+      User: g.__db_User,
+      Activity: g.__db_Activity,
+      CreditPolicy: g.__db_CreditPolicy,
+    };
   }
 
   const config = loadConfig();
@@ -48,17 +53,33 @@ export const initDB = async () => {
 
   const { default: UserModel } = await import('./models/User.js');
   const { default: ActivityModel } = await import('./models/Activity.js');
+  const { default: CreditPolicyModel } = await import('./models/CreditPolicy.js');
 
   g.__db_User = g.__db_User || UserModel(sq);
   g.__db_Activity = g.__db_Activity || ActivityModel(sq);
+  g.__db_CreditPolicy = g.__db_CreditPolicy || CreditPolicyModel(sq);
 
   const User = g.__db_User;
   const Activity = g.__db_Activity;
+  const CreditPolicy = g.__db_CreditPolicy;
 
   if (!g.__db_associations_set) {
     User.hasMany(Activity, { foreignKey: 'studentId', as: 'activities' });
     Activity.belongsTo(User, { foreignKey: 'studentId', as: 'student' });
     Activity.belongsTo(User, { foreignKey: 'approvedBy', as: 'approver' });
+
+    // Mentor-Mentee association
+    User.belongsTo(User, { foreignKey: 'mentorId', as: 'mentor' });
+    User.hasMany(User, { foreignKey: 'mentorId', as: 'mentees' });
+
+    // Credit Policy association
+    Activity.belongsTo(CreditPolicy, { foreignKey: 'policyId', as: 'policy' });
+    CreditPolicy.hasMany(Activity, { foreignKey: 'policyId', as: 'activities' });
+
+    // Two-stage review associations
+    Activity.belongsTo(User, { foreignKey: 'mentorReviewedBy', as: 'mentorReviewer' });
+    Activity.belongsTo(User, { foreignKey: 'finalApprovedBy', as: 'finalApprover' });
+
     g.__db_associations_set = true;
   }
 
@@ -73,9 +94,11 @@ export const initDB = async () => {
 
       try {
         if (config.dbSyncStrategy === 'safe') {
+          await CreditPolicy.sync();
           await User.sync();
           await Activity.sync();
         } else if (config.dbSyncStrategy === 'alter') {
+          await CreditPolicy.sync({ alter: true });
           await User.sync({ alter: true });
           await Activity.sync({ alter: true });
         } else {
@@ -84,6 +107,7 @@ export const initDB = async () => {
       } catch (syncError) {
         if (config.dbSyncStrategy === 'alter' && !config.isProduction) {
           console.warn('DB alter failed, falling back to safe sync:', syncError.message);
+          await CreditPolicy.sync();
           await User.sync();
           await Activity.sync();
         } else {
@@ -98,11 +122,5 @@ export const initDB = async () => {
     }
   }
 
-  return { sequelize: sq, User, Activity };
+  return { sequelize: sq, User, Activity, CreditPolicy };
 };
-
-export const getModels = () => ({
-  User: g.__db_User,
-  Activity: g.__db_Activity,
-  sequelize: g.__db_sequelize,
-});

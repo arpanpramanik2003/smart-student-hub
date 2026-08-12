@@ -45,6 +45,11 @@ export default function UserModel(sequelize) {
       linkedinUrl: { type: DataTypes.STRING, allowNull: true },
       githubUrl: { type: DataTypes.STRING, allowNull: true },
       portfolioUrl: { type: DataTypes.STRING, allowNull: true },
+      mentorId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: { model: 'users', key: 'id' },
+      },
     },
     {
       timestamps: true,

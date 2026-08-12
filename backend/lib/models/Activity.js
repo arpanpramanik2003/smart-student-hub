@@ -25,19 +25,59 @@ export default function ActivityModel(sequelize) {
         ),
         allowNull: false,
       },
+      achievementLevel: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'college',
+      },
+      policyId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: { model: 'credit_policies', key: 'id' },
+      },
+      naacCriterion: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       description: { type: DataTypes.TEXT, allowNull: true },
       date: { type: DataTypes.DATE, allowNull: false },
       duration: { type: DataTypes.STRING, allowNull: true },
       organizer: { type: DataTypes.STRING, allowNull: true },
       filePath: { type: DataTypes.STRING, allowNull: true },
       status: {
-        type: DataTypes.ENUM('pending', 'approved', 'rejected'),
-        defaultValue: 'pending',
+        type: DataTypes.ENUM('pending_mentor', 'mentor_approved', 'approved', 'rejected'),
+        defaultValue: 'pending_mentor',
       },
       approvedBy: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: { model: 'users', key: 'id' },
+      },
+      mentorReviewedBy: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: { model: 'users', key: 'id' },
+      },
+      mentorReviewedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      mentorRemarks: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      finalApprovedBy: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: { model: 'users', key: 'id' },
+      },
+      finalApprovedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      adminRemarks: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
       remarks: { type: DataTypes.TEXT, allowNull: true },
       credits: { type: DataTypes.DECIMAL(3, 1), defaultValue: 0 },

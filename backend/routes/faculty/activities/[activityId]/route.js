@@ -11,27 +11,29 @@ export async function PUT(request, { params }) {
 
     const { activityId } = params;
     const body = await request.json();
-    const { status, remarks, credits } = body;
+    const { action, status, remarks, credits } = body;
 
-    if (!status || !['approved', 'rejected'].includes(status)) {
-      return NextResponse.json({ message: 'Validation error', details: 'status must be approved or rejected' }, { status: 400 });
-    }
+    const targetStatus = action === 'approve' || status === 'approved' || status === 'mentor_approved' ? 'mentor_approved' : 'rejected';
 
-    const { Activity, User } = await initDB();
+    const { Activity, User, CreditPolicy } = await initDB();
 
     const activity = await Activity.findByPk(activityId, {
-      include: [{ model: User, as: 'student', attributes: ['name', 'email'] }],
+      include: [{ model: User, as: 'student', attributes: ['name', 'email', 'mentorId'] }],
     });
 
     if (!activity) return NextResponse.json({ message: 'Activity not found' }, { status: 404 });
-    if (activity.status !== 'pending') return NextResponse.json({ message: 'Activity has already been reviewed' }, { status: 400 });
+    if (activity.status !== 'pending_mentor') {
+      return NextResponse.json({ message: `Activity status is ${activity.status}, cannot perform Stage 1 Mentor review.` }, { status: 400 });
+    }
 
     const updateData = {
-      status,
-      approvedBy: auth.user.id,
-      remarks: remarks || null,
+      status: targetStatus,
+      mentorReviewedBy: auth.user.id,
+      mentorReviewedAt: new Date(),
+      mentorRemarks: remarks || (targetStatus === 'mentor_approved' ? 'Mentor verified and approved submission.' : 'Rejected by mentor.'),
     };
-    if (status === 'approved' && credits !== undefined) {
+
+    if (credits !== undefined) {
       updateData.credits = credits;
     }
 
@@ -40,13 +42,19 @@ export async function PUT(request, { params }) {
     const updatedActivity = await Activity.findByPk(activityId, {
       include: [
         { model: User, as: 'student', attributes: ['name', 'email', 'studentId'] },
-        { model: User, as: 'approver', attributes: ['name', 'email'] },
+        { model: User, as: 'mentorReviewer', attributes: ['name', 'email'] },
+        { model: CreditPolicy, as: 'policy' },
       ],
     });
 
-    return NextResponse.json({ message: `Activity ${status} successfully`, activity: updatedActivity });
+    return NextResponse.json({
+      message: targetStatus === 'mentor_approved' 
+        ? 'Activity approved by Mentor and forwarded for Stage 2 Admin final sign-off.' 
+        : 'Activity rejected by Mentor.',
+      activity: updatedActivity
+    });
   } catch (error) {
-    console.error('Review activity error:', error);
+    console.error('Mentor review activity error:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

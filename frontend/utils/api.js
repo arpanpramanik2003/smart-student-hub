@@ -157,4 +157,33 @@ export const adminAPI = {
     const query = new URLSearchParams(params).toString();
     return apiRequest(`/api/admin/reports${query ? `?${query}` : ''}`);
   },
+  getCreditPolicies: () => apiRequest('/api/admin/credit-policies'),
+  createCreditPolicy: (data) => apiRequest('/api/admin/credit-policies', {
+    method: 'POST',
+    body: data,
+  }),
+  updateCreditPolicy: (id, data) => apiRequest(`/api/admin/credit-policies/${id}`, {
+    method: 'PUT',
+    body: data,
+  }),
+  toggleCreditPolicy: (id) => apiRequest(`/api/admin/credit-policies/${id}`, {
+    method: 'PATCH',
+  }),
+  getMentors: () => apiRequest('/api/admin/mentors'),
+  assignMentor: (data) => apiRequest('/api/admin/mentors', {
+    method: 'POST',
+    body: data,
+  }),
+  getFinalReviewQueue: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiRequest(`/api/admin/review${query ? `?${query}` : ''}`);
+  },
+  processFinalReview: (activityId, data) => apiRequest(`/api/admin/review/${activityId}`, {
+    method: 'PUT',
+    body: data,
+  }),
 };
+
+// Credit Policy Lookup (Authenticated & Shared)
+export const getActiveCreditPolicies = () => apiRequest('/api/credit-policies/active');
+

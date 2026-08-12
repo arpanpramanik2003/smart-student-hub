@@ -1,24 +1,39 @@
 'use client';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { studentAPI } from '../../utils/api';
-import { ACTIVITY_TYPES } from '../../utils/constants';
-import LoadingSpinner from '../shared/LoadingSpinner';
+import { studentAPI, getActiveCreditPolicies } from '../../utils/api';
+import { ACTIVITY_TYPES, ACHIEVEMENT_LEVELS } from '../../utils/constants';
 
 const ActivityForm = ({ user, token, onSuccess }) => {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: '',
     type: 'conference',
+    achievementLevel: 'college',
     description: '',
     date: '',
     duration: '',
     organizer: '',
-    credits: 0
   });
+  const [policyMap, setPolicyMap] = useState({});
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '', show: false });
+
+  // Fetch active credit policies for policy engine preview
+  useEffect(() => {
+    async function loadPolicies() {
+      try {
+        const res = await getActiveCreditPolicies();
+        if (res.policyMap) {
+          setPolicyMap(res.policyMap);
+        }
+      } catch (err) {
+        console.error('Failed to load active credit policies:', err);
+      }
+    }
+    loadPolicies();
+  }, []);
 
   const showToast = useCallback((type, text) => {
     setMessage({ type, text, show: true });
@@ -29,17 +44,34 @@ const ActivityForm = ({ user, token, onSuccess }) => {
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    if (name === 'credits') {
-      const creditValue = parseFloat(value) || 0;
-      if (creditValue > 10) {
-        showToast('error', 'Credits request cannot exceed 10 credits per activity.');
-        return;
-      }
-      setFormData(prev => ({ ...prev, [name]: creditValue }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }, []);
+
+  // Compute calculated credit & NAAC criterion from Policy Engine lookup
+  const activePolicyPreview = useMemo(() => {
+    const key = `${formData.type}_${formData.achievementLevel}`;
+    const policy = policyMap[key];
+    
+    if (policy) {
+      return {
+        credits: parseFloat(policy.credits).toFixed(1),
+        naacCriterion: policy.naacCriterion,
+        description: policy.description,
+      };
     }
-  }, [showToast]);
+
+    // Default institutional fallback estimate
+    const baseMap = { conference: 2.0, workshop: 1.0, certification: 2.0, competition: 2.0, internship: 3.0, leadership: 1.5, community_service: 1.5, club_activity: 1.0, online_course: 1.5 };
+    const multMap = { college: 1.0, state: 1.5, national: 2.0, international: 3.0 };
+    const naacMap = { online_course: 'Criterion 1', certification: 'Criterion 1', workshop: 'Criterion 1', conference: 'Criterion 2', competition: 'Criterion 3', internship: 'Criterion 3', leadership: 'Criterion 5', club_activity: 'Criterion 5', community_service: 'Criterion 7' };
+
+    const estimated = Math.round((baseMap[formData.type] || 1.0) * (multMap[formData.achievementLevel] || 1.0) * 10) / 10;
+    return {
+      credits: estimated.toFixed(1),
+      naacCriterion: naacMap[formData.type] || 'Criterion 5',
+      description: 'Standard institutional credit rule',
+    };
+  }, [formData.type, formData.achievementLevel, policyMap]);
 
   const handleFileChange = useCallback((e) => {
     const selectedFile = e.target.files[0];
@@ -68,9 +100,9 @@ const ActivityForm = ({ user, token, onSuccess }) => {
 
       await studentAPI.submitActivity(submitData);
       
-      showToast('success', 'Activity submitted successfully! Awaiting faculty review.');
+      showToast('success', 'Activity submitted successfully! Routed to your Faculty Mentor for Stage 1 review.');
       setFormData({
-        title: '', type: 'conference', description: '', date: '', duration: '', organizer: '', credits: 0
+        title: '', type: 'conference', achievementLevel: 'college', description: '', date: '', duration: '', organizer: ''
       });
       setFile(null);
       
@@ -118,14 +150,14 @@ const ActivityForm = ({ user, token, onSuccess }) => {
               </span>
               <span className="text-xs font-mono text-zinc-400">•</span>
               <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
-                Faculty Credit Evaluation
+                Multi-Level Approval Enabled
               </span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 mt-1">
-              Submit New Activity Record
+              Submit Co-Curricular Activity
             </h1>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Log extra-curricular achievements, certificates, or workshops to request academic credit verification
+              Submit activity details and proof for Stage 1 Mentor review and Stage 2 Admin final sign-off
             </p>
           </div>
 
@@ -143,13 +175,13 @@ const ActivityForm = ({ user, token, onSuccess }) => {
       {/* Guidance Callout */}
       <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 font-mono text-xs space-y-1">
         <span className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider text-[10px]">
-          Credit Evaluation Guidelines
+          Institutional Workflow & Policy Engine Rules
         </span>
         <p className="text-zinc-600 dark:text-zinc-400 text-[11px]">
-          • Final credit allocation will be verified by designated faculty evaluators based on certificate evidence.
+          • Credits are determined automatically by the institutional Credit Policy Engine based on your Activity Type and Achievement Level.
         </p>
         <p className="text-zinc-600 dark:text-zinc-400 text-[11px]">
-          • Attached proof document (PDF, JPG, PNG up to 5MB) is required for NAAC/NIRF compliance.
+          • All submissions undergo Stage 1 review by your assigned Faculty Mentor followed by Stage 2 final sign-off by Admin/HOD.
         </p>
       </div>
 
@@ -192,6 +224,47 @@ const ActivityForm = ({ user, token, onSuccess }) => {
             </select>
           </div>
 
+          {/* Achievement Level */}
+          <div>
+            <label htmlFor="achievementLevel" className="block mb-1 text-zinc-500">
+              Achievement Level <span className="text-rose-500">*</span>
+            </label>
+            <select
+              id="achievementLevel"
+              name="achievementLevel"
+              required
+              value={formData.achievementLevel}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+            >
+              {ACHIEVEMENT_LEVELS.map(level => (
+                <option key={level.value} value={level.value}>{level.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Policy Engine Evaluation Preview Box */}
+          <div className="md:col-span-2 bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/60 rounded p-3 text-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-indigo-900 dark:text-indigo-200 uppercase text-[10px] tracking-wider">
+                Automated Credit Policy Engine Calculation
+              </span>
+              <span className="px-2 py-0.5 rounded bg-indigo-600 text-white font-bold text-xs">
+                {activePolicyPreview.credits} Points Granted
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+              <div>
+                <span className="text-indigo-600 dark:text-indigo-400 block text-[10px] uppercase font-semibold">Mapped NAAC Criterion</span>
+                <span className="font-bold text-indigo-950 dark:text-indigo-100">{activePolicyPreview.naacCriterion}</span>
+              </div>
+              <div>
+                <span className="text-indigo-600 dark:text-indigo-400 block text-[10px] uppercase font-semibold">Policy Weight</span>
+                <span className="text-indigo-800 dark:text-indigo-300">{activePolicyPreview.description}</span>
+              </div>
+            </div>
+          </div>
+
           {/* Activity Date */}
           <div>
             <label htmlFor="date" className="block mb-1 text-zinc-500">
@@ -224,28 +297,6 @@ const ActivityForm = ({ user, token, onSuccess }) => {
             />
           </div>
 
-          {/* Requested Credits */}
-          <div>
-            <label htmlFor="credits" className="block mb-1 text-zinc-500">
-              Requested Credits (0 – 10)
-            </label>
-            <input
-              type="number"
-              id="credits"
-              name="credits"
-              min="0"
-              max="10"
-              step="0.5"
-              value={formData.credits}
-              onChange={handleChange}
-              placeholder="0.0"
-              className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
-            />
-            <span className="text-[10px] text-zinc-400 mt-1 block">
-              Max 10 credits per individual activity submission
-            </span>
-          </div>
-
           {/* Organizer */}
           <div className="md:col-span-2">
             <label htmlFor="organizer" className="block mb-1 text-zinc-500">
@@ -265,7 +316,7 @@ const ActivityForm = ({ user, token, onSuccess }) => {
           {/* Description */}
           <div className="md:col-span-2">
             <label htmlFor="description" className="block mb-1 text-zinc-500">
-              Activity Summary & Key Learnings
+              Activity Description & Key Learnings
             </label>
             <textarea
               id="description"
@@ -273,17 +324,17 @@ const ActivityForm = ({ user, token, onSuccess }) => {
               rows={3}
               value={formData.description}
               onChange={handleChange}
-              placeholder="Brief summary of tasks completed, project built, or skills mastered..."
+              placeholder="Briefly describe your role, contributions, and key technical or co-curricular outcomes..."
               className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
             />
           </div>
 
-          {/* Certificate Attachment */}
+          {/* Certificate Dropzone */}
           <div className="md:col-span-2">
-            <label htmlFor="file-upload" className="block mb-1 text-zinc-500">
-              Certificate / Evidence Attachment (PDF, PNG, JPG up to 5MB)
+            <label className="block mb-1 text-zinc-500">
+              Proof Document / Certificate (PDF, JPG, PNG &lt; 5MB)
             </label>
-            <div 
+            <label
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -291,54 +342,31 @@ const ActivityForm = ({ user, token, onSuccess }) => {
                   document.getElementById('file-upload')?.click();
                 }
               }}
-              className="border border-dashed border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/40 rounded-lg p-5 text-center transition-colors hover:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-600 cursor-pointer"
+              htmlFor="file-upload"
+              className="border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-lg p-4 text-center cursor-pointer hover:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 block transition-colors bg-zinc-50/50 dark:bg-zinc-800/20"
             >
               <input
                 id="file-upload"
                 type="file"
-                className="hidden"
+                accept=".pdf,.jpg,.jpeg,.png"
                 onChange={handleFileChange}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                className="hidden"
               />
-              <label htmlFor="file-upload" className="cursor-pointer block">
-                <span className="text-indigo-600 dark:text-indigo-400 font-semibold underline">
-                  Select certificate file
-                </span>
-                <span className="text-zinc-500"> or drag file here</span>
-              </label>
-              <span className="text-[10px] text-zinc-400 block mt-1">
-                Accepted: PDF, PNG, JPG, DOC (Max size: 5MB)
+              <span className="text-zinc-600 dark:text-zinc-400 block font-mono text-xs">
+                {file ? `Selected file: ${file.name}` : 'Click or press Enter/Space to select proof document'}
               </span>
-
-              {file && (
-                <div className="mt-3 p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded text-emerald-700 dark:text-emerald-300 font-bold inline-block">
-                  ✓ Selected File: {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                </div>
-              )}
-            </div>
+            </label>
           </div>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex items-center justify-end space-x-2 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-          <button
-            type="button"
-            onClick={() => router.push('/student/activities')}
-            disabled={loading}
-            className="px-4 py-2 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 transition-colors disabled:opacity-50"
-          >
-            Cancel
-          </button>
+        {/* Submit */}
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors disabled:opacity-50 flex items-center space-x-1.5"
+            className="px-6 py-2.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors disabled:opacity-50"
           >
-            {loading ? (
-              <span>Submitting Record...</span>
-            ) : (
-              <span>Submit Record</span>
-            )}
+            {loading ? 'Submitting Record...' : 'Submit for Stage 1 Review'}
           </button>
         </div>
       </form>

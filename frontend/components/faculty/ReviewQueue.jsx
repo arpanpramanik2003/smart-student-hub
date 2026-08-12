@@ -31,19 +31,19 @@ const ReviewQueue = ({ user, token }) => {
     fetchPendingActivities();
   }, [fetchPendingActivities]);
 
-  const handleReview = useCallback(async (activityId, status, remarks = '', credits = null) => {
+  const handleReview = useCallback(async (activityId, action, remarks = '', credits = null) => {
     setReviewingId(activityId);
     
     try {
       const reviewData = {
-        status,
+        action,
         remarks,
-        ...(status === 'approved' && credits !== null && { credits: parseFloat(credits) })
+        ...(action === 'approve' && credits !== null && { credits: parseFloat(credits) })
       };
 
-      await facultyAPI.reviewActivity(activityId, reviewData);
+      const res = await facultyAPI.reviewActivity(activityId, reviewData);
       setActivities(prev => prev.filter(activity => activity.id !== activityId));
-      showToast('success', `Activity successfully ${status === 'approved' ? 'approved' : 'rejected'}`);
+      showToast('success', res.message || `Activity successfully ${action === 'approve' ? 'approved & forwarded' : 'rejected'}`);
     } catch (error) {
       showToast('error', `Review error: ${error.message}`);
     } finally {
@@ -56,13 +56,13 @@ const ReviewQueue = ({ user, token }) => {
     const remarksInput = document.getElementById(`remarks-${activityId}`);
     const credits = creditsInput ? creditsInput.value : null;
     const remarks = remarksInput ? remarksInput.value : '';
-    handleReview(activityId, 'approved', remarks, credits);
+    handleReview(activityId, 'approve', remarks, credits);
   }, [handleReview]);
 
   const handleQuickReject = useCallback((activityId) => {
     const remarksInput = document.getElementById(`remarks-${activityId}`);
     const remarks = remarksInput ? remarksInput.value : '';
-    handleReview(activityId, 'rejected', remarks);
+    handleReview(activityId, 'reject', remarks);
   }, [handleReview]);
 
   const toggleFileVisibility = useCallback((activityId) => {
@@ -85,7 +85,7 @@ const ReviewQueue = ({ user, token }) => {
       <div className="space-y-5 animate-fade-in">
         <SectionSkeleton rows={4} />
         <div className="flex justify-center py-6">
-          <LoadingSpinner size="md" text="Loading review queue..." />
+          <LoadingSpinner size="md" text="Loading Stage 1 Mentor Review Queue..." />
         </div>
       </div>
     );
@@ -114,19 +114,19 @@ const ReviewQueue = ({ user, token }) => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center space-x-2 font-mono">
-              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                Evaluation Queue
+              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900">
+                Stage 1: Mentor Review
               </span>
               <span className="text-xs text-zinc-400">•</span>
               <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                {activities.length} Submissions Pending
+                {activities.length} Mentees Submissions Pending
               </span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 mt-1">
-              Student Activity Review Queue
+              Faculty Mentor Evaluation Queue
             </h1>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-mono">
-              Prof. {user.name} • {user.programCategory ? PROGRAM_CATEGORIES[user.programCategory] : 'All Domains'}
+              Prof. {user.name} • Stage 1 Verification & Forwarding to Admin Final Sign-Off
             </p>
           </div>
         </div>
@@ -143,12 +143,17 @@ const ReviewQueue = ({ user, token }) => {
               {/* Header Info */}
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 pb-3 border-b border-zinc-200 dark:border-zinc-800">
                 <div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                     <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold">
                       {activity.type.replace('_', ' ')}
                     </span>
+                    {activity.naacCriterion && (
+                      <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-900 font-semibold">
+                        {activity.naacCriterion}
+                      </span>
+                    )}
                     <span className="text-zinc-400">•</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-bold">● Pending Evaluation</span>
+                    <span className="text-amber-600 dark:text-amber-400 font-bold">● Pending Mentor Review</span>
                   </div>
                   <h3 className="text-base font-bold text-zinc-950 dark:text-zinc-50 mt-1 font-sans">
                     {activity.title}
@@ -159,7 +164,7 @@ const ReviewQueue = ({ user, token }) => {
                 </div>
 
                 <div className="text-right self-start sm:self-auto">
-                  <span className="text-[10px] text-zinc-500 block">REQUESTED CREDITS</span>
+                  <span className="text-[10px] text-zinc-500 block">POLICY CREDITS</span>
                   <span className="text-base font-bold text-emerald-600 dark:text-emerald-400">
                     +{activity.credits} Credits
                   </span>
@@ -169,9 +174,9 @@ const ReviewQueue = ({ user, token }) => {
               {/* Activity Metadata & Description */}
               <div className="space-y-2 text-[11px] text-zinc-600 dark:text-zinc-400">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <p>Achievement Level: <strong className="text-zinc-800 dark:text-zinc-200 font-normal capitalize">{activity.achievementLevel || 'College'}</strong></p>
                   <p>Event Date: <strong className="text-zinc-800 dark:text-zinc-200 font-normal">{formatDate(activity.date)}</strong></p>
                   {activity.organizer && <p>Organizer: <strong className="text-zinc-800 dark:text-zinc-200 font-normal">{activity.organizer}</strong></p>}
-                  {activity.duration && <p>Duration: <strong className="text-zinc-800 dark:text-zinc-200 font-normal">{activity.duration}</strong></p>}
                 </div>
 
                 {activity.description && (
@@ -236,16 +241,16 @@ const ReviewQueue = ({ user, token }) => {
                 )}
               </div>
 
-              {/* Evaluation Action Box */}
+              {/* Stage 1 Mentor Evaluation Action Box */}
               <div className="bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded p-4 space-y-3">
                 <span className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider text-[10px] block">
-                  Faculty Evaluation Form
+                  Stage 1 Mentor Review Form
                 </span>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label htmlFor={`credits-${activity.id}`} className="block mb-1 text-zinc-500">
-                      Credits Awarded (Max 10)
+                      Policy Credits Assigned
                     </label>
                     <input
                       type="number"
@@ -253,25 +258,19 @@ const ReviewQueue = ({ user, token }) => {
                       min="0"
                       max="10"
                       step="0.5"
-                      defaultValue={activity.credits > 10 ? 10 : activity.credits}
-                      onInput={(e) => {
-                        if (parseFloat(e.target.value) > 10) {
-                          e.target.value = 10;
-                        }
-                      }}
+                      defaultValue={activity.credits}
                       className="w-full px-3 py-1.5 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
                     />
-                    <span className="text-[10px] text-zinc-400 mt-0.5 block">Requested: {activity.credits} credits</span>
                   </div>
 
                   <div>
                     <label htmlFor={`remarks-${activity.id}`} className="block mb-1 text-zinc-500">
-                      Faculty Remarks (Optional)
+                      Mentor Review Remarks
                     </label>
                     <input
                       type="text"
                       id={`remarks-${activity.id}`}
-                      placeholder="e.g. Excellent presentation proof provided."
+                      placeholder="e.g. Verified certificate proof. Recommending for final sign-off."
                       className="w-full px-3 py-1.5 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
                     />
                   </div>
@@ -291,7 +290,7 @@ const ReviewQueue = ({ user, token }) => {
                     disabled={reviewingId === activity.id}
                     className="px-4 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-medium disabled:opacity-50 transition-colors"
                   >
-                    {reviewingId === activity.id ? 'Processing...' : 'Approve & Award Credits'}
+                    {reviewingId === activity.id ? 'Processing...' : 'Approve & Forward for Stage 2 Admin Sign-Off'}
                   </button>
                 </div>
               </div>
@@ -300,8 +299,8 @@ const ReviewQueue = ({ user, token }) => {
         </div>
       ) : (
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-8 text-center font-mono text-xs text-zinc-500 space-y-2">
-          <p className="font-bold text-zinc-800 dark:text-zinc-200">✓ Review Queue Clear — No Pending Submissions</p>
-          <p className="text-[11px] text-zinc-400">All student activity submissions have been evaluated.</p>
+          <p className="font-bold text-zinc-800 dark:text-zinc-200">✓ Mentor Review Queue Clear — No Pending Submissions</p>
+          <p className="text-[11px] text-zinc-400 font-mono">All co-curricular submissions from your assigned mentees have been evaluated.</p>
         </div>
       )}
     </div>
