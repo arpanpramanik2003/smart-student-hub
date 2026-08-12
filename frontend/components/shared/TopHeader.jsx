@@ -1,13 +1,17 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '../../utils/constants';
+import { notificationAPI } from '../../utils/api';
 import { useTheme } from '../../contexts/ThemeContext';
-import { getUserDepartmentLikeDisplay } from '../../utils/userDisplay';
 
 const TopHeader = ({ user, onLogout, isSidebarCollapsed = false }) => {
-  const departmentLikeDisplay = getUserDepartmentLikeDisplay(user);
+  const router = useRouter();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
   const [isOnline, setIsOnline] = useState(true);
   const { isDarkMode, toggleTheme } = useTheme();
   const backendBaseUrl = API_BASE_URL.replace('/api', '');
@@ -24,13 +28,69 @@ const TopHeader = ({ user, onLogout, isSidebarCollapsed = false }) => {
     };
   }, []);
 
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await notificationAPI.getNotifications();
+      setUnreadCount(res.unreadCount || 0);
+      setNotifications(res.notifications || []);
+    } catch (err) {
+      console.error('Fetch notifications error:', err);
+    }
+  }, []);
+
   useEffect(() => {
-    const handleClickOutside = () => setIsProfileMenuOpen(false);
-    if (isProfileMenuOpen) {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000); // Polling every 15s for updates
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
+
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setIsProfileMenuOpen(false);
+      setIsNotifMenuOpen(false);
+    };
+    if (isProfileMenuOpen || isNotifMenuOpen) {
       document.addEventListener('click', handleClickOutside);
     }
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [isProfileMenuOpen]);
+  }, [isProfileMenuOpen, isNotifMenuOpen]);
+
+  const handleMarkAllRead = async (e) => {
+    e.stopPropagation();
+    try {
+      await notificationAPI.markRead({ markAllRead: true });
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (err) {
+      console.error('Mark read error:', err);
+    }
+  };
+
+  const handleNotificationClick = async (notif) => {
+    setIsNotifMenuOpen(false);
+    if (!notif.isRead) {
+      try {
+        await notificationAPI.markRead({ notificationId: notif.id });
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
+      } catch (err) {
+        console.error('Mark notification read error:', err);
+      }
+    }
+
+    // Role-based smart route navigation
+    if (user.role === 'student') {
+      router.push('/student/activities');
+    } else if (user.role === 'faculty') {
+      router.push('/faculty/review');
+    } else if (user.role === 'admin') {
+      if (notif.type === 'grievance_filed') {
+        router.push('/admin/grievances');
+      } else {
+        router.push('/admin/review');
+      }
+    }
+  };
 
   const getProfileImage = (profilePicture) => {
     if (!profilePicture) return null;
@@ -38,7 +98,7 @@ const TopHeader = ({ user, onLogout, isSidebarCollapsed = false }) => {
   };
 
   const getInitials = (name) => {
-    return name.split(' ').map(word => word.charAt(0).toUpperCase()).slice(0, 2).join('');
+    return name ? name.split(' ').map(word => word.charAt(0).toUpperCase()).slice(0, 2).join('') : 'U';
   };
 
   const profileImageUrl = getProfileImage(user?.profilePicture);
@@ -85,10 +145,81 @@ const TopHeader = ({ user, onLogout, isSidebarCollapsed = false }) => {
             )}
           </button>
 
+          {/* Interactive Notification Bell */}
+          <div className="relative">
+            <button
+              onClick={(e) => { e.stopPropagation(); setIsNotifMenuOpen(!isNotifMenuOpen); setIsProfileMenuOpen(false); }}
+              className="p-1.5 relative rounded border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              title="Notifications"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-indigo-600 text-white font-mono text-[9px] font-bold flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Dropdown Panel */}
+            {isNotifMenuOpen && (
+              <div
+                className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-zinc-900 rounded-md border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden z-50 font-mono text-xs"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="p-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900">
+                  <span className="font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider text-[10px]">
+                    Notifications ({unreadCount} Unread)
+                  </span>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAllRead}
+                      className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline"
+                    >
+                      [Mark all read]
+                    </button>
+                  )}
+                </div>
+
+                <div className="max-h-80 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {notifications.length === 0 ? (
+                    <div className="p-6 text-center text-zinc-400 text-[11px]">
+                      No notifications yet.
+                    </div>
+                  ) : (
+                    notifications.map(notif => (
+                      <div
+                        key={notif.id}
+                        onClick={() => handleNotificationClick(notif)}
+                        className={`p-3 cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50 ${
+                          !notif.isRead ? 'bg-indigo-50/40 dark:bg-indigo-950/20 font-semibold' : 'text-zinc-600 dark:text-zinc-400'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-[11px] font-bold text-zinc-900 dark:text-zinc-100">
+                            {!notif.isRead && <span className="inline-block w-1.5 h-1.5 rounded-full bg-indigo-600 mr-1.5" />}
+                            {notif.title}
+                          </span>
+                          <span className="text-[9px] text-zinc-400 whitespace-nowrap">
+                            {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-zinc-600 dark:text-zinc-300 mt-1 font-normal line-clamp-2">
+                          {notif.message}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Profile Dropdown Trigger */}
           <div className="relative">
             <button
-              onClick={(e) => { e.stopPropagation(); setIsProfileMenuOpen(!isProfileMenuOpen); }}
+              onClick={(e) => { e.stopPropagation(); setIsProfileMenuOpen(!isProfileMenuOpen); setIsNotifMenuOpen(false); }}
               className="flex items-center space-x-2 p-1 rounded border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               {profileImageUrl ? (
@@ -108,7 +239,7 @@ const TopHeader = ({ user, onLogout, isSidebarCollapsed = false }) => {
                 {getInitials(user.name)}
               </div>
               <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200 hidden sm:inline-block max-w-[120px] truncate">
-                {user.name.split(' ')[0]}
+                {user.name ? user.name.split(' ')[0] : 'User'}
               </span>
               <svg className="w-3.5 h-3.5 text-zinc-500 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

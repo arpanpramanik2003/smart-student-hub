@@ -94,7 +94,7 @@ export async function POST(request) {
 
     const { title, type, description, date, duration, organizer } = validation.data;
 
-    const { Activity, CreditPolicy } = await initDB();
+    const { Activity, User, CreditPolicy, ActivityAudit } = await initDB();
 
     // Look up credit policy rule dynamically (type + level)
     let assignedCredits = 1.0;
@@ -137,6 +137,29 @@ export async function POST(request) {
       studentId: auth.user.id,
       filePath: fileUrl,
     });
+
+    // Log initial audit snapshot
+    await ActivityAudit.create({
+      activityId: activity.id,
+      previousStatus: 'N/A',
+      newStatus: 'pending_mentor',
+      performedBy: auth.user.id,
+      remarks: 'Initial student submission',
+      snapshotData: JSON.stringify(activity.toJSON()),
+    });
+
+    // Notify assigned Faculty Mentor if assigned
+    const studentUser = await User.findByPk(auth.user.id, { attributes: ['name', 'mentorId'] });
+    if (studentUser?.mentorId) {
+      const { createNotification } = await import('@/lib/notifications');
+      await createNotification({
+        userId: studentUser.mentorId,
+        type: 'mentee_submission',
+        title: 'New Mentee Submission',
+        message: `Mentee ${studentUser.name} submitted "${activity.title}" for Stage 1 Mentor review.`,
+        activityId: activity.id,
+      });
+    }
 
     return NextResponse.json({
       message: 'Activity submitted successfully and routed to your Faculty Mentor for Stage 1 review.',

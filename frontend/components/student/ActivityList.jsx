@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { studentAPI } from '../../utils/api';
-import { ACTIVITY_STATUS, STATUS_LABELS, STATUS_COLORS } from '../../utils/constants';
+import { ACTIVITY_STATUS, STATUS_LABELS, STATUS_COLORS, ACTIVITY_TYPES, ACHIEVEMENT_LEVELS } from '../../utils/constants';
 import LoadingSpinner, { CardSkeleton } from '../shared/LoadingSpinner';
 
 const StudentActivityCard = React.memo(({ 
@@ -10,12 +10,34 @@ const StudentActivityCard = React.memo(({
   formatDate, 
   visibleFiles, 
   toggleFileVisibility, 
-  handleEditClick, 
   handleDelete, 
-  deletingId 
+  deletingId,
+  onOpenResubmit,
+  onOpenAppeal
 }) => {
+  const [audits, setAudits] = useState([]);
+  const [showAudits, setShowAudits] = useState(false);
+  const [loadingAudits, setLoadingAudits] = useState(false);
+
   const statusColorClass = STATUS_COLORS[activity.status] || STATUS_COLORS.pending_mentor;
   const statusLabel = STATUS_LABELS[activity.status] || activity.status;
+
+  const handleToggleAudits = async () => {
+    if (!showAudits && audits.length === 0) {
+      setLoadingAudits(true);
+      try {
+        const res = await studentAPI.getActivityAudits(activity.id);
+        setAudits(res.audits || []);
+      } catch (err) {
+        console.error('Fetch audits error:', err);
+      } finally {
+        setLoadingAudits(false);
+      }
+    }
+    setShowAudits(!showAudits);
+  };
+
+  const isRejected = activity.status === 'rejected';
 
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 space-y-4 font-mono text-xs">
@@ -65,21 +87,67 @@ const StudentActivityCard = React.memo(({
             +{activity.credits} Credits
           </span>
 
-          {activity.approver && (
+          {activity.finalApprover && (
             <span className="text-[11px] text-zinc-500">
-              Evaluated by {activity.approver.name}
+              Final Approved by {activity.finalApprover.name}
+            </span>
+          )}
+          {activity.mentorReviewer && !activity.finalApprover && (
+            <span className="text-[11px] text-zinc-500">
+              Mentor Reviewed by {activity.mentorReviewer.name}
             </span>
           )}
         </div>
       </div>
 
-      {activity.remarks && (
-        <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded text-amber-800 dark:text-amber-300">
-          <span className="font-bold text-[10px] uppercase tracking-wider block mb-0.5">Faculty Evaluation Remarks</span>
-          <p className="text-xs">{activity.remarks}</p>
+      {/* Explicit Rejection Feedback Box */}
+      {isRejected && (
+        <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded text-rose-800 dark:text-rose-300 space-y-1">
+          <div className="flex items-center justify-between font-bold text-[10px] uppercase">
+            <span>✕ Submission Rejected</span>
+            <span>{activity.mentorRemarks ? 'Stage 1 Mentor Feedback' : 'Stage 2 Admin Feedback'}</span>
+          </div>
+          <p className="text-xs italic">
+            &quot;{activity.mentorRemarks || activity.adminRemarks || activity.remarks || 'No detailed reason specified.'}&quot;
+          </p>
         </div>
       )}
 
+      {/* Audit Trail Log Toggle */}
+      <div>
+        <button
+          onClick={handleToggleAudits}
+          className="text-[10px] font-mono text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 underline"
+        >
+          {showAudits ? '[Hide Audit Log Timeline]' : '[View NAAC Audit History Log]'}
+        </button>
+
+        {showAudits && (
+          <div className="mt-2 p-3 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded space-y-2 text-[11px]">
+            {loadingAudits ? (
+              <span className="text-zinc-400">Loading audit history...</span>
+            ) : audits.length === 0 ? (
+              <span className="text-zinc-400">No previous status transitions logged.</span>
+            ) : (
+              audits.map(log => (
+                <div key={log.id} className="border-b border-zinc-200 dark:border-zinc-800/80 pb-1.5 last:border-0 last:pb-0">
+                  <div className="flex items-center justify-between font-semibold">
+                    <span className="text-zinc-800 dark:text-zinc-200">
+                      {log.previousStatus} → <span className="text-indigo-600 dark:text-indigo-400">{log.newStatus}</span>
+                    </span>
+                    <span className="text-zinc-400 text-[10px]">{new Date(log.createdAt).toLocaleString()}</span>
+                  </div>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-[10px]">
+                    By: {log.performer?.name || 'User'} ({log.performer?.role || 'user'}) {log.remarks ? `• "${log.remarks}"` : ''}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Action Strip */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/80">
         <div>
           {activity.filePath ? (
@@ -95,26 +163,35 @@ const StudentActivityCard = React.memo(({
           )}
         </div>
 
-        {activity.status === ACTIVITY_STATUS.PENDING && (
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => handleEditClick(activity)}
-              disabled={deletingId === activity.id}
-              className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition-colors disabled:opacity-50"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDelete(activity.id, activity.title)}
-              disabled={deletingId === activity.id}
-              className="px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs transition-colors disabled:opacity-50"
-            >
-              {deletingId === activity.id ? 'Deleting...' : 'Delete'}
-            </button>
-          </div>
-        )}
+        <div className="flex items-center space-x-2">
+          {isRejected && (
+            <>
+              <button
+                type="button"
+                onClick={() => onOpenAppeal(activity)}
+                className="px-3 py-1.5 rounded border border-amber-300 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-medium text-xs transition-colors hover:bg-amber-100"
+              >
+                File Appeal / Grievance
+              </button>
+              <button
+                type="button"
+                onClick={() => onOpenResubmit(activity)}
+                className="px-3.5 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition-colors"
+              >
+                Resubmit with Corrections
+              </button>
+            </>
+          )}
+
+          <button
+            type="button"
+            onClick={() => handleDelete(activity.id, activity.title)}
+            disabled={deletingId === activity.id}
+            className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-medium text-xs transition-colors disabled:opacity-50"
+          >
+            {deletingId === activity.id ? 'Deleting...' : 'Delete'}
+          </button>
+        </div>
       </div>
 
       {visibleFiles[activity.id] && activity.filePath && (
@@ -154,22 +231,31 @@ const StudentActivityCard = React.memo(({
     </div>
   );
 });
-
 StudentActivityCard.displayName = 'StudentActivityCard';
 
-const ActivityList = ({ user, token }) => {
+export default function ActivityList() {
   const router = useRouter();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+  const [visibleFiles, setVisibleFiles] = useState({});
   const [filter, setFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [visibleFiles, setVisibleFiles] = useState({});
   const [message, setMessage] = useState({ type: '', text: '', show: false });
-  const [deletingId, setDeletingId] = useState(null);
 
-  const [editingActivity, setEditingActivity] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
+  // Resubmit Modal State
+  const [resubmitActivity, setResubmitActivity] = useState(null);
+  const [resubmitForm, setResubmitForm] = useState({
+    title: '', type: 'conference', achievementLevel: 'college', description: '', date: '', duration: '', organizer: ''
+  });
+  const [resubmitFile, setResubmitFile] = useState(null);
+  const [resubmitting, setResubmitting] = useState(false);
+
+  // Appeal Modal State
+  const [appealActivity, setAppealActivity] = useState(null);
+  const [appealReason, setAppealReason] = useState('');
+  const [appealing, setAppealing] = useState(false);
 
   const showToast = useCallback((type, text) => {
     setMessage({ type, text, show: true });
@@ -177,7 +263,6 @@ const ActivityList = ({ user, token }) => {
   }, []);
 
   const fetchActivities = useCallback(async () => {
-    setLoading(true);
     try {
       const data = await studentAPI.getActivities();
       setActivities(data.activities || []);
@@ -194,16 +279,13 @@ const ActivityList = ({ user, token }) => {
   }, [fetchActivities]);
 
   const handleDelete = useCallback(async (id, title) => {
-    if (!window.confirm(`Are you sure you want to delete "${title}"?`)) {
-      return;
-    }
+    if (!window.confirm(`Are you sure you want to delete "${title}"?`)) return;
     setDeletingId(id);
     try {
       await studentAPI.deleteActivity(id);
       setActivities(prev => prev.filter(a => a.id !== id));
       showToast('success', 'Activity deleted successfully');
     } catch (error) {
-      console.error('Delete activity error:', error);
       showToast('error', error.message || 'Failed to delete activity');
     } finally {
       setDeletingId(null);
@@ -214,9 +296,65 @@ const ActivityList = ({ user, token }) => {
     setVisibleFiles(prev => ({ ...prev, [id]: !prev[id] }));
   }, []);
 
-  const handleEditClick = useCallback((activity) => {
-    router.push('/student/submit');
-  }, [router]);
+  const handleOpenResubmit = useCallback((activity) => {
+    setResubmitActivity(activity);
+    setResubmitForm({
+      title: activity.title || '',
+      type: activity.type || 'conference',
+      achievementLevel: activity.achievementLevel || 'college',
+      description: activity.description || '',
+      date: activity.date ? new Date(activity.date).toISOString().split('T')[0] : '',
+      duration: activity.duration || '',
+      organizer: activity.organizer || '',
+    });
+    setResubmitFile(null);
+  }, []);
+
+  const handleResubmitSubmit = async (e) => {
+    e.preventDefault();
+    if (!resubmitActivity) return;
+    setResubmitting(true);
+
+    try {
+      const formData = new FormData();
+      Object.keys(resubmitForm).forEach(key => {
+        formData.append(key, resubmitForm[key]);
+      });
+      if (resubmitFile) {
+        formData.append('certificate', resubmitFile);
+      }
+
+      const res = await studentAPI.resubmitActivity(resubmitActivity.id, formData);
+      showToast('success', res.message);
+      setResubmitActivity(null);
+      fetchActivities();
+    } catch (err) {
+      showToast('error', err.message || 'Failed to resubmit activity');
+    } finally {
+      setResubmitting(false);
+    }
+  };
+
+  const handleOpenAppeal = useCallback((activity) => {
+    setAppealActivity(activity);
+    setAppealReason('');
+  }, []);
+
+  const handleAppealSubmit = async (e) => {
+    e.preventDefault();
+    if (!appealActivity || !appealReason.trim()) return;
+    setAppealing(true);
+
+    try {
+      const res = await studentAPI.fileAppeal(appealActivity.id, { appealReason });
+      showToast('success', res.message);
+      setAppealActivity(null);
+    } catch (err) {
+      showToast('error', err.message || 'Failed to file appeal');
+    } finally {
+      setAppealing(false);
+    }
+  };
 
   const filteredActivities = useMemo(() => {
     return activities.filter(activity => {
@@ -234,7 +372,7 @@ const ActivityList = ({ user, token }) => {
   const counts = useMemo(() => {
     const total = activities.length;
     const approved = activities.filter(a => a.status === 'approved').length;
-    const pending = activities.filter(a => a.status === 'pending').length;
+    const pending = activities.filter(a => a.status === 'pending_mentor' || a.status === 'mentor_approved' || a.status === 'pending').length;
     const rejected = activities.filter(a => a.status === 'rejected').length;
     return { total, approved, pending, rejected };
   }, [activities]);
@@ -275,23 +413,24 @@ const ActivityList = ({ user, token }) => {
         </div>
       )}
 
+      {/* Header */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+            <div className="flex items-center space-x-2 font-mono">
+              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold">
                 Activity Ledger
               </span>
-              <span className="text-xs font-mono text-zinc-400">•</span>
-              <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
-                {counts.total} Total Logged Records
+              <span className="text-xs text-zinc-400">•</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 font-bold">
+                {counts.total} Total Submissions
               </span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 mt-1">
-              My Activities
+              My Activities & Submissions
             </h1>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Review, edit, and track extra-curricular credit submissions and faculty remarks
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-mono">
+              Track multi-stage evaluations, faculty remarks, and resubmit corrected records
             </p>
           </div>
 
@@ -308,6 +447,7 @@ const ActivityList = ({ user, token }) => {
           </div>
         </div>
 
+        {/* Counts Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-5 pt-4 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs">
           <div className="p-2.5 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
             <span className="text-[10px] uppercase text-zinc-500 block">TOTAL LOGGED</span>
@@ -317,7 +457,7 @@ const ActivityList = ({ user, token }) => {
           <div className="p-2.5 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
             <span className="text-[10px] uppercase text-zinc-500 flex items-center space-x-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>APPROVED</span>
+              <span>FINAL APPROVED</span>
             </span>
             <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">{counts.approved}</span>
           </div>
@@ -325,7 +465,7 @@ const ActivityList = ({ user, token }) => {
           <div className="p-2.5 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
             <span className="text-[10px] uppercase text-zinc-500 flex items-center space-x-1">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-              <span>PENDING</span>
+              <span>IN REVIEW</span>
             </span>
             <span className="font-bold text-amber-600 dark:text-amber-400 text-sm">{counts.pending}</span>
           </div>
@@ -339,6 +479,7 @@ const ActivityList = ({ user, token }) => {
           </div>
         </div>
 
+        {/* Filter Toolbar */}
         <div className="flex flex-col sm:flex-row flex-wrap sm:flex-nowrap items-stretch sm:items-end gap-3 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs">
           <div className="relative flex-1 min-w-[200px]">
             <label className="block mb-1 text-zinc-500">Search Activities</label>
@@ -352,16 +493,17 @@ const ActivityList = ({ user, token }) => {
           </div>
 
           <div className="w-full sm:w-auto min-w-[180px]">
-            <label className="block mb-1 text-zinc-500">Status Filter</label>
+            <label className="block mb-1 text-zinc-500 font-mono">Status Filter</label>
             <select
               value={filter}
               onChange={e => setFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+              className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600 font-mono"
             >
               <option value="all">All Evaluation Statuses</option>
-              <option value={ACTIVITY_STATUS.PENDING}>Pending Review Only</option>
-              <option value={ACTIVITY_STATUS.APPROVED}>Approved Only</option>
-              <option value={ACTIVITY_STATUS.REJECTED}>Rejected Only</option>
+              <option value="pending_mentor">Stage 1: Pending Mentor</option>
+              <option value="mentor_approved">Stage 2: Pending Admin</option>
+              <option value="approved">Approved & Granted</option>
+              <option value="rejected">Rejected Only</option>
             </select>
           </div>
 
@@ -369,7 +511,7 @@ const ActivityList = ({ user, token }) => {
             <button
               type="button"
               onClick={() => { setSearchTerm(''); setFilter('all'); }}
-              className="w-full sm:w-auto px-3.5 py-2 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 transition-colors whitespace-nowrap self-stretch sm:self-end"
+              className="w-full sm:w-auto px-3.5 py-2 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 transition-colors whitespace-nowrap self-stretch sm:self-end font-mono"
             >
               Reset Filters
             </button>
@@ -377,28 +519,184 @@ const ActivityList = ({ user, token }) => {
         </div>
       </div>
 
-      {filteredActivities.length > 0 ? (
-        <div className="space-y-4">
-          {filteredActivities.map(activity => (
+      {/* Activity Cards List */}
+      <div className="space-y-4">
+        {filteredActivities.length === 0 ? (
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-12 text-center text-zinc-400 font-mono text-xs">
+            No activity submissions found matching your filters.
+          </div>
+        ) : (
+          filteredActivities.map(activity => (
             <StudentActivityCard
               key={activity.id}
               activity={activity}
               formatDate={formatDate}
               visibleFiles={visibleFiles}
               toggleFileVisibility={toggleFileVisibility}
-              handleEditClick={handleEditClick}
               handleDelete={handleDelete}
               deletingId={deletingId}
+              onOpenResubmit={handleOpenResubmit}
+              onOpenAppeal={handleOpenAppeal}
             />
-          ))}
+          ))
+        )}
+      </div>
+
+      {/* Resubmit Modal */}
+      {resubmitActivity && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg max-w-lg w-full p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <h3 className="font-bold text-sm font-mono text-zinc-900 dark:text-zinc-100">
+                Resubmit Activity with Corrections
+              </h3>
+              <button onClick={() => setResubmitActivity(null)} className="text-zinc-400 hover:text-zinc-600 font-mono text-xs">
+                [Close]
+              </button>
+            </div>
+
+            <form onSubmit={handleResubmitSubmit} className="space-y-3 font-mono text-xs">
+              <div>
+                <label className="block mb-1 text-zinc-500">Activity Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={resubmitForm.title}
+                  onChange={e => setResubmitForm(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block mb-1 text-zinc-500">Activity Category</label>
+                  <select
+                    value={resubmitForm.type}
+                    onChange={e => setResubmitForm(prev => ({ ...prev, type: e.target.value }))}
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+                  >
+                    {ACTIVITY_TYPES.map(t => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-zinc-500">Achievement Level</label>
+                  <select
+                    value={resubmitForm.achievementLevel}
+                    onChange={e => setResubmitForm(prev => ({ ...prev, achievementLevel: e.target.value }))}
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+                  >
+                    {ACHIEVEMENT_LEVELS.map(l => (
+                      <option key={l.value} value={l.value}>{l.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-zinc-500">Activity Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={resubmitForm.date}
+                  onChange={e => setResubmitForm(prev => ({ ...prev, date: e.target.value }))}
+                  className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-zinc-500">Description & Corrected Details</label>
+                <textarea
+                  rows={3}
+                  value={resubmitForm.description}
+                  onChange={e => setResubmitForm(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-zinc-500">Updated Certificate Evidence (Optional)</label>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={e => setResubmitFile(e.target.files[0])}
+                  className="w-full text-xs text-zinc-600 dark:text-zinc-400"
+                />
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setResubmitActivity(null)}
+                  className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={resubmitting}
+                  className="px-4 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium disabled:opacity-50"
+                >
+                  {resubmitting ? 'Resubmitting...' : 'Resubmit for Stage 1 Review'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      ) : (
-        <div className="py-12 text-center text-zinc-400 font-mono text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
-          No activity records found matching current query filters.
+      )}
+
+      {/* Appeal / Grievance Modal */}
+      {appealActivity && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl font-mono text-xs">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
+                File Grievance Appeal to Admin
+              </h3>
+              <button onClick={() => setAppealActivity(null)} className="text-zinc-400 hover:text-zinc-600">
+                [Close]
+              </button>
+            </div>
+
+            <form onSubmit={handleAppealSubmit} className="space-y-3">
+              <div className="p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded text-[11px] text-amber-800 dark:text-amber-300">
+                <span>Appealing rejection for: <strong>&quot;{appealActivity.title}&quot;</strong></span>
+              </div>
+
+              <div>
+                <label className="block mb-1 text-zinc-500">Explanation Note for Admin Review *</label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Explain why you believe the rejection was incorrect or clarify how your certificate meets the institutional criteria..."
+                  value={appealReason}
+                  onChange={e => setAppealReason(e.target.value)}
+                  className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+                />
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setAppealActivity(null)}
+                  className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={appealing || !appealReason.trim()}
+                  className="px-4 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white font-medium disabled:opacity-50"
+                >
+                  {appealing ? 'Filing Appeal...' : 'Submit Appeal to Admin'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
   );
-};
-
-export default ActivityList;
+}

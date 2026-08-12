@@ -29,6 +29,11 @@ const buildReplacementMap = (generatedFilePath) => {
     ['@/lib/models/User.js', `${baseImport}models/User.js`],
     ['@/lib/models/Activity.js', `${baseImport}models/Activity.js`],
     ['@/lib/models/CreditPolicy.js', `${baseImport}models/CreditPolicy.js`],
+    ['@/lib/models/Notification.js', `${baseImport}models/Notification.js`],
+    ['@/lib/models/ActivityAudit.js', `${baseImport}models/ActivityAudit.js`],
+    ['@/lib/models/ActivityGrievance.js', `${baseImport}models/ActivityGrievance.js`],
+    ['@/lib/notifications', `${baseImport}notifications.js`],
+    ['@/lib/mailer', `${baseImport}mailer.js`],
     ['@/lib/logger', `${baseImport}observability/logger.js`],
   ]);
 };

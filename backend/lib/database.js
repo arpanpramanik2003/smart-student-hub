@@ -34,12 +34,23 @@ const createSequelize = () => {
 };
 
 export const initDB = async () => {
-  if (g.__db_initialized && g.__db_User && g.__db_Activity && g.__db_CreditPolicy) {
+  if (
+    g.__db_initialized &&
+    g.__db_User &&
+    g.__db_Activity &&
+    g.__db_CreditPolicy &&
+    g.__db_Notification &&
+    g.__db_ActivityAudit &&
+    g.__db_ActivityGrievance
+  ) {
     return {
       sequelize: g.__db_sequelize,
       User: g.__db_User,
       Activity: g.__db_Activity,
       CreditPolicy: g.__db_CreditPolicy,
+      Notification: g.__db_Notification,
+      ActivityAudit: g.__db_ActivityAudit,
+      ActivityGrievance: g.__db_ActivityGrievance,
     };
   }
 
@@ -54,14 +65,23 @@ export const initDB = async () => {
   const { default: UserModel } = await import('./models/User.js');
   const { default: ActivityModel } = await import('./models/Activity.js');
   const { default: CreditPolicyModel } = await import('./models/CreditPolicy.js');
+  const { default: NotificationModel } = await import('./models/Notification.js');
+  const { default: ActivityAuditModel } = await import('./models/ActivityAudit.js');
+  const { default: ActivityGrievanceModel } = await import('./models/ActivityGrievance.js');
 
   g.__db_User = g.__db_User || UserModel(sq);
   g.__db_Activity = g.__db_Activity || ActivityModel(sq);
   g.__db_CreditPolicy = g.__db_CreditPolicy || CreditPolicyModel(sq);
+  g.__db_Notification = g.__db_Notification || NotificationModel(sq);
+  g.__db_ActivityAudit = g.__db_ActivityAudit || ActivityAuditModel(sq);
+  g.__db_ActivityGrievance = g.__db_ActivityGrievance || ActivityGrievanceModel(sq);
 
   const User = g.__db_User;
   const Activity = g.__db_Activity;
   const CreditPolicy = g.__db_CreditPolicy;
+  const Notification = g.__db_Notification;
+  const ActivityAudit = g.__db_ActivityAudit;
+  const ActivityGrievance = g.__db_ActivityGrievance;
 
   if (!g.__db_associations_set) {
     User.hasMany(Activity, { foreignKey: 'studentId', as: 'activities' });
@@ -80,6 +100,22 @@ export const initDB = async () => {
     Activity.belongsTo(User, { foreignKey: 'mentorReviewedBy', as: 'mentorReviewer' });
     Activity.belongsTo(User, { foreignKey: 'finalApprovedBy', as: 'finalApprover' });
 
+    // Notification associations
+    User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
+    Notification.belongsTo(User, { foreignKey: 'userId', as: 'recipient' });
+    Notification.belongsTo(Activity, { foreignKey: 'activityId', as: 'activity' });
+
+    // Audit Log associations
+    Activity.hasMany(ActivityAudit, { foreignKey: 'activityId', as: 'audits' });
+    ActivityAudit.belongsTo(Activity, { foreignKey: 'activityId', as: 'activity' });
+    ActivityAudit.belongsTo(User, { foreignKey: 'performedBy', as: 'performer' });
+
+    // Grievance / Appeals associations
+    Activity.hasMany(ActivityGrievance, { foreignKey: 'activityId', as: 'grievances' });
+    ActivityGrievance.belongsTo(Activity, { foreignKey: 'activityId', as: 'activity' });
+    ActivityGrievance.belongsTo(User, { foreignKey: 'studentId', as: 'student' });
+    ActivityGrievance.belongsTo(User, { foreignKey: 'adminId', as: 'resolver' });
+
     g.__db_associations_set = true;
   }
 
@@ -97,10 +133,16 @@ export const initDB = async () => {
           await CreditPolicy.sync();
           await User.sync();
           await Activity.sync();
+          await Notification.sync();
+          await ActivityAudit.sync();
+          await ActivityGrievance.sync();
         } else if (config.dbSyncStrategy === 'alter') {
           await CreditPolicy.sync({ alter: true });
           await User.sync({ alter: true });
           await Activity.sync({ alter: true });
+          await Notification.sync({ alter: true });
+          await ActivityAudit.sync({ alter: true });
+          await ActivityGrievance.sync({ alter: true });
         } else {
           console.log('DB sync disabled. Using migrations only.');
         }
@@ -110,6 +152,9 @@ export const initDB = async () => {
           await CreditPolicy.sync();
           await User.sync();
           await Activity.sync();
+          await Notification.sync();
+          await ActivityAudit.sync();
+          await ActivityGrievance.sync();
         } else {
           throw syncError;
         }
@@ -122,5 +167,13 @@ export const initDB = async () => {
     }
   }
 
-  return { sequelize: sq, User, Activity, CreditPolicy };
+  return {
+    sequelize: sq,
+    User,
+    Activity,
+    CreditPolicy,
+    Notification,
+    ActivityAudit,
+    ActivityGrievance,
+  };
 };

@@ -15,7 +15,7 @@ export async function PUT(request, { params }) {
 
     const targetStatus = action === 'approve' || status === 'approved' ? 'approved' : 'rejected';
 
-    const { Activity, User, CreditPolicy } = await initDB();
+    const { Activity, User, CreditPolicy, ActivityAudit } = await initDB();
 
     const activity = await Activity.findByPk(activityId);
 
@@ -24,6 +24,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: `Activity status is ${activity.status}, cannot perform final approval.` }, { status: 400 });
     }
 
+    const previousStatus = activity.status;
     const updateData = {
       status: targetStatus,
       approvedBy: auth.user.id,
@@ -37,6 +38,36 @@ export async function PUT(request, { params }) {
     }
 
     await activity.update(updateData);
+
+    // Log Audit Trail
+    await ActivityAudit.create({
+      activityId: activity.id,
+      previousStatus,
+      newStatus: targetStatus,
+      performedBy: auth.user.id,
+      remarks: updateData.adminRemarks,
+      snapshotData: JSON.stringify(activity.toJSON()),
+    });
+
+    // Trigger Notification to Student
+    const { createNotification } = await import('@/lib/notifications');
+    if (targetStatus === 'approved') {
+      await createNotification({
+        userId: activity.studentId,
+        type: 'activity_approved',
+        title: 'Institutional Final Approval Granted',
+        message: `Congratulations! Your activity "${activity.title}" received final institutional approval. +${activity.credits} credits granted.`,
+        activityId: activity.id,
+      });
+    } else {
+      await createNotification({
+        userId: activity.studentId,
+        type: 'activity_rejected',
+        title: 'Activity Submission Rejected (Stage 2 Final)',
+        message: `Your activity "${activity.title}" was rejected at Stage 2 final review. Reason: "${updateData.adminRemarks}"`,
+        activityId: activity.id,
+      });
+    }
 
     const updatedActivity = await Activity.findByPk(activityId, {
       include: [

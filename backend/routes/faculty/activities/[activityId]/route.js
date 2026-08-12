@@ -15,10 +15,10 @@ export async function PUT(request, { params }) {
 
     const targetStatus = action === 'approve' || status === 'approved' || status === 'mentor_approved' ? 'mentor_approved' : 'rejected';
 
-    const { Activity, User, CreditPolicy } = await initDB();
+    const { Activity, User, CreditPolicy, ActivityAudit } = await initDB();
 
     const activity = await Activity.findByPk(activityId, {
-      include: [{ model: User, as: 'student', attributes: ['name', 'email', 'mentorId'] }],
+      include: [{ model: User, as: 'student', attributes: ['id', 'name', 'email', 'mentorId'] }],
     });
 
     if (!activity) return NextResponse.json({ message: 'Activity not found' }, { status: 404 });
@@ -26,6 +26,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ message: `Activity status is ${activity.status}, cannot perform Stage 1 Mentor review.` }, { status: 400 });
     }
 
+    const previousStatus = activity.status;
     const updateData = {
       status: targetStatus,
       mentorReviewedBy: auth.user.id,
@@ -38,6 +39,47 @@ export async function PUT(request, { params }) {
     }
 
     await activity.update(updateData);
+
+    // Log Audit Trail
+    await ActivityAudit.create({
+      activityId: activity.id,
+      previousStatus,
+      newStatus: targetStatus,
+      performedBy: auth.user.id,
+      remarks: updateData.mentorRemarks,
+      snapshotData: JSON.stringify(activity.toJSON()),
+    });
+
+    // Trigger Notifications
+    const { createNotification, notifyAdmins } = await import('@/lib/notifications');
+
+    if (targetStatus === 'mentor_approved') {
+      // Notify Student
+      await createNotification({
+        userId: activity.studentId,
+        type: 'activity_stage1_passed',
+        title: 'Stage 1 Mentor Approved',
+        message: `Your activity "${activity.title}" passed Stage 1 Mentor review and was forwarded for Admin final sign-off.`,
+        activityId: activity.id,
+      });
+
+      // Notify Admin Group
+      await notifyAdmins({
+        type: 'final_review_queued',
+        title: 'New Final Approval Queued',
+        message: `Activity "${activity.title}" by ${activity.student?.name || 'Student'} was approved by Mentor and is awaiting Stage 2 final sign-off.`,
+        activityId: activity.id,
+      });
+    } else {
+      // Notify Student of Rejection
+      await createNotification({
+        userId: activity.studentId,
+        type: 'activity_rejected',
+        title: 'Activity Submission Rejected (Stage 1)',
+        message: `Your activity "${activity.title}" was rejected by your Mentor. Reason: "${updateData.mentorRemarks}"`,
+        activityId: activity.id,
+      });
+    }
 
     const updatedActivity = await Activity.findByPk(activityId, {
       include: [

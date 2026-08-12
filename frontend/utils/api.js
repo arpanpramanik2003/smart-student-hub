@@ -109,6 +109,18 @@ export const studentAPI = {
     method: 'POST',
     body: formData,
   }),
+
+  resubmitActivity: (activityId, formData) => apiRequest(`/api/students/activities/${activityId}/resubmit`, {
+    method: 'PUT',
+    body: formData,
+  }),
+
+  fileAppeal: (activityId, data) => apiRequest(`/api/students/activities/${activityId}/appeal`, {
+    method: 'POST',
+    body: data,
+  }),
+
+  getActivityAudits: (activityId) => apiRequest(`/api/activities/${activityId}/audits`),
 };
 
 // Faculty API
@@ -182,8 +194,26 @@ export const adminAPI = {
     method: 'PUT',
     body: data,
   }),
+  getGrievances: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return apiRequest(`/api/admin/grievances${query ? `?${query}` : ''}`);
+  },
+  resolveGrievance: (id, data) => apiRequest(`/api/admin/grievances/${id}`, {
+    method: 'PUT',
+    body: data,
+  }),
+};
+
+// Notification API
+export const notificationAPI = {
+  getNotifications: () => apiRequest('/api/notifications'),
+  markRead: (data = {}) => apiRequest('/api/notifications', {
+    method: 'PATCH',
+    body: data,
+  }),
 };
 
 // Credit Policy Lookup (Authenticated & Shared)
 export const getActiveCreditPolicies = () => apiRequest('/api/credit-policies/active');
+
 
