@@ -246,7 +246,7 @@ const AllActivities = ({ user, token }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 mt-4 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 pt-4 mt-4 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs items-end">
           <div>
             <label className="block mb-1 text-zinc-500">Search Records</label>
             <input
@@ -285,6 +285,18 @@ const AllActivities = ({ user, token }) => {
               <option value="credits">Credits Requested (High-Low)</option>
             </select>
           </div>
+
+          {(searchTerm || filter !== 'all' || sortBy !== 'newest') && (
+            <div>
+              <button
+                type="button"
+                onClick={() => { setSearchTerm(''); setFilter('all'); setSortBy('newest'); }}
+                className="w-full px-3.5 py-2 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 transition-colors whitespace-nowrap"
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

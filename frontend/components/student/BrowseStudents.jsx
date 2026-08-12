@@ -129,6 +129,8 @@ const BrowseStudents = ({ user, token }) => {
     return getSpecializations(categoryKey, programFilter);
   }, [programCategoryFilter, programFilter, specializations]);
 
+  const [initialLoaded, setInitialLoaded] = useState(false);
+
   const fetchStudents = useCallback(async (page = 1, search = '', progCat = 'all', prog = 'all', spec = 'all', yr = 'all', admYr = 'all') => {
     setLoading(true);
     try {
@@ -159,6 +161,7 @@ const BrowseStudents = ({ user, token }) => {
       console.error('Fetch students error:', error);
     } finally {
       setLoading(false);
+      setInitialLoaded(true);
     }
   }, []);
 
@@ -235,7 +238,7 @@ const BrowseStudents = ({ user, token }) => {
     );
   }
 
-  if (loading && students.length === 0) {
+  if (loading && !initialLoaded) {
     return (
       <div className="space-y-5 animate-fade-in">
         <CardSkeleton cards={6} />
@@ -359,7 +362,11 @@ const BrowseStudents = ({ user, token }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {students.length === 0 ? (
+        {loading ? (
+          <div className="col-span-full py-4">
+            <CardSkeleton cards={4} />
+          </div>
+        ) : students.length === 0 ? (
           <div className="col-span-full py-12 text-center text-zinc-400 font-mono text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg">
             No peer portfolios found matching selected criteria.
           </div>

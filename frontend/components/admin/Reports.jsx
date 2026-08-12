@@ -276,6 +276,7 @@ const Reports = ({ user, token, onNavigate }) => {
             <input
               type="date"
               value={filters.startDate}
+              max={new Date().toISOString().split('T')[0]}
               onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
               className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
               required
@@ -287,6 +288,7 @@ const Reports = ({ user, token, onNavigate }) => {
             <input
               type="date"
               value={filters.endDate}
+              max={new Date().toISOString().split('T')[0]}
               onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
               className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
               required

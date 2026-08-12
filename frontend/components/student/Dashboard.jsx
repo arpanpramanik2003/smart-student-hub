@@ -125,7 +125,7 @@ const Dashboard = ({ user, token, updateUser }) => {
     return Math.min(100, Math.round((earnedCredits / CREDIT_TARGET) * 100));
   }, [earnedCredits]);
 
-  if (loading) {
+  if (loading && !stats) {
     return (
       <div className="space-y-5 animate-fade-in">
         <CardSkeleton cards={4} />

@@ -334,8 +334,9 @@ const ActivityList = ({ user, token }) => {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row flex-wrap sm:flex-nowrap items-stretch sm:items-end gap-3 mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs">
+          <div className="relative flex-1 min-w-[200px]">
+            <label className="block mb-1 text-zinc-500">Search Activities</label>
             <input
               type="text"
               placeholder="Search title, category, organizer..."
@@ -345,16 +346,29 @@ const ActivityList = ({ user, token }) => {
             />
           </div>
 
-          <select
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            className="px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
-          >
-            <option value="all">All Evaluation Statuses</option>
-            <option value={ACTIVITY_STATUS.PENDING}>Pending Review Only</option>
-            <option value={ACTIVITY_STATUS.APPROVED}>Approved Only</option>
-            <option value={ACTIVITY_STATUS.REJECTED}>Rejected Only</option>
-          </select>
+          <div className="w-full sm:w-auto min-w-[180px]">
+            <label className="block mb-1 text-zinc-500">Status Filter</label>
+            <select
+              value={filter}
+              onChange={e => setFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+            >
+              <option value="all">All Evaluation Statuses</option>
+              <option value={ACTIVITY_STATUS.PENDING}>Pending Review Only</option>
+              <option value={ACTIVITY_STATUS.APPROVED}>Approved Only</option>
+              <option value={ACTIVITY_STATUS.REJECTED}>Rejected Only</option>
+            </select>
+          </div>
+
+          {(searchTerm || filter !== 'all') && (
+            <button
+              type="button"
+              onClick={() => { setSearchTerm(''); setFilter('all'); }}
+              className="w-full sm:w-auto px-3.5 py-2 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 transition-colors whitespace-nowrap self-stretch sm:self-end"
+            >
+              Reset Filters
+            </button>
+          )}
         </div>
       </div>
 
