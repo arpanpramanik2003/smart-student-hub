@@ -202,6 +202,10 @@ export const adminAPI = {
     method: 'PUT',
     body: data,
   }),
+  getNAACReports: (params = {}) => {
+    const query = new URLSearchParams({ type: 'naac', ...params }).toString();
+    return apiRequest(`/api/admin/reports${query ? `?${query}` : ''}`);
+  },
 };
 
 // Notification API
