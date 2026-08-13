@@ -52,14 +52,14 @@ export const up = async ({ queryInterface, Sequelize }) => {
 
   // Backfill verificationId for any existing approved activities that don't have one
   const approvedActivities = await queryInterface.sequelize.query(
-    `SELECT id FROM activities WHERE status = 'approved' AND (verificationId IS NULL OR verificationId = '')`,
+    `SELECT id FROM "activities" WHERE "status" = 'approved' AND ("verificationId" IS NULL OR "verificationId" = '')`,
     { type: Sequelize.QueryTypes.SELECT }
   );
 
   for (const act of approvedActivities) {
     const token = 'vref_' + crypto.randomBytes(16).toString('hex');
     await queryInterface.sequelize.query(
-      `UPDATE activities SET verificationId = :token WHERE id = :id`,
+      `UPDATE "activities" SET "verificationId" = :token WHERE "id" = :id`,
       { replacements: { token, id: act.id } }
     );
   }

@@ -139,24 +139,28 @@ async function handleNAACReport(searchParams) {
 
   let criterionWhereClause = '';
   if (criterion && criterion !== 'all') {
-    criterionWhereClause = 'AND COALESCE(a.naacCriterion, \'Criterion 5\') = :criterion';
+    criterionWhereClause = 'AND COALESCE(a."naacCriterion", \'Criterion 5\') = :criterion';
     replacements.criterion = criterion;
   }
+
+  const activeUserClause = isPostgres
+    ? 'AND u."isActive" = true'
+    : "AND (u.isActive = 1 OR u.isActive = true OR u.isActive = 'true')";
 
   // 1. Criterion-wise Summary Query
   const criterionSummaryRaw = await sequelize.query(`
     SELECT 
-      COALESCE(a.naacCriterion, 'Criterion 5') AS criterion,
+      COALESCE(a."naacCriterion", 'Criterion 5') AS criterion,
       COUNT(a.id) AS totalActivities,
       COALESCE(SUM(a.credits), 0) AS totalCredits,
-      COUNT(DISTINCT a.studentId) AS participatingStudents
+      COUNT(DISTINCT a."studentId") AS participatingStudents
     FROM activities a
-    JOIN users u ON a.studentId = u.id
+    JOIN users u ON a."studentId" = u.id
     WHERE a.status = 'approved'
       AND u.role = 'student'
       ${dateWhereClause}
       ${deptWhereClause}
-    GROUP BY COALESCE(a.naacCriterion, 'Criterion 5')
+    GROUP BY COALESCE(a."naacCriterion", 'Criterion 5')
     ORDER BY criterion ASC
   `, { replacements, type: sequelize.QueryTypes.SELECT });
 
@@ -171,17 +175,17 @@ async function handleNAACReport(searchParams) {
   const deptBreakdownRaw = await sequelize.query(`
     SELECT 
       COALESCE(u.department, 'Unassigned') AS department,
-      COALESCE(a.naacCriterion, 'Criterion 5') AS criterion,
+      COALESCE(a."naacCriterion", 'Criterion 5') AS criterion,
       COUNT(a.id) AS totalActivities,
       COALESCE(SUM(a.credits), 0) AS totalCredits,
-      COUNT(DISTINCT a.studentId) AS participatingStudents
+      COUNT(DISTINCT a."studentId") AS participatingStudents
     FROM activities a
-    JOIN users u ON a.studentId = u.id
+    JOIN users u ON a."studentId" = u.id
     WHERE a.status = 'approved'
       AND u.role = 'student'
       ${dateWhereClause}
       ${deptWhereClause}
-    GROUP BY COALESCE(u.department, 'Unassigned'), COALESCE(a.naacCriterion, 'Criterion 5')
+    GROUP BY COALESCE(u.department, 'Unassigned'), COALESCE(a."naacCriterion", 'Criterion 5')
     ORDER BY department ASC, criterion ASC
   `, { replacements, type: sequelize.QueryTypes.SELECT });
 
@@ -195,12 +199,12 @@ async function handleNAACReport(searchParams) {
 
   // 3. Participation Ratio Query
   const numeratorRaw = await sequelize.query(`
-    SELECT COUNT(DISTINCT a.studentId) AS count
+    SELECT COUNT(DISTINCT a."studentId") AS count
     FROM activities a
-    JOIN users u ON a.studentId = u.id
+    JOIN users u ON a."studentId" = u.id
     WHERE a.status = 'approved'
       AND u.role = 'student'
-      AND (u.isActive = 1 OR u.isActive = true OR u.isActive = 'true')
+      ${activeUserClause}
       ${dateWhereClause}
       ${deptWhereClause}
   `, { replacements, type: sequelize.QueryTypes.SELECT });
@@ -209,7 +213,7 @@ async function handleNAACReport(searchParams) {
     SELECT COUNT(u.id) AS count
     FROM users u
     WHERE u.role = 'student'
-      AND (u.isActive = 1 OR u.isActive = true OR u.isActive = 'true')
+      ${activeUserClause}
       ${deptWhereClauseUserOnly}
   `, { replacements, type: sequelize.QueryTypes.SELECT });
 
@@ -229,9 +233,9 @@ async function handleNAACReport(searchParams) {
       ${yearExpr} AS academicYear,
       COUNT(a.id) AS totalActivities,
       COALESCE(SUM(a.credits), 0) AS totalCredits,
-      COUNT(DISTINCT a.studentId) AS participatingStudents
+      COUNT(DISTINCT a."studentId") AS participatingStudents
     FROM activities a
-    JOIN users u ON a.studentId = u.id
+    JOIN users u ON a."studentId" = u.id
     WHERE a.status = 'approved'
       AND u.role = 'student'
       ${deptWhereClause}
@@ -249,24 +253,24 @@ async function handleNAACReport(searchParams) {
   // 5. Activity-Type Distribution Query
   const typeDistributionRaw = await sequelize.query(`
     SELECT 
-      COALESCE(a.naacCriterion, 'Criterion 5') AS criterion,
+      COALESCE(a."naacCriterion", 'Criterion 5') AS criterion,
       a.type AS activityType,
       COUNT(a.id) AS activityCount,
       COALESCE(SUM(a.credits), 0) AS totalCredits
     FROM activities a
-    JOIN users u ON a.studentId = u.id
+    JOIN users u ON a."studentId" = u.id
     WHERE a.status = 'approved'
       AND u.role = 'student'
       ${dateWhereClause}
       ${deptWhereClause}
       ${criterionWhereClause}
-    GROUP BY COALESCE(a.naacCriterion, 'Criterion 5'), a.type
-    ORDER BY criterion ASC, activityCount DESC
+    GROUP BY COALESCE(a."naacCriterion", 'Criterion 5'), a.type
+    ORDER BY criterion ASC, "activityCount" DESC
   `, { replacements, type: sequelize.QueryTypes.SELECT });
 
   const typeDistribution = typeDistributionRaw.map((r) => ({
     criterion: r.criterion || r.CRITERION,
-    activityType: r.activityType || r.ACTIVITYTYPE,
+    activityType: r.activityType || r.activitytype || r.ACTIVITYTYPE || 'unknown',
     activityCount: parseInt(r.activityCount || r.activitycount || r.ACTIVITYCOUNT || 0),
     totalCredits: Math.round((parseFloat(r.totalCredits || r.totalcredits || r.TOTALCREDITS || 0)) * 10) / 10,
   }));

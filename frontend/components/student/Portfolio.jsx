@@ -65,6 +65,7 @@ const Portfolio = ({ user, token, isReadOnly = false }) => {
   }, [activities]);
 
   const getTypeLabel = useCallback((type) => {
+    if (!type) return '';
     return type.replace('_', ' ').split(' ').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');

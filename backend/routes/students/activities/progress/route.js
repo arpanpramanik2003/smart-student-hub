@@ -32,14 +32,14 @@ export async function GET(request) {
     // 1. Current Academic Year Approved Credits
     const currentAYActivities = await sequelize.query(`
       SELECT 
-        COALESCE(a.naacCriterion, 'Criterion 5') AS criterion,
+        COALESCE(a."naacCriterion", 'Criterion 5') AS criterion,
         COUNT(a.id) AS activityCount,
         COALESCE(SUM(a.credits), 0) AS totalCredits
       FROM activities a
-      WHERE a.studentId = :studentId
+      WHERE a."studentId" = :studentId
         AND a.status = 'approved'
         AND a.date >= :ayStartDate AND a.date <= :ayEndDate
-      GROUP BY COALESCE(a.naacCriterion, 'Criterion 5')
+      GROUP BY COALESCE(a."naacCriterion", 'Criterion 5')
       ORDER BY criterion ASC
     `, {
       replacements: { studentId, ayStartDate, ayEndDate },
@@ -65,7 +65,7 @@ export async function GET(request) {
         COUNT(a.id) AS totalActivities,
         COALESCE(SUM(a.credits), 0) AS totalCredits
       FROM activities a
-      WHERE a.studentId = :studentId
+      WHERE a."studentId" = :studentId
         AND a.status = 'approved'
     `, {
       replacements: { studentId },

@@ -591,7 +591,7 @@ const Reports = ({ user, token, onNavigate }) => {
                         <div key={idx} className="p-3 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
                           <div className="flex items-center justify-between text-[10px] text-zinc-400 mb-1">
                             <span>{item.criterion}</span>
-                            <span className="uppercase text-zinc-500 font-bold">{item.activityType.replace('_', ' ')}</span>
+                            <span className="uppercase text-zinc-500 font-bold">{(item.activityType || 'unknown').replace(/_/g, ' ')}</span>
                           </div>
                           <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                             {item.activityCount} <span className="text-xs font-normal text-zinc-500">activities</span>

@@ -7,7 +7,7 @@ import { runMigrations } from './migrations.js';
 const g = globalThis;
 
 const createSequelize = () => {
-  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL) {
+  if (process.env.DATABASE_URL) {
     return new Sequelize(process.env.DATABASE_URL, {
       dialect: 'postgres',
       dialectModule: pg,
