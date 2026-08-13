@@ -3,21 +3,27 @@ import { NextResponse, createPagination } from 'next/server';
 import { initDB } from '@/lib/database';
 import { authenticateAndAuthorize } from '@/lib/auth';
 
-// GET /api/admin/review - List activities awaiting Stage 2 final approval (mentor_approved)
+// GET /api/admin/review - List activities for Stage 2 final approval (mentor_approved) or Approved Ledger (approved)
 export async function GET(request) {
   try {
     const auth = await authenticateAndAuthorize(request, ['admin']);
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const { searchParams } = new URL(request.url);
+    const statusParam = searchParams.get('status') || 'mentor_approved';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;
 
     const { Activity, User, CreditPolicy } = await initDB();
 
+    const where = statusParam === 'all' ? {} : { status: statusParam };
+    const order = statusParam === 'approved' 
+      ? [['finalApprovedAt', 'DESC'], ['updatedAt', 'DESC']] 
+      : [['mentorReviewedAt', 'ASC'], ['createdAt', 'ASC']];
+
     const { count, rows } = await Activity.findAndCountAll({
-      where: { status: 'mentor_approved' },
+      where,
       include: [
         {
           model: User,
@@ -34,7 +40,7 @@ export async function GET(request) {
           as: 'policy',
         }
       ],
-      order: [['mentorReviewedAt', 'ASC']],
+      order,
       limit,
       offset,
     });

@@ -165,11 +165,11 @@ export default function GrievancesQueue() {
     try {
       const res = await adminAPI.resolveGrievance(id, { action, resolutionRemarks });
       showToast('success', res.message);
-      setGrievances(prev => prev.filter(g => g.id !== id));
+      fetchGrievances();
     } catch (err) {
       showToast('error', err.message || 'Failed to process grievance resolution');
     }
-  }, [showToast]);
+  }, [fetchGrievances, showToast]);
 
   if (loading && grievances.length === 0) {
     return (

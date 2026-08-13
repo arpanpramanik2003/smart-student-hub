@@ -11,17 +11,29 @@ export async function GET(request) {
     const { User, Activity } = await initDB();
     const { Op } = await import('sequelize');
 
-    const [totalUsers, studentCount, facultyCount, adminCount, totalActivities, pendingActivities, approvedActivities, rejectedActivities] =
-      await Promise.all([
-        User.count(),
-        User.count({ where: { role: 'student' } }),
-        User.count({ where: { role: 'faculty' } }),
-        User.count({ where: { role: 'admin' } }),
-        Activity.count(),
-        Activity.count({ where: { status: 'pending' } }),
-        Activity.count({ where: { status: 'approved' } }),
-        Activity.count({ where: { status: 'rejected' } }),
-      ]);
+    const [
+      totalUsers,
+      studentCount,
+      facultyCount,
+      adminCount,
+      totalActivities,
+      pendingMentor,
+      pendingAdmin,
+      approvedActivities,
+      rejectedActivities
+    ] = await Promise.all([
+      User.count(),
+      User.count({ where: { role: 'student' } }),
+      User.count({ where: { role: 'faculty' } }),
+      User.count({ where: { role: 'admin' } }),
+      Activity.count(),
+      Activity.count({ where: { status: 'pending_mentor' } }),
+      Activity.count({ where: { status: 'mentor_approved' } }),
+      Activity.count({ where: { status: 'approved' } }),
+      Activity.count({ where: { status: 'rejected' } }),
+    ]);
+
+    const pendingActivities = pendingMentor + pendingAdmin;
 
     let programCategoryStats = [];
     try {
@@ -44,35 +56,53 @@ export async function GET(request) {
 
     let topStudents = [];
     try {
-      const studentsWithActivities = await User.findAll({
-        where: { role: 'student' },
-        include: [{ model: Activity, as: 'activities', attributes: ['credits', 'status'], required: false }],
-        attributes: ['id', 'name', 'studentId', 'department', 'programCategory', 'program', 'specialization'],
-        raw: false,
-      });
+      const sequelize = User.sequelize;
+      const rawTopStudents = await sequelize.query(`
+        SELECT 
+          u.id, u.name, u."studentId", u.department, u."programCategory", u.program, u.specialization,
+          COUNT(a.id) AS "activityCount",
+          COALESCE(SUM(CASE WHEN a.status = 'approved' THEN a.credits ELSE 0 END), 0) AS "totalCredits"
+        FROM users u
+        JOIN activities a ON a."studentId" = u.id
+        WHERE u.role = 'student'
+        GROUP BY u.id, u.name, u."studentId", u.department, u."programCategory", u.program, u.specialization
+        ORDER BY "totalCredits" DESC, "activityCount" DESC
+        LIMIT 10
+      `, { type: sequelize.QueryTypes.SELECT });
 
-      topStudents = studentsWithActivities
-        .map((student) => {
-          const activities = student.activities || [];
-          const approved = activities.filter((a) => a.status === 'approved');
-          const totalCredits = approved.reduce((sum, a) => sum + (parseFloat(a.credits) || 0), 0);
-          return {
-            id: student.id, name: student.name || 'Unknown', studentId: student.studentId || 'N/A',
-            department: student.department, programCategory: student.programCategory,
-            program: student.program, specialization: student.specialization,
-            totalCredits: Math.round(totalCredits * 10) / 10, activityCount: activities.length,
-          };
-        })
-        .filter((s) => s.activityCount > 0 || s.totalCredits > 0)
-        .sort((a, b) => b.totalCredits - a.totalCredits || b.activityCount - a.activityCount)
-        .slice(0, 10);
-    } catch {}
+      topStudents = rawTopStudents.map((s) => ({
+        id: s.id,
+        name: s.name || 'Unknown',
+        studentId: s.studentId || s.studentid || s.STUDENTID || 'N/A',
+        department: s.department || s.DEPARTMENT,
+        programCategory: s.programCategory || s.programcategory || s.PROGRAMCATEGORY,
+        program: s.program || s.PROGRAM,
+        specialization: s.specialization || s.SPECIALIZATION,
+        totalCredits: Math.round((parseFloat(s.totalCredits || s.totalcredits || s.TOTALCREDITS || 0)) * 10) / 10,
+        activityCount: parseInt(s.activityCount || s.activitycount || s.ACTIVITYCOUNT || 0),
+      }));
+    } catch (err) {
+      console.error('Top students query error:', err);
+    }
 
     return NextResponse.json({
       userStats: { totalUsers, studentCount, facultyCount, adminCount },
-      activityStats: { totalActivities, pendingActivities, approvedActivities, rejectedActivities },
-      programCategoryStats: programCategoryStats.map((c) => ({ programCategory: c.programCategory || 'Unknown', count: parseInt(c.count) || 0 })),
-      activityTypeStats: activityTypeStats.map((t) => ({ type: t.type || 'Unknown', count: parseInt(t.count) || 0 })),
+      activityStats: {
+        totalActivities,
+        pendingActivities,
+        pendingMentor,
+        pendingAdmin,
+        approvedActivities,
+        rejectedActivities
+      },
+      programCategoryStats: programCategoryStats.map((c) => ({
+        programCategory: c.programCategory || 'Unknown',
+        count: parseInt(c.count) || 0
+      })),
+      activityTypeStats: activityTypeStats.map((t) => ({
+        type: t.type || 'Unknown',
+        count: parseInt(t.count) || 0
+      })),
       topStudents,
     });
   } catch (error) {

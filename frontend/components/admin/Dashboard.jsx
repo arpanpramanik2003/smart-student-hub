@@ -254,10 +254,16 @@ const AdminDashboard = ({ user, token, onNavigate }) => {
                 badgeBg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900'
               },
               { 
-                status: 'Pending', 
-                count: stats?.activityStats?.pendingActivities || 0, 
+                status: 'Stage 1 (Pending Mentor)', 
+                count: stats?.activityStats?.pendingMentor || 0, 
                 color: 'bg-amber-500', 
                 badgeBg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900'
+              },
+              { 
+                status: 'Stage 2 (Pending Admin)', 
+                count: stats?.activityStats?.pendingAdmin || 0, 
+                color: 'bg-sky-500', 
+                badgeBg: 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 border-sky-200 dark:border-sky-900'
               },
               { 
                 status: 'Rejected', 
