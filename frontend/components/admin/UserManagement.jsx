@@ -507,6 +507,36 @@ const UserManagement = ({ user, token, onNavigate }) => {
         </div>
       </div>
 
+      {/* Filter & Search Bar */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 font-mono text-xs flex flex-col sm:flex-row items-center justify-between gap-3">
+        <input
+          type="text"
+          placeholder="Search name, email, student ID, program..."
+          value={filters.search}
+          onChange={(e) => {
+            setFilters(prev => ({ ...prev, search: e.target.value }));
+            setPagination(prev => ({ ...prev, page: 1 }));
+          }}
+          className="w-full sm:w-80 px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+        />
+
+        <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
+          <select
+            value={filters.role}
+            onChange={(e) => {
+              setFilters(prev => ({ ...prev, role: e.target.value }));
+              setPagination(prev => ({ ...prev, page: 1 }));
+            }}
+            className="w-full sm:w-48 px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+          >
+            <option value="all">All Account Roles</option>
+            <option value="student">Student</option>
+            <option value="faculty">Faculty</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+      </div>
+
       {/* Directory Table */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
@@ -538,6 +568,31 @@ const UserManagement = ({ user, token, onNavigate }) => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar */}
+        {pagination.pages > 1 && (
+          <div className="p-3 border-t border-zinc-200 dark:border-zinc-800 font-mono text-xs flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-900/50">
+            <span className="text-zinc-500">
+              Page {pagination.page} of {pagination.pages} ({pagination.total} Users)
+            </span>
+            <div className="flex items-center space-x-2">
+              <button
+                disabled={pagination.page <= 1}
+                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                className="px-3 py-1 rounded border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 disabled:opacity-40 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Previous
+              </button>
+              <button
+                disabled={pagination.page >= pagination.pages}
+                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                className="px-3 py-1 rounded border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 disabled:opacity-40 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* BULK CSV IMPORT MODAL */}

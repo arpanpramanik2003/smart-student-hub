@@ -26,15 +26,16 @@ export async function GET(request) {
 
     const { User } = await initDB();
     const whereClause = {};
+    const searchOp = User.sequelize?.options?.dialect === 'postgres' ? Op.iLike : Op.like;
 
     if (search) {
       whereClause[Op.or] = [
-        { name: { [Op.like]: `%${search}%` } },
-        { email: { [Op.like]: `%${search}%` } },
-        { studentId: { [Op.like]: `%${search}%` } },
-        { programCategory: { [Op.like]: `%${search}%` } },
-        { program: { [Op.like]: `%${search}%` } },
-        { specialization: { [Op.like]: `%${search}%` } },
+        { name: { [searchOp]: `%${search}%` } },
+        { email: { [searchOp]: `%${search}%` } },
+        { studentId: { [searchOp]: `%${search}%` } },
+        { programCategory: { [searchOp]: `%${search}%` } },
+        { program: { [searchOp]: `%${search}%` } },
+        { specialization: { [searchOp]: `%${search}%` } },
       ];
     }
     if (role && role !== 'all') whereClause.role = role;

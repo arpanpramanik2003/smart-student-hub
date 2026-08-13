@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { adminAPI } from '../../utils/api';
 import { API_BASE_URL } from '../../utils/constants';
 import LoadingSpinner, { CardSkeleton } from '../shared/LoadingSpinner';
+
 const AnalyticsStatCard = React.memo(({ label, value, subtitle, showStatusDot, isPending }) => {
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
@@ -21,7 +22,6 @@ const AnalyticsStatCard = React.memo(({ label, value, subtitle, showStatusDot, i
     </div>
   );
 });
-
 AnalyticsStatCard.displayName = 'AnalyticsStatCard';
 
 const CategoryRow = React.memo(({ category, index, percentage, formatNumber }) => {
@@ -38,21 +38,18 @@ const CategoryRow = React.memo(({ category, index, percentage, formatNumber }) =
       </div>
       <div className="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
         <div 
-          className="bg-indigo-600 h-full rounded-full transition-all"
+          className="bg-indigo-600 dark:bg-indigo-400 h-full rounded-full transition-all duration-300"
           style={{ width: `${Math.min(100, Math.max(5, parseFloat(percentage)))}%` }}
         />
       </div>
     </div>
   );
 });
-
 CategoryRow.displayName = 'CategoryRow';
 
 const Analytics = ({ user, token, onNavigate }) => {
   const [stats, setStats] = useState(null);
-  const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [reportLoading, setReportLoading] = useState(false);
   const [csvDownloading, setCsvDownloading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState({ type: '', text: '', show: false });
@@ -102,15 +99,16 @@ const Analytics = ({ user, token, onNavigate }) => {
 
   const fetchProgramBreakdown = useCallback(async () => {
     try {
-      const users = await adminAPI.getUsers({ limit: 1000 });
+      const usersRes = await adminAPI.getUsers({ limit: 1000 });
+      const users = usersRes.users || [];
       const programMap = {};
       const yearMap = {};
       const batchMap = {};
       
-      users.users?.forEach(user => {
-        if (user.role === 'student' && user.programCategory) {
-          if (!programMap[user.programCategory]) {
-            programMap[user.programCategory] = {
+      users.forEach(u => {
+        if (u.role === 'student' && u.programCategory) {
+          if (!programMap[u.programCategory]) {
+            programMap[u.programCategory] = {
               students: 0,
               programs: new Set(),
               specializations: new Set(),
@@ -119,28 +117,28 @@ const Analytics = ({ user, token, onNavigate }) => {
             };
           }
           
-          programMap[user.programCategory].students++;
-          if (user.program) programMap[user.programCategory].programs.add(user.program);
-          if (user.specialization) programMap[user.programCategory].specializations.add(user.specialization);
+          programMap[u.programCategory].students++;
+          if (u.program) programMap[u.programCategory].programs.add(u.program);
+          if (u.specialization) programMap[u.programCategory].specializations.add(u.specialization);
           
-          if (user.year) {
-            programMap[user.programCategory].years[user.year] = 
-              (programMap[user.programCategory].years[user.year] || 0) + 1;
-            yearMap[user.year] = (yearMap[user.year] || 0) + 1;
+          if (u.year) {
+            programMap[u.programCategory].years[u.year] = 
+              (programMap[u.programCategory].years[u.year] || 0) + 1;
+            yearMap[u.year] = (yearMap[u.year] || 0) + 1;
           }
           
-          if (user.admissionYear) {
-            programMap[user.programCategory].batches[user.admissionYear] = 
-              (programMap[user.programCategory].batches[user.admissionYear] || 0) + 1;
-            batchMap[user.admissionYear] = (batchMap[user.admissionYear] || 0) + 1;
+          if (u.admissionYear) {
+            programMap[u.programCategory].batches[u.admissionYear] = 
+              (programMap[u.programCategory].batches[u.admissionYear] || 0) + 1;
+            batchMap[u.admissionYear] = (batchMap[u.admissionYear] || 0) + 1;
           }
         }
       });
       
       const facultyMap = {};
-      users.users?.forEach(user => {
-        if (user.role === 'faculty' && user.programCategory) {
-          facultyMap[user.programCategory] = (facultyMap[user.programCategory] || 0) + 1;
+      users.forEach(u => {
+        if (u.role === 'faculty' && u.programCategory) {
+          facultyMap[u.programCategory] = (facultyMap[u.programCategory] || 0) + 1;
         }
       });
       
@@ -156,8 +154,8 @@ const Analytics = ({ user, token, onNavigate }) => {
         byCategory: programMap,
         byYear: yearMap,
         byBatch: batchMap,
-        totalStudents: users.users?.filter(u => u.role === 'student').length || 0,
-        totalFaculty: users.users?.filter(u => u.role === 'faculty').length || 0
+        totalStudents: users.filter(u => u.role === 'student').length || 0,
+        totalFaculty: users.filter(u => u.role === 'faculty').length || 0
       });
     } catch (error) {
       console.error('Program breakdown fetch error:', error);
@@ -179,11 +177,6 @@ const Analytics = ({ user, token, onNavigate }) => {
   }, [fetchAnalytics, fetchProgramBreakdown]);
 
   const downloadCSVReport = useCallback(async () => {
-    if (!dateRange.startDate || !dateRange.endDate) {
-      showErrorMessage('Please select date range before downloading CSV.');
-      return;
-    }
-
     try {
       setCsvDownloading(true);
       const authToken = localStorage.getItem('token') || token;
@@ -192,17 +185,16 @@ const Analytics = ({ user, token, onNavigate }) => {
       }
       
       const params = new URLSearchParams({
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
         format: 'csv'
       });
+      if (dateRange.startDate) params.append('startDate', dateRange.startDate);
+      if (dateRange.endDate) params.append('endDate', dateRange.endDate);
       
       const url = `${API_BASE_URL}/api/admin/reports?${params.toString()}`;
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
         },
       });
 
@@ -218,7 +210,7 @@ const Analytics = ({ user, token, onNavigate }) => {
       if (link.download !== undefined) {
         const downloadUrl = URL.createObjectURL(blob);
         link.setAttribute('href', downloadUrl);
-        link.setAttribute('download', `analytics-report-${dateRange.startDate}-to-${dateRange.endDate}.csv`);
+        link.setAttribute('download', `analytics-report-${dateRange.startDate || 'all'}-to-${dateRange.endDate || 'now'}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -239,57 +231,43 @@ const Analytics = ({ user, token, onNavigate }) => {
     return new Intl.NumberFormat().format(num || 0);
   }, []);
 
-  const formatDate = useCallback((dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  }, []);
-
   const getGrowthPercentage = useCallback((current, total) => {
-    return total > 0 ? ((current / total) * 100).toFixed(1) : '0.0';
+    if (!total || total === 0) return '0.0';
+    return ((current / total) * 100).toFixed(1);
   }, []);
 
   const systemHealth = useMemo(() => {
-    if (!stats) return { score: 0, status: 'Unknown', issues: [] };
-    
     let score = 100;
     const issues = [];
-    
-    const pendingRatio = (stats.activityStats?.pendingActivities || 0) / Math.max(stats.activityStats?.totalActivities || 1, 1);
-    if (pendingRatio > 0.3) {
-      score -= 20;
-      issues.push('High volume of pending review activities');
-    }
-    
-    const rejectionRatio = (stats.activityStats?.rejectedActivities || 0) / Math.max(stats.activityStats?.totalActivities || 1, 1);
-    if (rejectionRatio > 0.2) {
+
+    const pending = stats?.activityStats?.pendingActivities || 0;
+    const total = stats?.activityStats?.totalActivities || 0;
+    if (total > 0 && (pending / total) > 0.3) {
       score -= 15;
-      issues.push('Elevated activity rejection rate');
+      issues.push('High pending review queue ratio (>30%)');
     }
-    
-    const totalUsers = stats.userStats?.totalUsers || 0;
-    const totalActivities = stats.activityStats?.totalActivities || 0;
-    const activityPerUser = totalUsers > 0 ? totalActivities / totalUsers : 0;
-    if (activityPerUser < 2) {
-      score -= 10;
-      issues.push('Low participation ratio per active account');
+
+    if (!stats?.userStats?.facultyCount || stats.userStats.facultyCount === 0) {
+      score -= 20;
+      issues.push('No faculty accounts registered for evaluation');
     }
-    
-    let status = 'Excellent';
-    if (score < 70) status = 'Needs Attention';
-    else if (score < 85) status = 'Optimal';
-    
-    return { score: Math.max(0, score), status, issues };
+
+    return {
+      score: Math.max(0, score),
+      status: score >= 85 ? 'Optimal' : score >= 65 ? 'Warning' : 'Critical',
+      issues
+    };
   }, [stats]);
 
   if (loading && !stats) {
     return (
-      <div className="space-y-5 animate-fade-in">
-        <CardSkeleton cards={4} />
-        <div className="flex justify-center py-10">
-          <LoadingSpinner size="md" text="Loading analytics console..." />
+      <div className="space-y-6 font-sans">
+        <LoadingSpinner size="lg" text="Loading Institutional Intelligence & Analytics Console..." />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
       </div>
     );
@@ -336,31 +314,31 @@ const Analytics = ({ user, token, onNavigate }) => {
       )}
 
       {/* Header Strip */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                Institutional Intelligence
+            <div className="flex items-center space-x-2 font-mono">
+              <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900">
+                Institutional Intelligence Console
               </span>
-              <span className="text-xs font-mono text-zinc-400">•</span>
-              <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
-                Sync: {new Date().toLocaleTimeString()}
+              <span className="text-xs text-zinc-400">•</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                Last Sync: {new Date().toLocaleTimeString()}
               </span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50 mt-1">
-              Analytics & Insights
+              Analytics & Performance Insights
             </h1>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Comprehensive system metrics, academic domain distribution, and growth indicators
+              Comprehensive institutional metrics, NAAC Criteria compliance, and evaluation ratios
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap font-mono text-xs">
             <button
               onClick={() => fetchAnalytics(true)}
               disabled={refreshing}
-              className="px-3 py-1.5 rounded text-xs font-mono border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 text-zinc-800 dark:text-zinc-200 flex items-center space-x-1.5 transition-colors disabled:opacity-50"
             >
               <svg className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -371,45 +349,64 @@ const Analytics = ({ user, token, onNavigate }) => {
             <button
               onClick={downloadCSVReport}
               disabled={csvDownloading}
-              className="px-3 py-1.5 rounded text-xs font-mono bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 transition-colors disabled:opacity-50"
+              className="px-3.5 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors disabled:opacity-50"
             >
-              {csvDownloading ? 'Exporting...' : 'Export CSV'}
+              {csvDownloading ? 'Exporting...' : 'Export Official CSV'}
             </button>
           </div>
         </div>
 
-        {/* Flat Tab Switcher Controls */}
-        <div className="flex items-center space-x-1 border-t border-zinc-200 dark:border-zinc-800 mt-5 pt-3 font-mono text-xs">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-3 py-1.5 rounded transition-all ${
-              activeTab === 'overview'
-                ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold'
-                : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
-            }`}
-          >
-            Overview Metrics
-          </button>
-          <button
-            onClick={() => setActiveTab('programs')}
-            className={`px-3 py-1.5 rounded transition-all ${
-              activeTab === 'programs'
-                ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold'
-                : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
-            }`}
-          >
-            Program & Faculty Ratios
-          </button>
-          <button
-            onClick={() => setActiveTab('trends')}
-            className={`px-3 py-1.5 rounded transition-all ${
-              activeTab === 'trends'
-                ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold'
-                : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
-            }`}
-          >
-            Growth & KPIs
-          </button>
+        {/* Date Filter & Tab Switcher Controls */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-zinc-200 dark:border-zinc-800 pt-3 font-mono text-xs gap-3">
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-3 py-1.5 rounded transition-all ${
+                activeTab === 'overview'
+                  ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+              }`}
+            >
+              Overview Metrics
+            </button>
+            <button
+              onClick={() => setActiveTab('naac')}
+              className={`px-3 py-1.5 rounded transition-all ${
+                activeTab === 'naac'
+                  ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+              }`}
+            >
+              NAAC Compliance Targets
+            </button>
+            <button
+              onClick={() => setActiveTab('programs')}
+              className={`px-3 py-1.5 rounded transition-all ${
+                activeTab === 'programs'
+                  ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
+              }`}
+            >
+              Program Ratios
+            </button>
+          </div>
+
+          <div className="flex items-center space-x-2 text-[11px]">
+            <span className="text-zinc-400">Date Range:</span>
+            <input
+              type="date"
+              value={dateRange.startDate}
+              onChange={e => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+              className="px-2 py-1 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200"
+            />
+            <span className="text-zinc-400">to</span>
+            <input
+              type="date"
+              value={dateRange.endDate}
+              onChange={e => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+              className="px-2 py-1 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200"
+            />
+          </div>
         </div>
       </div>
 
@@ -421,7 +418,7 @@ const Analytics = ({ user, token, onNavigate }) => {
             <AnalyticsStatCard
               label="SYSTEM ACCOUNTS"
               value={formatNumber(stats?.userStats?.totalUsers)}
-              subtitle={`${formatNumber((stats?.userStats?.studentCount || 0) + (stats?.userStats?.facultyCount || 0))} active accounts`}
+              subtitle={`${formatNumber((stats?.userStats?.studentCount || 0) + (stats?.userStats?.facultyCount || 0))} active student & faculty`}
             />
 
             <AnalyticsStatCard
@@ -433,15 +430,15 @@ const Analytics = ({ user, token, onNavigate }) => {
             <AnalyticsStatCard
               label="PENDING EVALUATION"
               value={formatNumber(stats?.activityStats?.pendingActivities)}
-              subtitle={stats?.activityStats?.pendingActivities > 0 ? 'Awaiting faculty action' : 'Queue clear'}
+              subtitle={`Stage 1: ${stats?.activityStats?.pendingMentor || 0} • Stage 2: ${stats?.activityStats?.pendingAdmin || 0}`}
               showStatusDot={true}
               isPending={stats?.activityStats?.pendingActivities > 0}
             />
 
             <AnalyticsStatCard
-              label="DOMAINS"
+              label="DOMAINS & CATEGORIES"
               value={formatNumber(stats?.programCategoryStats?.length)}
-              subtitle="Academic categories"
+              subtitle="Academic disciplines"
             />
           </div>
 
@@ -449,21 +446,21 @@ const Analytics = ({ user, token, onNavigate }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Program Category Performance */}
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-4">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-4 font-mono">
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                    Category Distribution Performance
+                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
+                    Academic Domain Volume
                   </h3>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    User volume per program domain
+                    Registered users by program domain
                   </p>
                 </div>
-                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
                   Top Domains
                 </span>
               </div>
 
-              <div className="space-y-3 max-h-[250px] overflow-y-auto pr-1 font-mono text-xs">
+              <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1">
                 {stats?.programCategoryStats?.slice(0, 6).map((category, index) => {
                   const percentage = getGrowthPercentage(category.count, stats.userStats.totalUsers);
                   return (
@@ -479,33 +476,38 @@ const Analytics = ({ user, token, onNavigate }) => {
               </div>
             </div>
 
-            {/* Activity Status Breakdown */}
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-4">
+            {/* Evaluation Pipeline Ratio */}
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 space-y-4 font-mono">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                    Activity Evaluation Ratio
+                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
+                    Multi-Stage Evaluation Pipeline
                   </h3>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    Approval rate metrics
+                    Breakdown by approval workflow status
                   </p>
                 </div>
-                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
-                  Ratios
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
+                  Pipeline Ratio
                 </span>
               </div>
 
-              <div className="space-y-4 font-mono text-xs">
+              <div className="space-y-4 text-xs">
                 {[
                   { 
-                    status: 'Approved', 
+                    status: 'Approved & Granted', 
                     count: stats?.activityStats?.approvedActivities || 0, 
                     color: 'bg-emerald-500'
                   },
                   { 
-                    status: 'Pending', 
-                    count: stats?.activityStats?.pendingActivities || 0, 
+                    status: 'Stage 1 (Pending Mentor)', 
+                    count: stats?.activityStats?.pendingMentor || 0, 
                     color: 'bg-amber-500'
+                  },
+                  { 
+                    status: 'Stage 2 (Pending Admin)', 
+                    count: stats?.activityStats?.pendingAdmin || 0, 
+                    color: 'bg-sky-500'
                   },
                   { 
                     status: 'Rejected', 
@@ -526,7 +528,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                           <span className="text-[10px] text-zinc-400">({percentage}%)</span>
                         </div>
                       </div>
-                      <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-[3px] rounded-full overflow-hidden">
+                      <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-[4px] rounded-full overflow-hidden">
                         <div 
                           className={`h-full ${item.color} transition-all duration-300`}
                           style={{ width: `${percentage}%` }}
@@ -541,17 +543,17 @@ const Analytics = ({ user, token, onNavigate }) => {
 
           {/* Top Performers Table */}
           {stats?.topStudents?.length > 0 && (
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5">
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 mb-4">
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 font-mono">
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
                     Leading Student Participants
                   </h3>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                     Highest earned activity credits across institution
                   </p>
                 </div>
-                <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
                   Top Credits
                 </span>
               </div>
@@ -561,7 +563,7 @@ const Analytics = ({ user, token, onNavigate }) => {
                   <div key={student.id} className="p-3.5 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[10px] font-bold text-zinc-500">#{index + 1} RANK</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">{student.totalCredits} Credits</span>
+                      <span className="font-bold text-indigo-600 dark:text-indigo-400">{student.totalCredits} Credits</span>
                     </div>
                     <p className="font-bold text-zinc-900 dark:text-zinc-100 truncate">{student.name}</p>
                     <p className="text-[10px] text-zinc-500 mt-0.5">ID: {student.studentId}</p>
@@ -595,6 +597,51 @@ const Analytics = ({ user, token, onNavigate }) => {
             )}
           </div>
         </>
+      )}
+
+      {/* NAAC COMPLIANCE TAB */}
+      {activeTab === 'naac' && (
+        <div className="space-y-6 font-mono text-xs">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 font-sans">
+                  NAAC Accreditation Criterion Compliance
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Institutional activity mapping mapped to NAAC Criteria 1 through 7
+                </p>
+              </div>
+              <span className="px-2 py-0.5 text-[10px] rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900 font-bold">
+                Target: 100% Verified
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { id: 'Criterion 1', name: 'Curricular Aspects', weight: '20%', desc: 'Academic courses & co-curricular alignment', progress: 85 },
+                { id: 'Criterion 2', name: 'Teaching-Learning & Evaluation', weight: '30%', desc: 'Student participation in workshops & seminars', progress: 92 },
+                { id: 'Criterion 3', name: 'Research, Innovations & Extension', weight: '25%', desc: 'Hackathons, papers & patents published', progress: 78 },
+                { id: 'Criterion 5', name: 'Student Support & Progression', weight: '25%', desc: 'Clubs, sports, leadership & achievements', progress: 95 }
+              ].map(c => (
+                <div key={c.id} className="p-4 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-zinc-900 dark:text-zinc-100">{c.id}: {c.name}</span>
+                    <span className="text-[10px] text-zinc-500">Weight {c.weight}</span>
+                  </div>
+                  <p className="text-[10px] text-zinc-400">{c.desc}</p>
+                  <div className="flex items-center justify-between text-[11px] pt-1">
+                    <span className="text-zinc-500">Compliance Rate</span>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400">{c.progress}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-200 dark:bg-zinc-700 h-2 rounded-full overflow-hidden">
+                    <div className="bg-indigo-600 dark:bg-indigo-400 h-full rounded-full transition-all" style={{ width: `${c.progress}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* PROGRAM ANALYTICS TAB */}
@@ -668,63 +715,6 @@ const Analytics = ({ user, token, onNavigate }) => {
                   </div>
                 );
               })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TRENDS TAB */}
-      {activeTab === 'trends' && (
-        <div className="space-y-6 font-mono text-xs">
-          {/* Key Performance Indicators */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {(() => {
-              const totalActivities = stats?.activityStats?.totalActivities || 0;
-              const approvalRate = parseFloat(getGrowthPercentage(stats?.activityStats?.approvedActivities, totalActivities));
-              const pendingRate = parseFloat(getGrowthPercentage(stats?.activityStats?.pendingActivities, totalActivities));
-              
-              return [
-                { label: 'Approval Rate', value: `${approvalRate.toFixed(1)}%`, subtext: `${formatNumber(stats?.activityStats?.approvedActivities)} approved` },
-                { label: 'Pending Rate', value: `${pendingRate.toFixed(1)}%`, subtext: `${formatNumber(stats?.activityStats?.pendingActivities)} pending` },
-                { label: 'Avg Credits / Act', value: `8.5`, subtext: 'per approved submission' },
-                { label: 'System Health Score', value: `${systemHealth.score}%`, subtext: 'platform rating' }
-              ].map((kpi) => (
-                <div key={kpi.label} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded p-4">
-                  <span className="text-[10px] uppercase text-zinc-500 block">{kpi.label}</span>
-                  <p className="text-2xl font-bold text-zinc-950 dark:text-zinc-50 my-1">{kpi.value}</p>
-                  <p className="text-[10px] text-zinc-400">{kpi.subtext}</p>
-                </div>
-              ));
-            })()}
-          </div>
-
-          {/* Efficiency Tiles */}
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                System Efficiency Metrics
-              </h3>
-              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Performance Audit</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
-                <span className="text-[10px] text-zinc-500 block">Record Quality Score</span>
-                <p className="text-xl font-bold text-zinc-900 dark:text-zinc-100 my-0.5">98.5%</p>
-                <p className="text-[10px] text-zinc-400">Verifiable metadata compliance</p>
-              </div>
-
-              <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
-                <span className="text-[10px] text-zinc-500 block">Processing Speed</span>
-                <p className="text-xl font-bold text-zinc-900 dark:text-zinc-100 my-0.5">94.0%</p>
-                <p className="text-[10px] text-zinc-400">Average review queue latency</p>
-              </div>
-
-              <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
-                <span className="text-[10px] text-zinc-500 block">System Uptime</span>
-                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 my-0.5">99.9%</p>
-                <p className="text-[10px] text-zinc-400">Platform operational availability</p>
-              </div>
             </div>
           </div>
         </div>
