@@ -191,6 +191,11 @@ export const up = async ({ queryInterface, Sequelize, dialect }) => {
     await queryInterface.bulkUpdate('activities', { naacCriterion: criterion }, { type: type });
   }
 
+  if (dialect === 'postgres') {
+    await queryInterface.sequelize.query(`ALTER TYPE "enum_activities_status" ADD VALUE IF NOT EXISTS 'pending_mentor';`);
+    await queryInterface.sequelize.query(`ALTER TYPE "enum_activities_status" ADD VALUE IF NOT EXISTS 'mentor_approved';`);
+  }
+
   // Migrate existing status 'pending' -> 'pending_mentor'
   await queryInterface.bulkUpdate('activities', { status: 'pending_mentor' }, { status: 'pending' });
 };

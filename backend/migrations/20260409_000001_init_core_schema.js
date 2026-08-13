@@ -102,7 +102,7 @@ export const up = async ({ queryInterface, Sequelize, dialect }) => {
       organizer: { type: Sequelize.STRING, allowNull: true },
       filePath: { type: Sequelize.STRING, allowNull: true },
       status: {
-        type: Sequelize.ENUM('pending', 'approved', 'rejected'),
+        type: Sequelize.ENUM('pending', 'pending_mentor', 'mentor_approved', 'approved', 'rejected'),
         allowNull: false,
         defaultValue: 'pending',
       },
