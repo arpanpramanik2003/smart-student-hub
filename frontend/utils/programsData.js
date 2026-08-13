@@ -108,10 +108,10 @@ export const getProgramsByCategory = (category) => {
   return categoryValue ? (UNIVERSITY_PROGRAMS[categoryValue] || []) : [];
 };
 
-export const getSpecializations = (category, degree) => {
+export const getSpecializations = (category, degreeOrName) => {
   const programs = getProgramsByCategory(category);
-  const program = programs.find(p => p.degree === degree);
-  return program ? program.specializations : [];
+  const program = programs.find(p => p.degree === degreeOrName || p.name === degreeOrName);
+  return program ? (program.specializations || []) : [];
 };
 
 export const formatProgramDisplay = (category, degree, specialization) => {

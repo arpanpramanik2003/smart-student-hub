@@ -668,6 +668,256 @@ const UserManagement = ({ user, token, onNavigate }) => {
           )}
         </div>
       </Modal>
+
+      {/* ADD / EDIT USER MODAL */}
+      <Modal
+        isOpen={showAddModal || showEditModal}
+        onClose={() => { setShowAddModal(false); setShowEditModal(false); }}
+        title={showEditModal ? `Edit User Account: ${selectedUser?.name || ''}` : 'Add New User Account'}
+        maxWidth="max-w-xl"
+      >
+        <form onSubmit={handleSubmitForm} className="space-y-4 font-mono text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block mb-1 text-zinc-500">Full Name *</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g. Arpan Pramanik"
+                className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 text-zinc-500">Email Address *</label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="e.g. user@university.edu"
+                className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 text-zinc-500">{showEditModal ? 'Password (leave blank to keep current)' : 'Password *'}</label>
+              <input
+                type="password"
+                required={!showEditModal}
+                value={formData.password}
+                onChange={e => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                placeholder="••••••••"
+                className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1 text-zinc-500">Account Role *</label>
+              <select
+                value={formData.role}
+                onChange={e => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+              >
+                <option value="student">Student</option>
+                <option value="faculty">Faculty Advisor / Mentor</option>
+                <option value="admin">Institutional Administrator</option>
+              </select>
+            </div>
+
+            {formData.role === 'student' && (
+              <>
+                <div>
+                  <label className="block mb-1 text-zinc-500">Student ID / Roll No *</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.studentId}
+                    onChange={e => setFormData(prev => ({ ...prev, studentId: e.target.value }))}
+                    placeholder="e.g. STU-2026-001"
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-zinc-500">Academic Program Category *</label>
+                  <select
+                    value={formData.programCategory}
+                    onChange={e => setFormData(prev => ({ ...prev, programCategory: e.target.value, program: '', specialization: '' }))}
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+                  >
+                    <option value="">-- Choose Category --</option>
+                    {Object.values(PROGRAM_CATEGORIES).map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-zinc-500">Program *</label>
+                  <select
+                    value={formData.program}
+                    disabled={!formData.programCategory}
+                    onChange={e => setFormData(prev => ({ ...prev, program: e.target.value, specialization: '' }))}
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600 disabled:opacity-50"
+                  >
+                    <option value="">-- Choose Program --</option>
+                    {getProgramsByCategory(formData.programCategory).map(p => (
+                      <option key={p.name} value={p.name}>{p.name} ({p.degree})</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-zinc-500">Specialization</label>
+                  <select
+                    value={formData.specialization}
+                    disabled={!formData.program}
+                    onChange={e => setFormData(prev => ({ ...prev, specialization: e.target.value }))}
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600 disabled:opacity-50"
+                  >
+                    <option value="">-- Choose Specialization --</option>
+                    {getSpecializations(formData.programCategory, formData.program).map(s => (
+                      <option key={typeof s === 'string' ? s : s.name} value={typeof s === 'string' ? s : s.name}>
+                        {typeof s === 'string' ? s : s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-zinc-500">Academic Year (1-4)</label>
+                  <select
+                    value={formData.year}
+                    onChange={e => setFormData(prev => ({ ...prev, year: e.target.value }))}
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+                  >
+                    <option value="">-- Select Year --</option>
+                    <option value="1">Year 1</option>
+                    <option value="2">Year 2</option>
+                    <option value="3">Year 3</option>
+                    <option value="4">Year 4</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-zinc-500">Admission Year *</label>
+                  <input
+                    type="number"
+                    min="2018"
+                    max="2030"
+                    value={formData.admissionYear}
+                    onChange={e => setFormData(prev => ({ ...prev, admissionYear: e.target.value }))}
+                    placeholder="e.g. 2024"
+                    className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+                  />
+                </div>
+              </>
+            )}
+
+            {formData.role !== 'student' && (
+              <div className="sm:col-span-2">
+                <label className="block mb-1 text-zinc-500">Department / Domain</label>
+                <input
+                  type="text"
+                  value={formData.department}
+                  onChange={e => setFormData(prev => ({ ...prev, department: e.target.value }))}
+                  placeholder="e.g. Computer Science & Engineering"
+                  className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-600"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-end space-x-2 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+            <button
+              type="button"
+              onClick={() => { setShowAddModal(false); setShowEditModal(false); }}
+              className="px-3.5 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={actionLoading === 'submit'}
+              className="px-4 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium disabled:opacity-50"
+            >
+              {actionLoading === 'submit' ? 'Saving...' : showEditModal ? 'Update User' : 'Create User'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* USER DETAILS MODAL */}
+      <Modal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        title="User Account Details"
+        maxWidth="max-w-lg"
+      >
+        {selectedUser && (
+          <div className="space-y-4 font-mono text-xs">
+            <div className="flex items-center space-x-3 p-3 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded">
+              <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">
+                {selectedUser.name?.charAt(0) || 'U'}
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">{selectedUser.name}</h4>
+                <p className="text-zinc-500">{selectedUser.email}</p>
+                <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] uppercase font-bold rounded border ${
+                  selectedUser.role === 'admin' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                  selectedUser.role === 'faculty' ? 'bg-sky-50 text-sky-700 border-sky-200' :
+                  'bg-emerald-50 text-emerald-700 border-emerald-200'
+                }`}>
+                  ● {selectedUser.role}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 border-t border-b border-zinc-200 dark:border-zinc-800 py-3">
+              <div>
+                <span className="text-[10px] text-zinc-400 block">Student ID / Roll No</span>
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">{selectedUser.studentId || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-400 block">Account Status</span>
+                <span className={selectedUser.isActive ? 'text-emerald-600 font-bold' : 'text-zinc-500'}>
+                  {selectedUser.isActive ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-400 block">Program Category</span>
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">{selectedUser.programCategory || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-400 block">Academic Program</span>
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">{selectedUser.program || selectedUser.department || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-400 block">Specialization</span>
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">{selectedUser.specialization || 'N/A'}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-zinc-400 block">Academic Year / Admission</span>
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                  {selectedUser.year ? `Year ${selectedUser.year}` : ''} {selectedUser.admissionYear ? `(${selectedUser.admissionYear})` : ''}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="px-4 py-1.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded font-medium"
+              >
+                Close Details
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
