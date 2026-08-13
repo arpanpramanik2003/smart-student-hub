@@ -6,6 +6,10 @@ import LoadingSpinner from '../shared/LoadingSpinner';
 const StudentMentorRow = memo(({ student, facultyList, onAssignMentor }) => {
   const [selectedMentor, setSelectedMentor] = useState(student.mentorId || '');
 
+  useEffect(() => {
+    setSelectedMentor(student.mentorId || '');
+  }, [student.mentorId]);
+
   const handleChange = (e) => {
     const val = e.target.value;
     setSelectedMentor(val);
@@ -183,7 +187,7 @@ export default function MentorAssignment() {
         {/* Bulk Assignment Bar */}
         <form onSubmit={handleBulkAssign} className="bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 font-mono text-xs space-y-3">
           <span className="text-[10px] uppercase tracking-wider text-zinc-500 block font-bold">Bulk Mentor Assignment Tool</span>
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
             <div>
               <label className="block mb-1 text-zinc-500">Target Faculty Mentor *</label>
               <select

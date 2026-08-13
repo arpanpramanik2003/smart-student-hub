@@ -12,25 +12,35 @@ export async function GET(request) {
 
     const { User } = await initDB();
 
-    // Fetch all faculty members
+    // Fetch all active faculty members
     const faculty = await User.findAll({
       where: { role: 'faculty', isActive: true },
       attributes: ['id', 'name', 'email', 'department'],
       order: [['name', 'ASC']],
+      raw: true,
     });
 
-    // Count mentees for each faculty
-    const facultyWithCounts = await Promise.all(
-      faculty.map(async (f) => {
-        const count = await User.count({ where: { role: 'student', mentorId: f.id } });
-        return {
-          ...f.toJSON(),
-          menteeCount: count,
-        };
-      })
-    );
+    // Single aggregated GROUP BY query to count mentees per faculty (replaces N+1 queries)
+    const menteeCountsRaw = await User.findAll({
+      where: { role: 'student', mentorId: { [Op.not]: null } },
+      attributes: ['mentorId', [User.sequelize.fn('COUNT', User.sequelize.col('id')), 'count']],
+      group: ['mentorId'],
+      raw: true,
+    });
 
-    // Fetch students list (id, name, email, studentId, department, program, year, mentorId)
+    const menteeCountMap = {};
+    menteeCountsRaw.forEach((m) => {
+      const key = m.mentorId || m.mentorid || m.MENTORID;
+      const count = parseInt(m.count || m.COUNT || 0);
+      if (key) menteeCountMap[key] = count;
+    });
+
+    const facultyWithCounts = faculty.map((f) => ({
+      ...f,
+      menteeCount: menteeCountMap[f.id] || 0,
+    }));
+
+    // Fetch students list with assigned mentor details
     const students = await User.findAll({
       where: { role: 'student' },
       attributes: ['id', 'name', 'email', 'studentId', 'department', 'programCategory', 'program', 'year', 'mentorId'],
@@ -101,16 +111,16 @@ export async function POST(request) {
       );
       updatedCount = count;
     } else {
-      return NextResponse.json({ error: 'Must provide studentId, studentIds array, or bulkFilter' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing studentId, studentIds, or bulkFilter parameters.' }, { status: 400 });
     }
 
     return NextResponse.json({
       success: true,
-      message: `Successfully updated mentor assignment for ${updatedCount} student(s).`,
+      message: `Successfully assigned mentor to ${updatedCount} student(s).`,
       updatedCount,
     });
   } catch (error) {
     console.error('Assign mentor error:', error);
-    return NextResponse.json({ error: 'Failed to assign mentor' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to assign faculty mentor' }, { status: 500 });
   }
 }
