@@ -57,7 +57,7 @@ const PublicVerification = ({ verificationId }) => {
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
             <span className="font-bold text-zinc-200 uppercase tracking-widest text-[11px]">
-              Smart Student Hub University
+              CampusSphere University
             </span>
           </div>
           <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
@@ -218,7 +218,7 @@ const PublicVerification = ({ verificationId }) => {
 
         {/* Footer */}
         <div className="pt-2 border-t border-zinc-800 text-center font-mono text-[10px] text-zinc-500">
-          Smart Student Hub Institutional Verification Platform • Powered by Cryptographic Audit Engine
+          CampusSphere Institutional Verification Platform • Powered by Cryptographic Audit Engine
         </div>
       </div>
     </div>

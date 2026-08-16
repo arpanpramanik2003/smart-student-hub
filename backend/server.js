@@ -93,7 +93,7 @@ if (exposeLocalUploads) {
 
 app.get('/', (req, res) => {
   res.json({
-    name: 'Smart Student Hub backend',
+    name: 'CampusSphere backend',
     status: 'ok',
     apiBase: '/api',
   });

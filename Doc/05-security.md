@@ -1,6 +1,6 @@
 # 05. Security Architecture & Protections
 
-> Documentation of security measures, authentication mechanisms, input validation controls, and privacy safeguards implemented across Smart Student Hub.
+> Documentation of security measures, authentication mechanisms, input validation controls, and privacy safeguards implemented across CampusSphere.
 
 ---
 

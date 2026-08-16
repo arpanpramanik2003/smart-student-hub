@@ -1,6 +1,6 @@
 # Admin 01. Functionality Overview
 
-The **Admin Console** is the administrative command center for the Smart Student Hub. It equips institutional administrators, HODs, and NAAC Accreditation Officers with centralized control over credit rules, user directories, multi-level activity sign-offs, and reporting metrics.
+The **Admin Console** is the administrative command center for the CampusSphere. It equips institutional administrators, HODs, and NAAC Accreditation Officers with centralized control over credit rules, user directories, multi-level activity sign-offs, and reporting metrics.
 
 ---
 

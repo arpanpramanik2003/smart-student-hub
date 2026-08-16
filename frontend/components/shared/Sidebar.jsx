@@ -246,9 +246,9 @@ const Sidebar = ({ user, onCollapsedChange }) => {
           {/* Logo Section */}
           <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800 h-14">
             <div className={`flex items-center space-x-2.5 transition-opacity duration-300 ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
-              <Image src="/android-chrome-192x192.png" alt="SSH" width={28} height={28} className="h-7 w-7 object-contain flex-shrink-0" />
+              <Image src="/android-chrome-192x192.png" alt="CampusSphere" width={28} height={28} className="h-7 w-7 object-contain flex-shrink-0" />
               <div className={`overflow-hidden ${isCollapsed ? 'w-0' : 'w-auto'}`}>
-                <h1 className="text-sm font-bold font-mono tracking-wider text-zinc-950 dark:text-zinc-50 whitespace-nowrap">SSH CONSOLE</h1>
+                <h1 className="text-xs font-bold font-mono tracking-wider text-zinc-950 dark:text-zinc-50 whitespace-nowrap">CAMPUSSPHERE</h1>
               </div>
             </div>
             <button
@@ -321,7 +321,7 @@ const Sidebar = ({ user, onCollapsedChange }) => {
           {/* Footer */}
           <div className={`p-3 border-t border-zinc-200 dark:border-zinc-800 transition-all duration-300 ${isCollapsed ? 'h-0 opacity-0' : 'opacity-100'}`}>
             <div className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
-              <span>SSH Admin Console</span>
+              <span>CampusSphere Console</span>
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 font-semibold text-zinc-600 dark:text-zinc-400">v2.0</span>
             </div>
           </div>

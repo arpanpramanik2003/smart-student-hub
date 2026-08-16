@@ -1,6 +1,6 @@
 # 01. Project Overview
 
-The **Smart Student Hub** is an institutional co-curricular activity tracking, credit calculation engine, and verifiable digital credential platform tailored for Indian Higher Education Institutions (HEIs). It aligns student extra-curricular accomplishments directly with national accreditation frameworks, specifically **NAAC (National Assessment and Accreditation Council) Criterion 5** (Student Support and Progression) and **NIRF (National Institutional Ranking Framework)** parameter rankings.
+The **CampusSphere** is an institutional co-curricular activity tracking, credit calculation engine, and verifiable digital credential platform tailored for Indian Higher Education Institutions (HEIs). It aligns student extra-curricular accomplishments directly with national accreditation frameworks, specifically **NAAC (National Assessment and Accreditation Council) Criterion 5** (Student Support and Progression) and **NIRF (National Institutional Ranking Framework)** parameter rankings.
 
 ---
 
@@ -14,9 +14,9 @@ In traditional college administrative environments:
 
 ---
 
-## 💡 The Smart Student Hub Solution
+## 💡 The CampusSphere Solution
 
-Smart Student Hub replaces fragmented paper records with an automated, auditable, and verifiable digital ledger:
+CampusSphere replaces fragmented paper records with an automated, auditable, and verifiable digital ledger:
 
 ```
 [Student Submission] ──> [Auto Credit Policy Lookup] ──> [Stage 1: Faculty Mentor Review] ──> [Stage 2: Admin Final Approval] ──> [Cryptographic Verification Token Issued] ──> [Public QR Code Verification]

@@ -1,6 +1,6 @@
 {
-  "name": "Smart Student Hub",
-  "short_name": "SmartHub",
+  "name": "CampusSphere",
+  "short_name": "CampusSphere",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

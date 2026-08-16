@@ -1,6 +1,6 @@
 # Faculty 03. Distinction Between Stage 1 Mentor Approval & Stage 2 Admin Approval
 
-To maintain academic integrity and prevent credit inflation, the Smart Student Hub strictly separates **Stage 1 Faculty Mentor Verification** from **Stage 2 Administrator Final Approval**.
+To maintain academic integrity and prevent credit inflation, the CampusSphere strictly separates **Stage 1 Faculty Mentor Verification** from **Stage 2 Administrator Final Approval**.
 
 ---
 

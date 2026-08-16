@@ -1,6 +1,6 @@
 # Student 05. In-App Notifications, Feedback & Appeals
 
-Smart Student Hub keeps you informed about your submission progress through instant in-app alerts and provides a clear process for addressing rejected submissions.
+CampusSphere keeps you informed about your submission progress through instant in-app alerts and provides a clear process for addressing rejected submissions.
 
 ---
 

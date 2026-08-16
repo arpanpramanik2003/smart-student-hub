@@ -1,6 +1,6 @@
 # Student 02. Co-Curricular Activity Submission Guide
 
-Submitting your co-curricular achievements in Smart Student Hub is straightforward. The system ensures fairness by automatically looking up credit point values from official college policy rules based on the activity category and achievement level you select.
+Submitting your co-curricular achievements in CampusSphere is straightforward. The system ensures fairness by automatically looking up credit point values from official college policy rules based on the activity category and achievement level you select.
 
 ---
 
@@ -23,7 +23,7 @@ flowchart TD
 
 ## 📝 How Credit Points & NAAC Criteria Are Assigned
 
-Unlike traditional systems where students type in their own credit points, Smart Student Hub uses an **Automated Credit Policy Engine**:
+Unlike traditional systems where students type in their own credit points, CampusSphere uses an **Automated Credit Policy Engine**:
 
 1. **You Select**:
    - **Activity Category**: Hackathon, Certification, Sports, NSS/NCC, Workshop, Publication, or Internship.

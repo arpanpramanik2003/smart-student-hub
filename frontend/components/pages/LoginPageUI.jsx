@@ -12,10 +12,10 @@ const LoginPageUI = ({ onLogin }) => {
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-900/80 p-2.5 mb-1 border border-zinc-200 dark:border-zinc-800 shadow-sm">
-            <img src="/favicon.svg" alt="Smart Student Hub Logo" className="w-9 h-9 object-contain" />
+            <img src="/favicon.svg" alt="CampusSphere Logo" className="w-9 h-9 object-contain" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50">
-            Smart Student Hub
+            CampusSphere
           </h1>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
             Academic Credit Evaluation & Digital Portfolio System
@@ -34,7 +34,7 @@ const LoginPageUI = ({ onLogin }) => {
           <div className="space-y-2 text-[11px]">
             <div className="flex items-center justify-between">
               <span className="text-zinc-600 dark:text-zinc-400">Admin:</span>
-              <span>arpan@smartstudenthub.com / Arpan@123.</span>
+              <span>arpan@campussphere.dev / Arpan@123.</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-zinc-600 dark:text-zinc-400">Student:</span>
@@ -90,7 +90,7 @@ const LoginPageUI = ({ onLogin }) => {
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span>Console Status: All Services Operational</span>
           </div>
-          <p>© 2026 Smart Student Hub • v2.0.0 (Next.js Production)</p>
+          <p>© 2026 CampusSphere • v2.0.0 (Next.js Production)</p>
         </div>
       </div>
     </div>

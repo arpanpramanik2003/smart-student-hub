@@ -41,7 +41,7 @@ let defaultLogger = null;
 export const createLogger = (config = {}) => {
   const logLevel = config.logLevel || process.env.LOG_LEVEL || 'info';
   const nodeEnv = config.nodeEnv || process.env.NODE_ENV || 'development';
-  const serviceName = config.tracingServiceName || process.env.OTEL_SERVICE_NAME || 'smart-student-hub-backend';
+  const serviceName = config.tracingServiceName || process.env.OTEL_SERVICE_NAME || 'campussphere-backend';
   const isPretty = process.env.LOG_PRETTY === 'true' || (nodeEnv === 'development' && process.env.LOG_PRETTY !== 'false');
 
   const pinoConfig = {

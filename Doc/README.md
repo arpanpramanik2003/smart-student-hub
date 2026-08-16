@@ -1,6 +1,6 @@
-# Smart Student Hub Documentation Index
+# CampusSphere Documentation Index
 
-Welcome to the official developer and administrative documentation index for the **Smart Student Hub System** — an institutional co-curricular activity tracking, verifiable credential engine, and NAAC/NIRF accreditation reporting platform for Indian higher education institutions.
+Welcome to the official developer and administrative documentation index for the **CampusSphere System** — an institutional co-curricular activity tracking, verifiable credential engine, and NAAC/NIRF accreditation reporting platform for Indian higher education institutions.
 
 ---
 

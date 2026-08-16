@@ -102,13 +102,13 @@ export const BrandedLoader = ({ text = 'Initializing console session...' }) => (
   <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col items-center justify-center gap-5 transition-colors font-mono">
     {/* Console Mark */}
     <div className="w-14 h-14 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-center p-2.5">
-      <img src="/favicon.svg" alt="Smart Student Hub Logo" className="w-9 h-9 object-contain" />
+      <img src="/favicon.svg" alt="CampusSphere Logo" className="w-9 h-9 object-contain" />
     </div>
 
     {/* Brand & Progress Bar */}
     <div className="flex flex-col items-center gap-2">
       <h1 className="text-sm font-bold tracking-wider text-zinc-950 dark:text-zinc-50 uppercase">
-        Smart Student Hub
+        CampusSphere
       </h1>
       <div className="w-36 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden mt-1">
         <div className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full loader-bar-shimmer" />

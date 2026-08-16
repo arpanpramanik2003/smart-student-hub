@@ -1,6 +1,6 @@
 # 03. System Architecture
 
-The **Smart Student Hub** architecture is built around a decoupled client-server pattern: a Next.js 15 frontend consumer communicating via JSON REST APIs with a lightweight Express backend process (`server.js`), backed by Sequelize ORM.
+The **CampusSphere** architecture is built around a decoupled client-server pattern: a Next.js 15 frontend consumer communicating via JSON REST APIs with a lightweight Express backend process (`server.js`), backed by Sequelize ORM.
 
 ---
 

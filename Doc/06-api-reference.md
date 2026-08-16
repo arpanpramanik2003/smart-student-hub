@@ -1,6 +1,6 @@
 # 06. REST API Reference Specification
 
-This document provides the complete REST API reference for **Smart Student Hub**. All API routes are hosted under the `/api` prefix by the backend Express server (`server.js` on port `5000`).
+This document provides the complete REST API reference for **CampusSphere**. All API routes are hosted under the `/api` prefix by the backend Express server (`server.js` on port `5000`).
 
 ---
 
@@ -207,7 +207,7 @@ Public unauthenticated credential verification lookup.
 {
   "status": "approved",
   "studentName": "John Doe",
-  "institutionName": "Smart Student Hub College",
+  "institutionName": "CampusSphere College",
   "title": "Smart India Hackathon 2026 Winner",
   "type": "hackathon",
   "achievementLevel": "national",

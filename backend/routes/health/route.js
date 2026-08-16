@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await initDB();
     return NextResponse.json({
-      message: 'Smart Student Hub API is running!',
+      message: 'CampusSphere API is running!',
       timestamp: new Date().toISOString(),
       version: '2.0.0',
       database: 'Connected ✅',

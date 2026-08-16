@@ -1,4 +1,4 @@
-# 🎓 Smart Student Hub
+# 🎓 CampusSphere
 
 <p align="center">
   <strong>Next-Generation Co-Curricular Governance, Credit Banking & NAAC/NIRF Accreditation Platform</strong>
@@ -17,7 +17,7 @@
 
 ## 🌟 Executive Summary
 
-**Smart Student Hub** is a multi-tier, enterprise-grade co-curricular activity verification, institutional credit banking, and NAAC/NIRF accreditation compliance management system. Designed for higher education institutions, it streamlines student achievement submissions through a **two-stage verification pipeline** (Faculty Advisor verification followed by Institutional Admin sign-off), automates credit assignment via a dynamic **Credit Policy Engine**, and generates compliance audit trails and NAAC/NIRF reports.
+**CampusSphere** is a multi-tier, enterprise-grade co-curricular activity verification, institutional credit banking, and NAAC/NIRF accreditation compliance management system. Designed for higher education institutions, it streamlines student achievement submissions through a **two-stage verification pipeline** (Faculty Advisor verification followed by Institutional Admin sign-off), automates credit assignment via a dynamic **Credit Policy Engine**, and generates compliance audit trails and NAAC/NIRF reports.
 
 ---
 

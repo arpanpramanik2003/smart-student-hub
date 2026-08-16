@@ -70,7 +70,7 @@ export const uploadFile = async (file, folder = 'certificates') => {
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
-          folder: `smart-student-hub/${folder}`,
+          folder: `campussphere/${folder}`,
           resource_type: resourceType,
           public_id: publicId,
           use_filename: false,

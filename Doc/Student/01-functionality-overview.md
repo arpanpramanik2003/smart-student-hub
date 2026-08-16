@@ -1,6 +1,6 @@
 # Student 01. Functionality Overview
 
-Welcome to the **Student Portal** guide for the Smart Student Hub! This platform is your centralized digital space for logging co-curricular achievements, earning institutional degree credits, building verified portfolios, and generating shareable resume credentials.
+Welcome to the **Student Portal** guide for the CampusSphere! This platform is your centralized digital space for logging co-curricular achievements, earning institutional degree credits, building verified portfolios, and generating shareable resume credentials.
 
 ---
 

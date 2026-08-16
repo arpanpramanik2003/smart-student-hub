@@ -1,6 +1,6 @@
 # Auth 02. Role-Based Access Control (RBAC) Permissions Matrix
 
-The **Smart Student Hub** enforces strict permission boundaries to isolate student data, faculty review queues, and administrative system controls.
+The **CampusSphere** enforces strict permission boundaries to isolate student data, faculty review queues, and administrative system controls.
 
 ---
 

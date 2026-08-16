@@ -22,7 +22,7 @@
 
 ### 1. Frontend Architecture (`frontend/`)
 
-| Technology | Package Version | Specific Purpose in Smart Student Hub |
+| Technology | Package Version | Specific Purpose in CampusSphere |
 | :--- | :--- | :--- |
 | **Next.js** | `^15.5.14` | Framework providing App Router (`/app`), server-side routing, static page generation, and public verification page handling (`/verify/[verificationId]`). |
 | **React** | `^18.3.1` | Core UI library for component-based dashboard rendering, modal dialogs, and interactive tables. |
@@ -38,7 +38,7 @@
 
 ### 2. Backend Architecture (`backend/`)
 
-| Technology | Package Version | Specific Purpose in Smart Student Hub |
+| Technology | Package Version | Specific Purpose in CampusSphere |
 | :--- | :--- | :--- |
 | **Express.js** | `^4.21.2` | Core Node.js HTTP server running on port `5000` via `server.js`, hosting all REST API endpoints. |
 | **Sequelize** | `^6.37.7` | Promise-based ORM managing database models (`User`, `Activity`, `CreditPolicy`, `Notification`, `ActivityAudit`, `ActivityGrievance`, `UserImport`), database migrations, and SQL aggregate queries. |

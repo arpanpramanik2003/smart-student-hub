@@ -1,6 +1,6 @@
 # 07. Production Deployment & Cloud Infrastructure Guide
 
-This guide provides step-by-step instructions for re-deploying the **Smart Student Hub** system to production cloud infrastructure.
+This guide provides step-by-step instructions for re-deploying the **CampusSphere** system to production cloud infrastructure.
 
 ---
 
@@ -22,7 +22,7 @@ flowchart TD
 
 ### Infrastructure Summary Table
 
-| Service Component | Cloud Provider | Free Tier Availability | Primary Role in Smart Student Hub |
+| Service Component | Cloud Provider | Free Tier Availability | Primary Role in CampusSphere |
 | :--- | :--- | :--- | :--- |
 | **Frontend UI** | **Vercel** | Free Hobby Tier | Next.js 15 App Router, static generation, public verification page (`/verify/[id]`). |
 | **Backend API** | **Render** | Free Web Service Tier | Express.js Node.js server (`server.js`), API route loader, JWT auth. |

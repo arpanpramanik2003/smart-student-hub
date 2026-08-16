@@ -120,10 +120,10 @@ export const loadConfig = () => {
     logLevel: parseString(process.env.LOG_LEVEL, isProduction ? 'info' : 'debug'),
     metricsEnabled: parseBoolean(process.env.METRICS_ENABLED, true),
     metricsPath: parseString(process.env.METRICS_PATH, '/metrics'),
-    metricsPrefix: parseString(process.env.METRICS_PREFIX, 'ssh_backend_'),
+    metricsPrefix: parseString(process.env.METRICS_PREFIX, 'campussphere_backend_'),
     tracingEnabled: parseBoolean(process.env.TRACING_ENABLED, true),
     tracingExporter: resolveTracingExporter(process.env.TRACING_EXPORTER, isProduction),
-    tracingServiceName: parseString(process.env.OTEL_SERVICE_NAME, 'smart-student-hub-backend'),
+    tracingServiceName: parseString(process.env.OTEL_SERVICE_NAME, 'campussphere-backend'),
     otlpTracesEndpoint: parseString(process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT, ''),
   });
 };

@@ -45,7 +45,7 @@ To balance verification authenticity with student privacy regulations, the publi
 | Disclosed Field | Data Type | Description |
 | :--- | :--- | :--- |
 | `studentName` | STRING | Student full name (e.g. `John Doe`) |
-| `institutionName` | STRING | Institutional name (`Smart Student Hub / College of Engineering`) |
+| `institutionName` | STRING | Institutional name (`CampusSphere / College of Engineering`) |
 | `activityTitle` | STRING | Event title (e.g. `Smart India Hackathon 2026 Winner`) |
 | `type` | STRING | Activity category (`hackathon`, `certification`, `sports`) |
 | `achievementLevel` | STRING | Achievement level (`national`, `state`, `college`) |

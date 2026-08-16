@@ -1,6 +1,6 @@
 # Auth 01. Authentication Flow & Security Architecture
 
-The **Smart Student Hub Authentication Architecture** manages identity verification, JWT token issuance, session maintenance, and account credential security across all system roles.
+The **CampusSphere Authentication Architecture** manages identity verification, JWT token issuance, session maintenance, and account credential security across all system roles.
 
 ---
 

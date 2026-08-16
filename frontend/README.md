@@ -1,4 +1,4 @@
-# Smart Student Hub Frontend
+# CampusSphere Frontend
 
 ## Table of Contents
 - Overview
@@ -15,7 +15,7 @@
 
 ## Overview
 
-This folder contains the complete frontend for Smart Student Hub, built on Next.js 15 App Router.
+This folder contains the complete frontend for CampusSphere, built on Next.js 15 App Router.
 
 Important: this frontend is not responsible for business logic or data security decisions. All protected operations are executed by the Express backend API.
 
@@ -44,7 +44,7 @@ Create frontend/.env.local with:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5001/api
-NEXT_PUBLIC_APP_NAME=Smart Student Hub
+NEXT_PUBLIC_APP_NAME=CampusSphere
 NEXT_PUBLIC_APP_VERSION=2.0.0
 ```
 

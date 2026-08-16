@@ -1,5 +1,5 @@
 {
-  "name": "smart-student-hub-workspace",
+  "name": "campussphere-workspace",
   "private": true,
   "scripts": {
     "lint": "npm run lint:frontend && npm run lint:backend",

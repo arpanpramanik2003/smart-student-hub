@@ -1,6 +1,6 @@
 # 04. Database Schema & Data Models
 
-The **Smart Student Hub** database is managed using **Sequelize ORM** with migration audit history (`backend/migrations/`). It supports both SQLite3 for development and PostgreSQL for production.
+The **CampusSphere** database is managed using **Sequelize ORM** with migration audit history (`backend/migrations/`). It supports both SQLite3 for development and PostgreSQL for production.
 
 ---
 

@@ -40,7 +40,7 @@ export async function sendEmail({ to, subject, html, text }) {
 
   try {
     await transporter.sendMail({
-      from: `Smart Student Hub <${fromEmail}>`,
+      from: `CampusSphere <${fromEmail}>`,
       to,
       subject,
       text: text || html.replace(/<[^>]+>/g, ''),

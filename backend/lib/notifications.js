@@ -19,14 +19,14 @@ export async function createNotification({ userId, type, title, message, activit
     if (HIGH_VALUE_EVENTS.includes(type)) {
       const recipient = await User.findByPk(userId, { attributes: ['email', 'name'] });
       if (recipient?.email) {
-        const subject = `[Smart Student Hub] ${title}`;
+        const subject = `[CampusSphere] ${title}`;
         const html = `
           <div style="font-family: Arial, sans-serif; padding: 20px; color: #18181b;">
-            <h2 style="color: #4f46e5;">Smart Student Hub</h2>
+            <h2 style="color: #4f46e5;">CampusSphere</h2>
             <p>Dear ${recipient.name},</p>
             <p>${message}</p>
             <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
-            <p style="font-size: 12px; color: #71717a;">This is an automated notification from your institution's Smart Student Hub.</p>
+            <p style="font-size: 12px; color: #71717a;">This is an automated notification from your institution's CampusSphere portal.</p>
           </div>
         `;
         // Non-blocking async email sending
