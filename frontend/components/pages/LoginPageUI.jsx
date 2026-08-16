@@ -11,8 +11,8 @@ const LoginPageUI = ({ onLogin }) => {
       <div className="max-w-md w-full space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-mono font-bold text-lg tracking-tight mb-1">
-            SSH
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-900/80 p-2.5 mb-1 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+            <img src="/favicon.svg" alt="Smart Student Hub Logo" className="w-9 h-9 object-contain" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50">
             Smart Student Hub
