@@ -1,150 +1,195 @@
-# Smart Student Hub Workspace
+# 🎓 Smart Student Hub
 
-## What This Repository Contains
+<p align="center">
+  <strong>Next-Generation Co-Curricular Governance, Credit Banking & NAAC/NIRF Accreditation Platform</strong>
+</p>
 
-This monorepo contains the complete Smart Student Hub platform in separated services:
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15.0-black?style=for-the-badge&logo=next.js" alt="Next.js 15" />
+  <img src="https://img.shields.io/badge/React-19.0-blue?style=for-the-badge&logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/Node.js-20.x-green?style=for-the-badge&logo=node.js" alt="Node.js" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=for-the-badge&logo=postgresql" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Deploy-Vercel%20%2B%20Render-000000?style=for-the-badge&logo=vercel" alt="Vercel & Render" />
+  <img src="https://img.shields.io/badge/Observability-OpenTelemetry-orange?style=for-the-badge&logo=opentelemetry" alt="OpenTelemetry" />
+</p>
 
-- frontend: Next.js 15 application for UI, routing, and client-side workflows
-- backend: Express.js API for authentication, business rules, persistence, and file handling
-- docs: role guides, architecture, and operational instructions
+---
 
-## Architecture Summary
+## 🌟 Executive Summary
 
-High-level request path:
+**Smart Student Hub** is a multi-tier, enterprise-grade co-curricular activity verification, institutional credit banking, and NAAC/NIRF accreditation compliance management system. Designed for higher education institutions, it streamlines student achievement submissions through a **two-stage verification pipeline** (Faculty Advisor verification followed by Institutional Admin sign-off), automates credit assignment via a dynamic **Credit Policy Engine**, and generates compliance audit trails and NAAC/NIRF reports.
 
-```text
-User Browser
-	-> Next.js Frontend
-	-> Express Backend (/api/*)
-	-> SQLite (local) or PostgreSQL (production)
+---
+
+## 🚀 Key Features & Capabilities
+
+### 🎓 Student Experience
+- **Co-Curricular Submission Hub**: Upload certificates, specify activity category, achievement level, organizer, and event dates.
+- **Real-Time Verification Tracking**: Track submissions through Stage 1 (Faculty Advisor) and Stage 2 (Institutional Admin).
+- **Digital Credit Portfolio**: Dynamic credit ledger calculating total earned points mapped against academic degree requirements.
+- **Public Record Verification**: Instantly generate tamper-proof digital certificates backed by unique verification tokens (`vref_...`).
+
+### 👨‍🏫 Faculty Advisor Console
+- **Stage 1 Review Queue**: Filter and review student submissions, verify certificate authenticity, and provide feedback remarks.
+- **Mentee Management**: Direct access to assigned student portfolios, academic history, and credit progression metrics.
+- **Bulk Verification**: Approve or request clarification on student submissions with single-click actions.
+
+### 🏛️ Institutional Admin Console
+- **Stage 2 Final Sign-Off**: Official institutional authorization and credit ledger lock.
+- **Credit Policy Engine**: Configure weight matrices (`Activity Type × Achievement Level`) and map to NAAC Criteria 1–7.
+- **Faculty Mentor Assignment**: Perform single or bulk mentor-mentee assignments by department, program, or academic year.
+- **Grievance & Appeal Resolution**: Formal grievance resolution console for student appeal reviews with full audit trails.
+- **User Management & Bulk Onboarding**: Full user directory management with CSV bulk onboarding for thousands of students and faculty.
+- **Institutional Analytics & NAAC Reporting**: Real-time analytics dashboards, NAAC compliance targets, and 1-click official CSV report exports.
+
+### 🛡️ Public Credential Verification
+- **Cryptographic Verification Page**: Public-facing `/verify/[verificationId]` endpoint enabling third-party employers and academic bodies to authenticate issued student achievements.
+
+---
+
+## 🏗️ Technology Stack
+
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Frontend Framework** | **Next.js 15 (App Router)** | Client UI, server-side rendering, dynamic routing, static page optimization |
+| **UI & Styling** | **Vanilla CSS + Tailwind CSS** | Premium responsive layout design, dark mode, custom visual charts |
+| **Backend API** | **Node.js + Express / Next.js API Routes** | RESTful endpoints, multi-stage approval logic, authentication middleware |
+| **Database & ORM** | **Supabase PostgreSQL / Sequelize** | Relational persistence, ENUMs, schema migrations, grouped SQL aggregations |
+| **Media Storage** | **Cloudinary API** | Secure cloud image/document upload and certificate evidence storage |
+| **Rate Limiting** | **Upstash Redis** | Sliding-window auth rate limiting with memory fallback |
+| **Observability** | **Pino + OpenTelemetry + Prometheus** | Enterprise JSON logging, distributed tracing (`prom-client`), health checks |
+| **Hosting Platform** | **Vercel (Frontend) + Render (Backend)** | High-availability cloud deployment with automatic CI/CD |
+
+---
+
+## 📐 System Architecture
+
+```mermaid
+graph TD
+    User["🌐 User Browser (Student / Faculty / Admin / Public)"] --> Frontend["⚡ Next.js 15 Frontend (Vercel)"]
+    Frontend -->|REST API Requests / Bearer Token| Backend["⚙️ Express Backend (Render)"]
+    Backend -->|Sequelize ORM| DB[("🐘 PostgreSQL Database (Supabase)")]
+    Backend -->|Cloud Uploads| Cloudinary["☁️ Cloudinary Storage"]
+    Backend -->|Rate Limit Store| Redis["🔴 Upstash Redis"]
+    Backend -->|Logging & Metrics| Pino["📊 Pino Logger + OpenTelemetry"]
 ```
 
-Design decisions:
+---
 
-- keep browser-safe configuration only in frontend
-- keep secrets and security controls only in backend
-- expose all business APIs from backend route modules
-- keep migration and schema lifecycle backend-owned
+## ⚡ Quick Start & Local Setup
 
-## Major Features
+### 1. Prerequisites
+- **Node.js**: `v18.x` or `v20.x`
+- **npm**: `v9.x` or `v10.x`
+- **PostgreSQL / SQLite**: Local PostgreSQL database or Supabase connection URI
 
-Student workflows:
-
-- registration and login
-- profile and CV metadata management
-- activity submit/edit/delete (pending only)
-- portfolio and stats view
-
-Faculty workflows:
-
-- pending queue review
-- approve/reject with remarks and credits
-- student profile inspection
-
-Admin workflows:
-
-- user and role administration
-- account activation management
-- reporting and system-wide stats
-
-## Security Baseline
-
-Implemented backend controls:
-
-- JWT authentication with role-based authorization
-- CORS origin allow-list validation
-- strict security headers and production HSTS
-- auth route rate limiting with pluggable store
-- production error redaction
-- graceful shutdown and process-level exception handling
-
-Recommended security operations:
-
-- use strong rotating JWT secrets
-- keep admin reset code private and rotated
-- avoid wildcard CORS in production
-- use distributed rate-limiter backend in multi-instance deployments
-
-## Observability Baseline
-
-Backend observability stack:
-
-- structured logging: Pino
-- metrics: prom-client at /metrics
-- tracing: OpenTelemetry middleware
-- readiness/liveness endpoints for orchestration checks
-
-Core operational endpoints:
-
-- GET /healthz/live
-- GET /healthz/ready
-- GET /metrics
-
-## Environment Setup
-
-1. create frontend env file from template
-2. create backend env file from template
-3. set NEXT_PUBLIC_API_URL to backend API origin
-4. configure backend database source
-
-Backend DB options:
-
-- DB_PATH (absolute SQLite path)
-- DB_NAME (relative SQLite path)
-- DATABASE_URL (PostgreSQL)
-
-## Development Workflow
-
-Install dependencies:
+### 2. Installation
+Clone the repository and install dependencies for both frontend and backend services:
 
 ```bash
-npm --prefix frontend install
-npm --prefix backend install
+# Clone the repository
+git clone https://github.com/arpanpramanik2003/smart-student-hub.git
+cd smart-student-hub
+
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
 ```
 
-Run services:
+### 3. Environment Configuration
+
+Create a `.env` file in the `backend/` directory:
+
+```env
+PORT=5000
+NODE_ENV=development
+JWT_SECRET=your_super_secret_jwt_key
+ADMIN_RESET_CODE=Hub2026AdminReset
+DATABASE_URL=postgresql://postgres:password@aws-0-region.pooler.supabase.com:6543/postgres
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Upstash Redis Rate Limiting (Optional)
+UPSTASH_REDIS_REST_URL=your_upstash_url
+UPSTASH_REDIS_REST_TOKEN=your_upstash_token
+```
+
+Create a `.env.local` file in the `frontend/` directory:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+### 4. Database Migrations
+
+Run database migrations to initialize tables, ENUM types, and indices:
 
 ```bash
-npm --prefix frontend run dev
-npm --prefix backend run dev
+cd backend
+node scripts/migrate.js
 ```
 
-Lint:
+### 5. Running the Application
+
+Launch backend and frontend dev servers:
 
 ```bash
-npm run lint
+# Terminal 1: Backend Server (Port 5000)
+cd backend
+npm run dev
+
+# Terminal 2: Frontend App (Port 3000)
+cd frontend
+npm run dev
 ```
 
-Migrations:
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-```bash
-npm --prefix backend run migrate
-```
+---
 
-## Production Guidance
+## 📚 Comprehensive Documentation Index
 
-Before production rollout:
+All project documentation is organized in the root [`Doc/`](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc) directory:
 
-- set DB_SYNC_STRATEGY=none
-- apply migrations through migration runner
-- confirm JWT_SECRET and ADMIN_RESET_CODE are strong
-- configure CORS_ORIGIN for actual frontend domains
-- configure rate limiter backend (redis/upstash)
+| Document | Description |
+| :--- | :--- |
+| **[01-project-overview.md](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/01-project-overview.md)** | Executive vision, system architecture, role matrix, and core capabilities |
+| **[02-system-architecture.md](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/02-system-architecture.md)** | Monorepo structure, request lifecycle, authentication, security controls |
+| **[03-database-schema.md](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/03-database-schema.md)** | ER diagrams, table definitions, ENUM types, indices, migration history |
+| **[04-credit-policy-engine.md](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/04-credit-policy-engine.md)** | Credit weighting rules (`Type × Level`), NAAC Criteria 1–7 mapping |
+| **[05-verification-pipeline.md](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/05-verification-pipeline.md)** | Stage 1 (Faculty) & Stage 2 (Admin) approval workflows, audit trails |
+| **[06-api-references.md](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/06-api-references.md)** | Full REST API documentation for Student, Faculty, Admin, Auth & Public routes |
+| **[07-deployment.md](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/07-deployment.md)** | Production deployment guide for Vercel, Render, Supabase & Cloudinary |
 
-After deployment:
+### Role Guides & Sub-folder Docs
+- 📘 **[Student Portal Guide](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/Student/README.md)**
+- 📙 **[Faculty Advisor Guide](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/Faculty/README.md)**
+- 📕 **[Institutional Admin Guide](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/Admin/README.md)**
+- 🔒 **[Authentication & Security Guide](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/Auth/README.md)**
+- 🌐 **[Public Verification & API Guide](file:///d:/Edutation(P)/SIH/smart-student-hub/Doc/Public/README.md)**
 
-- verify health endpoints
-- verify login and role-protected endpoints
-- verify metrics output
-- run smoke create/delete activity flow
+---
 
-## Documentation Index
+## 🔒 Security & Quality Assurance
 
-- central docs index: docs/frontend/README.md
-- frontend README: frontend/README.md
-- admin guide: docs/frontend/ADMIN_GUIDE.md
-- faculty guide: docs/frontend/FACULTY_GUIDE.md
-- student guide: docs/frontend/STUDENT_GUIDE.md
-- architecture guide: docs/frontend/DATABASE_API_ARCHITECTURE.md
+- **JWT Authentication & RBAC**: Strict role checks (`student`, `faculty`, `admin`) enforced on all protected endpoints.
+- **Pino Structured Logging**: Enterprise JSON logging with sensitive field redaction (passwords, tokens, authorization headers).
+- **Rate Limiting**: Sliding-window rate limiting on authentication routes with Upstash Redis and memory fallback.
+- **Database Safety**: Prepared statements and raw query replacements to prevent SQL injection vulnerabilities.
 
-Last Updated: April 2026
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+<p align="center">
+  Developed for modern educational governance and accreditation excellence.
+</p>
