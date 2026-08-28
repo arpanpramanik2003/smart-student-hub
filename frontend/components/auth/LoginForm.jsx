@@ -3,11 +3,21 @@ import React, { useState, useCallback } from 'react';
 import { authAPI } from '../../utils/api';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
-const LoginForm = ({ onLogin, onSwitchToRegister }) => {
+const LoginForm = ({ onLogin, onSwitchToRegister, initialCredentials }) => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  React.useEffect(() => {
+    if (initialCredentials?.email) {
+      setFormData({
+        email: initialCredentials.email,
+        password: initialCredentials.password || '',
+      });
+      setError('');
+    }
+  }, [initialCredentials]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
