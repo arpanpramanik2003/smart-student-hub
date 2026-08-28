@@ -5,6 +5,18 @@ import RegisterForm from '../auth/RegisterForm';
 
 const LoginPageUI = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [selectedCredentials, setSelectedCredentials] = useState(null);
+
+  const testAccounts = [
+    { role: 'Admin', email: 'arpan@smartstudenthub.com', password: 'Arpan@123.' },
+    { role: 'Student', email: 'student@gmail.com', password: 'Student@123.' },
+    { role: 'Faculty', email: 'teacher@gmail.com', password: 'Teacher@123.' },
+  ];
+
+  const handleSelectAccount = (account) => {
+    setIsLogin(true);
+    setSelectedCredentials({ ...account, _timestamp: Date.now() });
+  };
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col items-center justify-center p-4 sm:p-6 transition-colors font-sans">
@@ -28,22 +40,26 @@ const LoginPageUI = ({ onLogin }) => {
             <span className="font-bold text-[10px] uppercase tracking-wider text-amber-800 dark:text-amber-300">
               🧪 Test Credentials
             </span>
-            <span className="text-[10px] text-amber-600 dark:text-amber-400">Demo Logins</span>
+            <span className="text-[10px] text-amber-600 dark:text-amber-400">Click row to auto-fill</span>
           </div>
 
-          <div className="space-y-2 text-[11px]">
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-600 dark:text-zinc-400">Admin:</span>
-              <span>arpan@campussphere.dev / Arpan@123.</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-600 dark:text-zinc-400">Student:</span>
-              <span>student@gmail.com / Student@123.</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-zinc-600 dark:text-zinc-400">Faculty:</span>
-              <span>teacher@gmail.com / Teacher@123.</span>
-            </div>
+          <div className="space-y-1.5 text-[11px]">
+            {testAccounts.map((acc) => (
+              <button
+                key={acc.role}
+                type="button"
+                onClick={() => handleSelectAccount(acc)}
+                className="w-full flex items-center justify-between p-1.5 rounded hover:bg-amber-100/70 dark:hover:bg-amber-900/50 transition-colors text-left group"
+                title="Click to fill into sign-in form"
+              >
+                <span className="text-zinc-600 dark:text-zinc-400 font-medium group-hover:text-amber-900 dark:group-hover:text-amber-200">
+                  {acc.role}:
+                </span>
+                <span className="font-mono text-zinc-800 dark:text-zinc-200">
+                  {acc.email} <span className="text-zinc-400 dark:text-zinc-500">/</span> {acc.password}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -78,7 +94,11 @@ const LoginPageUI = ({ onLogin }) => {
 
           {/* Render Active Form */}
           {isLogin ? (
-            <LoginForm onLogin={onLogin} onSwitchToRegister={() => setIsLogin(false)} />
+            <LoginForm
+              onLogin={onLogin}
+              onSwitchToRegister={() => setIsLogin(false)}
+              initialCredentials={selectedCredentials}
+            />
           ) : (
             <RegisterForm onLogin={onLogin} onSwitchToLogin={() => setIsLogin(true)} />
           )}
